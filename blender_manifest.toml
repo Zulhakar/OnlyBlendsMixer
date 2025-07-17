@@ -1,0 +1,29 @@
+schema_version = "1.0.0"
+
+id = "only_blends_mixer"
+version = "0.1.0"
+name = "OnlyBlends.Mixer"
+tagline = "An extension to turn Blender into a Mixer... of Sounds"
+maintainer = "Zulhakar (ChangeGamer) <Ilineiros@proton.me>"
+type = "add-on"
+website = "https://github.com/Zulhakar/OnlyBlendsMixer"
+tags = ["Game Engine", "Geometry Nodes"]
+blender_version_min = "4.2.0"
+license = [
+    "SPDX:GPL-3.0-or-later",
+]
+
+platforms = ["macos-x64", "macos-arm64", "linux-x64", "windows-x64"]
+wheels = [
+    "./wheels/pygame-2.6.1-cp311-cp311-macosx_10_9_x86_64.whl",
+    "./wheels/pygame-2.6.1-cp311-cp311-macosx_11_0_arm64.whl",
+    "./wheels/pygame-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+    "./wheels/pygame-2.3.0-cp311-cp311-win_amd64.whl"
+]
+[build]
+paths_exclude_pattern = [
+   "__pycache__/",
+   "/.git/",
+   "/*.zip",
+    "/.idea/"
+]
