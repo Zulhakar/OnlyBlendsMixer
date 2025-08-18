@@ -1,0 +1,71 @@
+APP_NAME = "OnlyBlends.Mixer"
+APP_NAME_SHORT = "obm"
+
+IS_DEBUG = False
+# UI
+## Base Panel
+BL_SPACE_TYPE = 'VIEW_3D'
+BL_REGION_TYPE = "UI"
+BL_CATEGORY = APP_NAME
+
+## Class Name / ID Prefix
+PANEL_PREFIX = APP_NAME_SHORT + "_PT_"
+OT_PREFIX = APP_NAME_SHORT + "_OT_"
+## PANEL's
+MAIN_PT_ID =  "OBM_MAIN_PT_id"
+SUB1_PT_ID = "OBM_SUB1_PT_id"
+SUB1_PT_label = "Import WAV Files"
+
+SUB2_PT_ID = "OBM_SUB2_PT_id"
+SUB2_PT_label = "Settings"
+
+## OPERATOR's
+FILE_REC_OT_ID = APP_NAME_SHORT + ".file_rec_ot_id"
+FILE_REC_OT_label = "Accept"
+
+FILE_IMPORT_OT_ID = APP_NAME_SHORT + ".file_import_ot_id"
+FILE_IMPORT_OT_label = "Import WAV"
+
+PLAY_OT_ID = APP_NAME_SHORT + ".play_ot_id"
+PLAY_OT_label = "Play Object"
+
+class OnlyBlendsPanel:
+    # bl_space_type = BL_SPACE_TYPE
+    # bl_region_type = BL_REGION_TYPE
+    # bl_category = BL_CATEGORY
+
+    #bl_space_type = 'PROPERTIES'
+    #bl_region_type = 'WINDOW'
+    #bl_context = "modifier"
+    #bl_category = BL_CATEGORY
+
+    bl_space_type = 'NODE_EDITOR'
+    bl_region_type = 'UI'
+    #bl_context = "modifier"
+    bl_category = BL_CATEGORY
+
+
+# Icons
+RECORD_ICON = 'RECORD_ON'
+STOP_ICON = 'EVENT_MEDIASTOP'
+PLAY_ICON = 'PLAY'
+FILE_ICON = 'FILE'
+IMPORT_ICON = 'FILEBROWSER'
+SOUND_SOCKET_SHAPE = 'SQUARE'
+DEVICE_SOCKET_SHAPE = 'SQUARE'
+
+COLOR_BLACK = (0.0, 0.0, 0.0, 1.0)
+COLOR_WHITE = (1.0, 1.0, 1.0, 1.0)
+COLOR_GRAY = (0.62890625, 0.62890625, 0.62890625, 1.0)
+COLOR_GRAY_2 = (0.2, 0.2, 0.2, 1.0)
+COLOR_GREEN = (0.3515625, 0.546875, 0.36328125, 1.0)
+
+COLOR_OBJECT_SOCKET = (0.92578125, 0.6171875, 0.3593750, 1.0)
+COLOR_GEOMETRY_SOCKET = (0.0, 0.8359375, 0.640625, 1.0)
+COLOR_FLOAT_SOCKET = COLOR_GRAY
+COLOR_INT_SOCKET = COLOR_GREEN
+COLOR_STRING_SOCKET = (0.156862745, 0.662745098, 0.980392157, 1.0 )
+COLOR_EMPTY_SOCKET = COLOR_GRAY_2
+
+COLOR_SOUND_SAMPLE_SOCKET = (0.333, 0.333, 0.333, 1.0)
+COLOR_DEVICE_SOCKET = COLOR_WHITE

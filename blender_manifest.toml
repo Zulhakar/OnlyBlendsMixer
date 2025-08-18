@@ -20,6 +20,9 @@ wheels = [
     "./wheels/pygame-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
     "./wheels/pygame-2.3.0-cp311-cp311-win_amd64.whl"
 ]
+[permissions]
+files = "Import/export WAV from/to disk and cache for recording"
+
 [build]
 paths_exclude_pattern = [
    "__pycache__/",
