@@ -1,170 +1,17 @@
 import bpy
-from bpy.types import (Node, NodeCustomGroup, NodeTree, NodeSocket, Operator, NodeSocketGeometry,
-                       NodeTreeInterfaceSocket, GeometryNodeTree, NodeGroupInput, NodeGroupOutput)
-from bl_ui import node_add_menu
 
-from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, ObmSoundNode
-from .basic_sockets import SoundSocket
-from .constants import *
-import uuid
+from .basic_nodes import ObmSoundNode
+from .basic_sockets import SoundSocket, ObmStringSocket
+from .constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
+from .obm_sockets import SoundSampleSocket
 from .global_data import Data
+
+import uuid
 import aud
+import numpy as np
 
 
-# Implementation of custom nodes from Python
-def handle_muted_node(node):
-    """
-    Implements Blender-like bypass behavior for muted nodes.
-    Each output will receive the value from the corresponding input if available,
-    or fall back to input[0], or finally to 0.
-    """
-    # print(f"[Muted] Node '{node.name}' is bypassed.")
-
-    for i, output_socket in enumerate(node.outputs):
-        value = 0  # Fallback value
-
-        # Prefer corresponding input socket
-        if i < len(node.inputs) and node.inputs[i].is_linked:
-            value = get_socket_value(node.inputs[i])
-
-        # Fallback to input[0] if it's linked
-        elif len(node.inputs) > 0 and node.inputs[0].is_linked:
-            value = get_socket_value(node.inputs[0])
-
-        output_socket.default_value = value
-    #   print(f" → Output[{i}] = {value}")
-
-
-# def get_socket_value(socket: NodeSocket):
-#     """
-#     Retrieves the value from a socket, recursively following links (e.g., through Reroute nodes).
-#     It fetches the *actual* data value from the source of the link or the socket's default value.
-#     Converts the value to the expected type based on the target socket's type.
-#     """
-#     current_socket = socket
-#
-#     # Traverse through linked sockets until we find the actual data source
-#     # or an unlinked socket
-#     while current_socket.is_linked:
-#         from_socket = current_socket.links[0].from_socket
-#
-#         # If the 'from_socket' is an output of a Reroute node,
-#         # we need to go to its input to find the true source.
-#         # Otherwise, the from_socket itself is our next candidate.
-#         if hasattr(from_socket.node, 'bl_idname') and from_socket.node.bl_idname == 'NodeReroute':
-#             # A Reroute node's output socket doesn't hold a value directly.
-#             # Its value comes from its *single input socket*.
-#             # So, we set the current_socket to the Reroute's input socket
-#             # to continue tracing the connection backward.
-#             if from_socket.node.inputs[0].is_linked:
-#                 current_socket = from_socket.node.inputs[0].links[0].from_socket
-#             else:
-#                 # Reroute node's input is not linked, so it provides no value
-#                 current_socket = None  # Break the loop, effectively meaning no value
-#                 break
-#         else:
-#             # If it's not a Reroute node, then this 'from_socket' is our actual source.
-#             current_socket = from_socket
-#             break  # Found the source, exit the loop
-#
-#     val = None
-#     if current_socket:
-#         # Now current_socket should be the source socket
-#         if hasattr(current_socket, "default_value"):
-#             val = current_socket.default_value
-#
-#     # --- Type Conversion based on Target Socket Type ---
-#
-#     if val is not None:
-#         if isinstance(socket, (NodeSocketFloat)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)) and hasattr(val, '__len__') and len(val) > 0:
-#                 # Take the first component if it's an array/tuple (e.g., from a vector or color output)
-#                 return float(val[0])  # type: ignore
-#
-#             return float(val) if val is not None else 0.0
-#
-#         elif isinstance(socket, (NodeSocketInt)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)) and hasattr(val, '__len__') and len(val) > 0:
-#                 return int(val[0])  # type: ignore
-#
-#             return int(val) if val is not None else 0
-#
-#         elif isinstance(socket, (NodeSocketColor)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)):
-#                 if len(val) == 3:
-#                     return (*val, 1.0)  # Add default alpha
-#                 elif len(val) == 4:
-#                     return tuple(val)
-#                 return val if val is not None else (0.7, 0.7, 0.7, 1)
-#
-#         # elif isinstance(socket, NodeSocketInt) or isinstance(socket, CCNCustomIntegerSocket):
-#         #     return int(val) if val is not None else 0
-#
-#     return val  # Return for other socket types
-
-
-class ObmSoundTree(NodeTree):
-    '''A custom node tree type that will show up in the editor type list'''
-    bl_idname = 'ObmSoundTreeType'
-    bl_label = "OnlyBlends Sound Editor"
-    bl_icon = 'SOUND'
-    bl_use_group_interface = True
-    color_tag = 'COLOR'
-
-
-class WavImportSocket(NodeSocket):
-    """Obm Object Socket"""
-    # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'WavImportSocketType'
-    # Label for nice name display
-    bl_label = "Wav Import Socket"
-
-    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
-
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-
-        if self.is_output or self.is_linked:
-            layout.label(text=text)
-        else:
-            r = layout.row(align=True)
-            r.prop(self, 'input_value', text="", placeholder='Path')
-            d = r.operator(Data.uuid_operator_class_storage[node.node_uuid].bl_idname, icon=IMPORT_ICON, text="")
-            # self.input_value = d.filepath
-
-    def update_path_action(self):
-        print("WavImportSocketType: input_value update")
-
-    @classmethod
-    def draw_color_simple(cls):
-        # cls.display_shape = "SQUARE"
-        return COLOR_STRING_SOCKET
-
-
-class NodeTreeInterfaceSocketWavImport(NodeTreeInterfaceSocket):
-    # The type of socket that is generated.
-    bl_socket_idname = 'WavImportSocketType'
-
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
-
-
-class ImportWavNode(ObmSoundNode, NodeCustomGroup):
+class ImportWavNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     bl_idname = 'ImportWavNodeType'
     bl_label = "Import WAV"
     import_path: bpy.props.StringProperty(update=lambda self, context: self.__update_import_path())
@@ -206,7 +53,7 @@ class ImportWavNode(ObmSoundNode, NodeCustomGroup):
         handle2 = device.play(aud_sound)
 
 
-class SoundInfoNode(ObmSoundNode, NodeCustomGroup):
+class SoundInfoNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Sound from an object'''
 
     bl_idname = 'SoundInfoNodeType'
@@ -217,7 +64,7 @@ class SoundInfoNode(ObmSoundNode, NodeCustomGroup):
         self.outputs.new('NodeSocketString', "Path")
         self.outputs.new('NodeSocketString', "Blender Path")
         self.outputs.new('NodeSocketString', "Channels")
-        self.outputs.new('NodeSocketInt', "Samplerate")
+        self.outputs.new('NodeSocketInt', "Sample Rate")
         # self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
 
     # Copy function to initialize a copied node from an existing one.
@@ -269,108 +116,8 @@ class SoundInfoNode(ObmSoundNode, NodeCustomGroup):
                 if self.inputs[0].input_value is not None:
                     self.refresh_outputs()
 
-    def get_geometry(self):
-        object_ = self.inputs[0].default_value
-        if object_ is not None:
-            depsgraph = bpy.context.view_layer.depsgraph
-            obj_eval = depsgraph.id_eval_get(object_)
-            geometry = obj_eval.evaluated_geometry()
-            # pc = geometry.pointcloud
-            return geometry
-        else:
-            return None
 
-
-class SoundSampleSocket(NodeSocket):
-    """Obm Object Socket"""
-    # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'SoundSampleSocketType'
-    # Label for nice name display
-    bl_label = "Sound Sample Socket"
-
-    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
-
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        layout.label(text=text)
-
-    def update_path_action(self):
-        print("SoundSampleSocketType: input_value update")
-        print(self.input_value)
-
-    @classmethod
-    def draw_color_simple(cls):
-        # cls.display_shape = "SQUARE"
-        return COLOR_SOUND_SAMPLE_SOCKET
-
-
-class NodeTreeInterfaceSocketSoundSample(NodeTreeInterfaceSocket):
-    # The type of socket that is generated.
-    bl_socket_idname = 'SoundSampleSocketType'
-
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
-
-
-class DeviceSocket(NodeSocket):
-    """Obm Object Socket"""
-    bl_idname = 'DeviceSocketType'
-    bl_label = "Device Socket"
-
-    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
-
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        layout.label(text=text)
-
-    def update_path_action(self):
-        print("DeviceSocketType: input_value update")
-
-    @classmethod
-    def draw_color_simple(cls):
-        # cls.display_shape = "SQUARE"
-        return COLOR_DEVICE_SOCKET
-
-
-class NodeTreeInterfaceSocketDevice(NodeTreeInterfaceSocket):
-    # The type of socket that is generated.
-    bl_socket_idname = 'DeviceSocketType'
-
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
-
-
-class SoundToSampleNode(ObmSoundNode, NodeCustomGroup):
+class SoundToSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Sound Sample  which can be modified, played and recorded'''
 
     bl_idname = 'SoundToSampleNodeType'
@@ -445,13 +192,18 @@ class SoundToSampleNode(ObmSoundNode, NodeCustomGroup):
                     self.refresh_outputs()
 
 
-class EditSampleNode(ObmSoundNode, NodeCustomGroup):
+class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Sound Sample  which can be modified, played and recorded'''
 
     bl_idname = 'CutSampleNodeType'
     bl_label = "Edit Sample"
     node_uuid: bpy.props.StringProperty()
     operations = [
+        ('ACCUMULATE', "Accumulate", "Accumulates a sound by summing over positive input differences thus generating a"
+                                     " monotonic sigal. If additivity is set to true negative input differences get"
+                                     " added too, but positive ones with a factor of two. Note that with additivity"
+                                     " the signal is not monotonic anymore."),
+
         ('JOIN', "Join", "Plays two Samples in sequence"),
         ('MIX', "Mix", "Mixes two Samples"),
         ('MODULATE', "Modulate", "Modulates two Samples"),
@@ -459,13 +211,23 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
         ('ENVELOPE', "Envelope", "Adds a more complex delay to Sample. Synth Buttons"),
         ('FADEIN', "Fadein", "Fades a Sample in by raising the volume linearly in the given time interval"),
         ('FADEOUT', "Fadeout", "Fades a Sample in by lowering the volume linearly in the given time interval."),
-        ('ADSR', 'ADSR',
+        ('ADSR', "ADSR",
          "Attack-Decay-Sustain-Release envelopes the volume of a sound. Note: there is currently no way to trigger the release with this API."),
         ('LIMIT', "Limit", "Limits a sample within a specific start and end time."),
         ('LOOP', "Loop", "Loops a Sample"),
         ('HIGHPASS', "Highpass", "Creates a second order highpass filter based on the transfer function"),
         ('LOWPASS', "Lowpass", "Creates a second order lowpass filter based on the transfer function"),
 
+        ('PINGPONG', "Pingpong",
+         "Plays a sound forward and then backward. This is like joining a sound with its reverse."),
+        ('PITCH', "Pitch", "Changes the pitch of a sound with a specific factor."),
+        ('RECHANNEL', "Rechannels", "Rechannels the sound."),
+        ('RESAMPLE', "Resample", "Resamples the sound."),
+        ('REVERSE', "Reverse", "Plays a sound reversed"),
+        ('SUM', "Sum", "Sums the samples of a sound."),
+        ('THRESHOLD', "Threshold",
+         "Makes a threshold wave out of an audio wave by setting all samples with a amplitude >= threshold to 1, all <= -threshold to -1 and all between to 0."),
+        ('VOLUME', "Volume", "Changes the volume of a sound.")
     ]
     operation: bpy.props.EnumProperty(  # type: ignore
         name="Operation"
@@ -521,6 +283,8 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
             self.inputs.remove(socket)
         if self.operation == 'DELAY':
             self.inputs.new("FloatSocketType", "time")
+        elif self.operation == 'ACCUMULATE':
+            self.inputs.new('BoolSocketType', "Additive")
         elif self.operation == 'JOIN':
             self.inputs.new('SoundSampleSocketType', "Sound Sample")
             self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
@@ -551,12 +315,31 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
             self.inputs.new("FloatSocketType", "end")
         elif self.operation == 'LOOP':
             self.inputs.new("IntSocketType", "count")
-        elif self.operation == "HIGHPASS":
+        elif self.operation == 'HIGHPASS':
             self.inputs.new("FloatSocketType", "frequency")
             self.inputs.new("FloatSocketType", "q")
-        elif self.operation == "LOWPASS":
+        elif self.operation == 'LOWPASS':
             self.inputs.new("FloatSocketType", "frequency")
             self.inputs.new("FloatSocketType", "q")
+        elif self.operation == 'PINGPONG':
+            pass
+        elif self.operation == 'REVERSE':
+            pass
+        elif self.operation == 'PITCH':
+            self.inputs.new("FloatSocketType", "factor")
+        elif self.operation == 'SUM':
+            pass
+        elif self.operation == 'RECHANNEL':
+            self.inputs.new("IntSocketType", "channels")
+        elif self.operation == 'RESAMPLE':
+            self.inputs.new("FloatSocketType", "rate")
+            self.inputs.new("IntSocketType", "quality")
+            self.inputs[2].min_value = 0
+            self.inputs[2].max_value = 3
+        elif self.operation == 'THRESHOLD':
+            self.inputs.new("FloatSocketType", "threshold")
+        elif self.operation == 'VOLUME':
+            self.inputs.new("FloatSocketType", "volume")
 
     def test_update(self, context):
         print("DELAY time")
@@ -569,6 +352,8 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
             new_sample = None
             if self.operation == 'DELAY':
                 new_sample = parent_sample.delay(self.inputs[1].input_value)
+            elif self.operation == 'ACCUMULATE':
+                new_sample = parent_sample.accumulate(self.inputs[1].input_value)
             elif self.operation == 'JOIN':
                 new_sample = parent_sample.join(Data.uuid_data_storage[self.inputs[1].input_value])
             elif self.operation == 'MIX':
@@ -593,6 +378,22 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
                 new_sample = parent_sample.highpass(self.inputs[1].input_value, self.inputs[2].input_value)
             elif self.operation == 'LOWPASS':
                 new_sample = parent_sample.lowpass(self.inputs[1].input_value, self.inputs[2].input_value)
+            elif self.operation == 'PINGPONG':
+                new_sample = parent_sample.pingpong()
+            elif self.operation == 'REVERSE':
+                new_sample = parent_sample.reverse()
+            elif self.operation == 'PITCH':
+                new_sample = parent_sample.pitch(self.inputs[1].input_value)
+            elif self.operation == 'SUM':
+                new_sample = parent_sample.sum()
+            elif self.operation == 'RECHANNEL':
+                new_sample = parent_sample.rechannel(self.inputs[1].input_value)
+            elif self.operation == 'RESAMPLE':
+                new_sample = parent_sample.resample(self.inputs[1].input_value, self.inputs[2].input_value)
+            elif self.operation == 'THRESHOLD':
+                new_sample = parent_sample.threshold(self.inputs[1].input_value)
+            elif self.operation == 'VOLUME':
+                new_sample = parent_sample.volume(self.inputs[1].input_value)
 
             Data.uuid_data_storage[self.node_uuid] = new_sample
             # device = aud.Device()
@@ -655,7 +456,7 @@ class EditSampleNode(ObmSoundNode, NodeCustomGroup):
                 link.to_node.update_obm()
 
 
-class OscillatorNode(ObmSoundNode, NodeCustomGroup):
+class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Sound Sample  which can be modified, played and recorded'''
 
     bl_idname = 'OscillatorNodeType'
@@ -671,8 +472,10 @@ class OscillatorNode(ObmSoundNode, NodeCustomGroup):
     operation: bpy.props.EnumProperty(  # type: ignore
         name="Operation"
         , items=operations
-        , default='SILENCE'
+        , default='SINE'
         , update=lambda self, context: self.operation_update())
+
+    prev_frequency: bpy.props.FloatProperty(default=0.0)
 
     def init(self, context):
         # self.use_custom_color = True
@@ -680,6 +483,8 @@ class OscillatorNode(ObmSoundNode, NodeCustomGroup):
         self.outputs.new('SoundSampleSocketType', "Sound Sample")
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
+        self.inputs[1].input_value = 110.0
+        self.inputs[0].input_value = 44100
         self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
 
         uuid_tmp = str(uuid.uuid4()).replace("-", "")
@@ -712,26 +517,14 @@ class OscillatorNode(ObmSoundNode, NodeCustomGroup):
         layout.prop(self, "operation", text="Operation")
 
     def operation_update(self):
-        length_inputs = len(self.inputs)
-        list_of_inputs = []
-        for i in range(0, length_inputs):
-            list_of_inputs.append(self.inputs[i])
-        for socket in list_of_inputs:
-            self.inputs.remove(socket)
-        if self.operation == "SINE":
-            self.inputs.new("IntSocketType", "rate")
-            self.inputs.new("FloatSocketType", "frequency")
-        elif self.operation == "SQUARE":
-            self.inputs.new("IntSocketType", "rate")
-            self.inputs.new("FloatSocketType", "frequency")
-        elif self.operation == "TRIANGLE":
-            self.inputs.new("IntSocketType", "rate")
-            self.inputs.new("FloatSocketType", "frequency")
-        elif self.operation == "SAWTOOTH":
-            self.inputs.new("IntSocketType", "rate")
-            self.inputs.new("FloatSocketType", "frequency")
-        elif self.operation == "SILENCE":
-            self.inputs.new("IntSocketType", "rate")
+        if self.operation == "SILENCE":
+            self.prev_frequency = self.inputs[1].input_value
+            self.inputs.remove(self.inputs[1])
+        else:
+            if len(self.inputs) <= 1:
+                self.inputs.new("FloatSocketType", "frequency")
+                self.inputs[1].input_value = self.prev_frequency
+        self.update()
 
     def test_update(self, context):
         print("DELAY time")
@@ -795,7 +588,7 @@ class OscillatorNode(ObmSoundNode, NodeCustomGroup):
         print("#######socket_value_update origin Oscilor Node")
 
 
-class CreateDeviceNode(ObmSoundNode, NodeCustomGroup):
+class CreateDeviceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''A Device To Play Sound Samples'''
 
     bl_idname = 'CreateDeviceNodeType'
@@ -857,7 +650,7 @@ class CreateDeviceNode(ObmSoundNode, NodeCustomGroup):
         self.create_device()
 
 
-class PlayDeviceNode(ObmSoundNode, NodeCustomGroup):
+class PlayDeviceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''A Device To Play Sound Samples'''
 
     bl_idname = 'PlayDeviceNodeType'
@@ -927,7 +720,7 @@ class PlayDeviceNode(ObmSoundNode, NodeCustomGroup):
         return final_prop
 
 
-class EditDeviceNode(ObmSoundNode, NodeCustomGroup):
+class EditDeviceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''A Device To Play Sound Samples'''
 
     bl_idname = 'EditDeviceNodeType'
@@ -1055,7 +848,7 @@ class CUSTOM_UL_items(bpy.types.UIList):
         pass
 
 
-class GatewayEntry(ObmSoundNode, Node):
+class GatewayEntry(ObmSoundNode, bpy.types.Node):
     bl_idname = 'GatewayEntryNodeType'
     bl_label = "Gateway Entry"
     # node_uuid: bpy.props.StringProperty()
@@ -1073,6 +866,9 @@ class GatewayEntry(ObmSoundNode, Node):
         new_gateway = bpy.context.scene.obm_gateways.add()
         new_gateway.name = self.name
         new_gateway.socket_num = 0
+
+    def update_obm(self):
+        pass
 
     def draw_buttons(self, context, layout):
         # layout.label(text=self.get_node_tree_name())
@@ -1159,7 +955,7 @@ class GatewayEntry(ObmSoundNode, Node):
         print("socket_update")
 
 
-class GatewayExit(ObmSoundNode, Node):
+class GatewayExit(ObmSoundNode, bpy.types.Node):
     bl_idname = 'GatewayExitNodeType'
     bl_label = "Gateway Exit"
 
@@ -1204,11 +1000,9 @@ class GatewayExit(ObmSoundNode, Node):
     def insert_link(self, link):
         print("link gateway exit node")
 
-
     def update(self):
         # This method is called when the node updates
         print("update gateway exit node")
-
 
     def socket_update(self, socket):
         # self.glob_prop.linked_object_name = self.inputs[0].name
@@ -1225,66 +1019,575 @@ class GatewayExit(ObmSoundNode, Node):
                         for socket in node.inputs[1:-1]:
                             print(socket)
                             new_sock = self.outputs.new(socket.bl_idname, socket.name)
+                            if new_sock.bl_idname == "SoundSampleSocketType" or new_sock.bl_idname == "DeviceSocketType":
+                                new_sock.display_shape = SOUND_SOCKET_SHAPE
                             new_sock.input_value = socket.input_value
                             self.inputs.move(-1, 0)
-# Add custom nodes to the Add menu.
-def draw_add_menu(self, context):
-    layout = self.layout
-    if context.space_data.tree_type != ObmSoundTree.bl_idname:
-        # Avoid adding nodes to built-in node tree
-        return
-    # Add nodes to the layout. Can use submenus, separators, etc. as in any other menu.
-
-    node_add_menu.add_node_type(layout, "ObmObjectNodeType")
-    node_add_menu.add_node_type(layout, "ObmFloatNodeType")
-    node_add_menu.add_node_type(layout, "ObmIntNodeType")
-    node_add_menu.add_node_type(layout, "ObmStringNodeType")
-
-    node_add_menu.add_node_type(layout, "SoundInfoNodeType")
-    node_add_menu.add_node_type(layout, "ImportWavNodeType")
-
-    node_add_menu.add_node_type(layout, "SoundToSampleNodeType")
-    node_add_menu.add_node_type(layout, "CutSampleNodeType")
-
-    node_add_menu.add_node_type(layout, "OscillatorNodeType")
-    node_add_menu.add_node_type(layout, "PlayDeviceNodeType")
-    node_add_menu.add_node_type(layout, "CreateDeviceNodeType")
-
-    node_add_menu.add_node_type(layout, "GatewayEntryNodeType")
-    node_add_menu.add_node_type(layout, "GatewayExitNodeType")
-    # node_add_menu.draw_node_group_add_menu(context, layout)
 
 
-classes = [
-    ObjectNode,
-    FloatNode,
-    IntNode,
-    StringNode,
+class SoundFromGeometry(ObmSoundNode, bpy.types.Node):
+    bl_idname = 'SoundFromGeometryType'
+    bl_label = "Sound From Geometry"
 
-    ObmSoundTree,
-    SoundInfoNode,
-    ImportWavNode, WavImportSocket, NodeTreeInterfaceSocketWavImport,
-    SoundToSampleNode, SoundSampleSocket, NodeTreeInterfaceSocketSoundSample,
-    EditSampleNode,
-    OscillatorNode,
-    PlayDeviceNode,
-    CreateDeviceNode, DeviceSocket, NodeTreeInterfaceSocketDevice,
+    node_uuid: bpy.props.StringProperty()
 
-    GatewayEntry, GatewayExit,
+    operations = [
+        ('POINTCLOUD', "Pointcloud", "Use Pointcloud from geometry to create Sound Sample"),
+        ('MESH', "Mesh", "Use Mesh from geometry to create Sound Sample"),
 
-    CUSTOM_UL_items, CUSTOM_OT_actions
-]
+    ]
+    operation: bpy.props.EnumProperty(  # type: ignore
+        name="Operation"
+        , items=operations
+        , default='MESH'
+        , update=lambda self, context: self.operation_update())
+
+    def init(self, context):
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs.new("StringSocketType", "Attribute")
+        self.inputs.new("IntSocketType", "Sampling Rate")
+        self.outputs.new("SoundSampleSocketType", "Sound Sample")
+
+        self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
+        uuid_tmp = str(uuid.uuid4()).replace("-", "")
+        self.node_uuid = uuid_tmp
+        self.outputs[0].input_value = self.node_uuid
+        Data.uuid_data_storage[self.node_uuid] = aud.Sound.silence(44100).limit(0, 0.2)
+        Data.geometry_sound_nodes[self.node_uuid] = self
+        bpy.context.scene.sound_from_geometry_nodes_num += 1
+        if bpy.context.scene.sound_from_geometry_nodes_num == 1:
+            from .properties import on_depsgraph_update
+            bpy.app.handlers.depsgraph_update_post.append(on_depsgraph_update)
+            print("now depsgraph is obeserved")
+
+    def operation_update(self):
+        sound_sample = self.get_sound()
+        Data.geometry_sound_nodes[self.node_uuid] = self
+        Data.uuid_data_storage[self.node_uuid] = sound_sample
+
+        for link in self.outputs[0].links:
+            link.to_node.update_obm()
+
+    def depsgraph_to_sound(self, attribute, axis, obj, sampling_rate, option):
+        depsgraph = bpy.context.view_layer.depsgraph
+        track = []
+        obj_eval = depsgraph.id_eval_get(obj)
+        geometry = obj_eval.evaluated_geometry()
+        pc = None
+        if option == "POINTCLOUD":
+            pc = geometry.pointcloud
+        elif option == "MESH":
+            pc = geometry.mesh
+        attr_data = pc.attributes[attribute].data
+        length_of_data = len(attr_data)
+        duration = length_of_data / sampling_rate
+        for vert in attr_data:
+            v = vert.vector
+            v_tup = tuple(v)
+            track.append(v_tup[axis])
+        sound_array = np.asarray([track]).T.astype(np.float32)
+        sound_sample = aud.Sound.buffer(sound_array, sampling_rate)
+        return sound_sample
+
+    def get_sound(self):
+        attribute = self.inputs[1].input_value
+        option = self.operation
+        obj = self.inputs[0].input_value
+        sampling_rate = self.inputs[2].input_value
+        axis = 1
+        return self.depsgraph_to_sound(attribute, axis, obj, sampling_rate, option)
+
+    def draw_buttons(self, context, layout):
+        # layout.label(text=self.get_node_tree_name())
+        if IS_DEBUG:
+            layout.label(text="Debug Infos:")
+        layout.prop(self, "operation", text="Operation")
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+    def get_node_tree_name(self):
+        for nodegroup in bpy.data.node_groups:
+            for node in nodegroup.nodes:
+                if node.name == self.name:
+                    return nodegroup.name
+        return None
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+        bpy.context.scene.sound_from_geometry_nodes_num -= 1
+        if bpy.context.scene.sound_from_geometry_nodes_num == 0:
+            print("remove defsupdate")
+            from .properties import on_depsgraph_update
+            bpy.app.handlers.depsgraph_update_post.remove(on_depsgraph_update)
+
+    def refresh_outputs(self):
+        print("refresh outputs")
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        print("link gateway exit node")
+
+    def update(self):
+        # This method is called when the node updates
+        print("update gateway exit node")
+
+    def socket_update(self, socket):
+        # self.glob_prop.linked_object_name = self.inputs[0].name
+        print("socket_update")
 
 
-def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
-    bpy.types.NODE_MT_add.append(draw_add_menu)
+def point_cloud_from_mesh_gn_node_group(name):
+    point_cloud_from_mesh_gn = bpy.data.node_groups.new(type='GeometryNodeTree', name=name)
+
+    point_cloud_from_mesh_gn.color_tag = 'NONE'
+    point_cloud_from_mesh_gn.description = ""
+    point_cloud_from_mesh_gn.default_group_node_width = 140
+
+    point_cloud_from_mesh_gn.is_modifier = True
+
+    # point_cloud_from_mesh_gn interface
+    # Socket Geometry
+    geometry_socket = point_cloud_from_mesh_gn.interface.new_socket(name="Geometry", in_out='OUTPUT',
+                                                                    socket_type='NodeSocketGeometry')
+    geometry_socket.attribute_domain = 'POINT'
+    geometry_socket.default_input = 'VALUE'
+    geometry_socket.structure_type = 'AUTO'
+
+    # Socket Geometry
+    geometry_socket_1 = point_cloud_from_mesh_gn.interface.new_socket(name="Geometry", in_out='INPUT',
+                                                                      socket_type='NodeSocketGeometry')
+    geometry_socket_1.attribute_domain = 'POINT'
+    geometry_socket_1.default_input = 'VALUE'
+    geometry_socket_1.structure_type = 'AUTO'
+
+    # Socket Count
+    count_socket = point_cloud_from_mesh_gn.interface.new_socket(name="Count", in_out='INPUT',
+                                                                 socket_type='NodeSocketInt')
+    count_socket.default_value = 10
+    count_socket.min_value = 0
+    count_socket.max_value = 2147483647
+    count_socket.subtype = 'NONE'
+    count_socket.attribute_domain = 'POINT'
+    count_socket.description = "The number of points to create"
+    count_socket.default_input = 'VALUE'
+    count_socket.structure_type = 'AUTO'
+
+    # initialize point_cloud_from_mesh_gn nodes
+    # node Group Input
+    group_input = point_cloud_from_mesh_gn.nodes.new("NodeGroupInput")
+    group_input.name = "Group Input"
+
+    # node Group Output
+    group_output = point_cloud_from_mesh_gn.nodes.new("NodeGroupOutput")
+    group_output.name = "Group Output"
+    group_output.is_active_output = True
+
+    # node Points
+    points = point_cloud_from_mesh_gn.nodes.new("GeometryNodePoints")
+    points.name = "Points"
+    # Radius
+    points.inputs[2].default_value = 9.999999747378752e-06
+
+    # node Position
+    position = point_cloud_from_mesh_gn.nodes.new("GeometryNodeInputPosition")
+    position.name = "Position"
+
+    # node Sample Index
+    sample_index = point_cloud_from_mesh_gn.nodes.new("GeometryNodeSampleIndex")
+    sample_index.name = "Sample Index"
+    sample_index.clamp = False
+    sample_index.data_type = 'FLOAT_VECTOR'
+    sample_index.domain = 'POINT'
+
+    # node Index
+    index = point_cloud_from_mesh_gn.nodes.new("GeometryNodeInputIndex")
+    index.name = "Index"
+
+    # node Domain Size
+    domain_size = point_cloud_from_mesh_gn.nodes.new("GeometryNodeAttributeDomainSize")
+    domain_size.name = "Domain Size"
+    domain_size.component = 'MESH'
+
+    # Set locations
+    group_input.location = (-685.3740844726562, 166.578857421875)
+    group_output.location = (156.9349822998047, 410.7016296386719)
+    points.location = (-62.33095932006836, 563.706298828125)
+    position.location = (-557.9932861328125, 430.3790588378906)
+    sample_index.location = (-222.2251434326172, 328.3319396972656)
+    index.location = (-651.409423828125, 356.1745300292969)
+    domain_size.location = (-331.29730224609375, 631.0365600585938)
+
+    # Set dimensions
+    group_input.width, group_input.height = 140.0, 100.0
+    group_output.width, group_output.height = 140.0, 100.0
+    points.width, points.height = 140.0, 100.0
+    position.width, position.height = 140.0, 100.0
+    sample_index.width, sample_index.height = 140.0, 100.0
+    index.width, index.height = 140.0, 100.0
+    domain_size.width, domain_size.height = 140.0, 100.0
+
+    # initialize point_cloud_from_mesh_gn links
+    # points.Points -> group_output.Geometry
+    point_cloud_from_mesh_gn.links.new(points.outputs[0], group_output.inputs[0])
+    # group_input.Geometry -> sample_index.Geometry
+    point_cloud_from_mesh_gn.links.new(group_input.outputs[0], sample_index.inputs[0])
+    # position.Position -> sample_index.Value
+    point_cloud_from_mesh_gn.links.new(position.outputs[0], sample_index.inputs[1])
+    # sample_index.Value -> points.Position
+    point_cloud_from_mesh_gn.links.new(sample_index.outputs[0], points.inputs[1])
+    # index.Index -> sample_index.Index
+    point_cloud_from_mesh_gn.links.new(index.outputs[0], sample_index.inputs[2])
+    # domain_size.Point Count -> points.Count
+    point_cloud_from_mesh_gn.links.new(domain_size.outputs[0], points.inputs[0])
+    # group_input.Geometry -> domain_size.Geometry
+    point_cloud_from_mesh_gn.links.new(group_input.outputs[0], domain_size.inputs[0])
+    return point_cloud_from_mesh_gn
 
 
-def unregister():
-    bpy.types.NODE_MT_add.remove(draw_add_menu)
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+def point_cloud(ob_name, coords):
+    """Create point cloud object based on given coordinates and name."""
+    me = bpy.data.meshes.new(ob_name + "Mesh")
+    ob = bpy.data.objects.new(ob_name, me)
+    me.from_pydata(coords, [], [])
+    # ob.show_name = True
+    me.update()
+    return ob
+
+class SoundToGeometry(ObmSoundNode, bpy.types.Node):
+    bl_idname = 'SoundToGeometryType'
+    bl_label = "Sound To Geometry"
+
+
+
+    def init(self, context):
+        self.inputs.new("SoundSampleSocketType", "Sound Sample")
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs.new("StringSocketType", "Object Name")
+        #self.inputs.new("IntSocketType", "Sampling Rate")
+        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
+
+    def create_geometry_node(self):
+        channel_id = 0
+        sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        np_array_sound = sound_sample.data()
+        file_name = self.inputs[2].input_value
+
+        sample_rate, channels = sound_sample.specs
+        duration = sound_sample.length / sample_rate
+
+        #if channels < 2:
+        #    np_array_sound = np.expand_dims(np_array_sound, axis=0)
+
+        for channel in np_array_sound.T:
+
+            # x = np.zeros(len(channel))
+            x = np.linspace(0, duration, len(channel))
+            # x = np.expand_dims(x, 0)
+            # z = x.copy()
+            z = np.zeros(len(channel))
+            # z = np.expand_dims(z, 0)
+            coord = np.vstack([x, channel, z])
+            coord = coord.T
+            coord = coord.tolist()
+            object_name = f"{file_name}_channel_{channel_id}"
+            new_pc = point_cloud(object_name, coord)
+            node_group_name = file_name.split(".wav")[0] + "_pc_from_mesh_GN"
+            bpy.context.collection.objects.link(new_pc)
+            geometry_nodes = point_cloud_from_mesh_gn_node_group(node_group_name)
+            new_pc.modifiers.new('GeometryNodes', 'NODES')
+            new_pc.modifiers['GeometryNodes'].node_group = bpy.data.node_groups[node_group_name]
+
+            new_pc.scale = (duration, 1, 1)
+
+            channel_id += 1
+
+
+
+
+    def draw_buttons(self, context, layout):
+        # layout.label(text=self.get_node_tree_name())
+        if IS_DEBUG:
+            layout.label(text="Debug Infos:")
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+
+    def refresh_outputs(self):
+        print("refresh outputs Sample to Geometry")
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        print("link Sample to Geometry")
+        self.create_geometry_node()
+
+    def update(self):
+        # This method is called when the node updates
+        print("update Sample to Geometry")
+
+    def socket_update(self, socket):
+        # self.glob_prop.linked_object_name = self.inputs[0].name
+        print("socket_update Sample to Geometry")
+
+class SoundSampleToMeshNode(ObmSoundNode, bpy.types.Node):
+    bl_idname = 'SoundSampleToMeshType'
+    bl_label = "Sample To Mesh"
+
+
+    def init(self, context):
+        self.inputs.new("SoundSampleSocketType", "Sound Sample")
+        self.inputs.new("StringSocketType", "Object Name")
+        self.inputs.new("FloatSocketType", "Scale X")
+        #self.inputs.new("IntSocketType", "Sampling Rate")
+        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
+        self.inputs[2].input_value = 1.0
+
+    def __del_object_if_exit(self, object_name):
+          # Replace with the desired object name
+        if object_name in bpy.data.objects:
+            obj = bpy.data.objects[object_name]
+            bpy.data.objects.remove(obj, do_unlink=True)
+
+    def create_geometry_node(self):
+        channel_id = 0
+        sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        np_array_sound = sound_sample.data()
+        file_name = self.inputs[1].input_value
+
+        sample_rate, channels = sound_sample.specs
+        duration = sound_sample.length / sample_rate
+        scale = self.inputs[2].input_value
+        #if channels < 2:
+        #    np_array_sound = np.expand_dims(np_array_sound, axis=0)
+
+        for channel in np_array_sound.T:
+
+            # x = np.zeros(len(channel))
+            x = np.linspace(0, duration, len(channel))
+            # x = np.expand_dims(x, 0)
+            # z = x.copy()
+            z = np.zeros(len(channel))
+            # z = np.expand_dims(z, 0)
+            coord = np.vstack([x, channel, z])
+            coord = coord.T
+            coord = coord.tolist()
+            object_name = f"{file_name}_channel_{channel_id}"
+
+            self.__del_object_if_exit(object_name)
+
+            new_pc = point_cloud(object_name, coord)
+            bpy.context.collection.objects.link(new_pc)
+            new_pc.scale = (duration * scale, 1, 1)
+            channel_id += 1
+
+    def update_obm(self):
+        self.create_geometry_node()
+
+    def draw_buttons(self, context, layout):
+        # layout.label(text=self.get_node_tree_name())
+        if IS_DEBUG:
+            layout.label(text="Debug Infos:")
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+
+    def refresh_outputs(self):
+        print("refresh outputs Sample to Geometry")
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        print("link Sample to Geometry")
+        self.create_geometry_node()
+
+    def update(self):
+        # This method is called when the node updates
+        print("update Sample to Geometry")
+
+    def socket_update(self, socket):
+        # self.glob_prop.linked_object_name = self.inputs[0].name
+        print("socket_update Sample to Geometry")
+
+class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+    '''Transform Sample to Sound'''
+
+    bl_idname = 'SampleToSoundNodeType'
+    bl_label = "Sample To Sound"
+    # update=lambda self, context: self.update_sound_prop(),
+    node_uuid: bpy.props.StringProperty()
+
+    def init(self, context):
+        self.inputs.new('SoundSampleSocketType', "Sound Sample")
+        self.inputs.new("StringSocketType", "File Name")
+        self.outputs.new('SoundSocketType', "Sound")
+        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
+        uuid_tmp = str(uuid.uuid4()).replace("-", "")
+        self.node_uuid = uuid_tmp
+
+    def store_data(self):
+        sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        data_path = self.inputs[1].input_value
+        sound_sample.write(data_path, 44100, 2)
+        args = {"filepath": data_path}
+
+        result = bpy.ops.sound.open(**args)
+
+        last = None
+        sound = None
+        for s in bpy.data.sounds:
+            if s.filepath == data_path:
+                last = s
+                sound = bpy.types.BlendDataSounds(last)
+        self.outputs[0].input_value = sound
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+        del Data.uuid_data_storage[self.node_uuid]
+
+    # Additional buttons displayed on the node.
+    def draw_buttons(self, context, layout):
+        layout.label(text="Infos")
+        layout.label(text=self.outputs[0].input_value)
+        if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
+            layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
+            # r = layout.row()
+            # r.prop(self, 'import_path', text="")
+            # layout.label(text="Path: " + self.outputs[0].default_value)
+            # layout.label(text="Blender Path: " + self.outputs[1].default_value)
+            # layout.label(text="Channels: " + self.outputs[2].default_value)
+            # layout.label(text="Samplerate: " + str(self.outputs[3].default_value))
+            # r.label(text="Path: " + self.outputs[0].default_value)
+
+    def refresh_outputs(self):
+        print("refresh outputs")
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        print("link")
+        print(link)
+        if isinstance(link.from_socket, ObmStringSocket):
+            self.store_data()
+        else:
+            print("no update")
+
+    def update(self):
+        # This method is called when the node updates
+        print("update Sample_to_sound node")
+
+    def socket_update(self, socket):
+        # self.glob_prop.linked_object_name = self.inputs[0].name
+        print("socket_update sample_to_sound")
+        print(socket)
+        if isinstance(socket, ObmStringSocket):
+            self.store_data()
+        else:
+            print("no update")
+
+
+class SampleInfoNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+    '''Infos of Sound Sample'''
+    bl_idname = 'SampleInfoNodeType'
+    bl_label = "Sample Info"
+
+    def init(self, context):
+        self.inputs.new('SoundSampleSocketType', "Sound Sample")
+        self.outputs.new("IntSocketType", "Sample Num")
+        self.outputs.new("FloatSocketType", "Duration")
+        self.outputs.new("IntSocketType", "Sample Rate")
+        self.outputs.new("IntSocketType", "Channels")
+        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
+
+    # Copy function to initialize a copied node from an existing one.
+    def copy(self, node):
+        print("Copying from node ", node)
+
+    # Free function to clean up on removal.
+    def free(self):
+        print("Removing node ", self, ", Goodbye!")
+
+    # Additional buttons displayed on the node.
+    def draw_buttons(self, context, layout):
+        if IS_DEBUG:
+            layout.label(text="Infos")
+            if self.inputs[0].input_value is not None and self.inputs[0].input_value != "" and self.inputs[
+                0].input_value in Data.uuid_data_storage and \
+                    Data.uuid_data_storage[self.inputs[0].input_value] is not None:
+                for output in (self.outputs[0], self.outputs[1], self.outputs[2], self.outputs[3]):
+                    if output.name == "Duration":
+                        layout.label(text=output.name + ": " + str(round(output.input_value, 4)))
+                    else:
+                        layout.label(text=output.name + ": " + str(output.input_value))
+
+    def refresh_outputs(self):
+        print("refresh outputs")
+        if self.inputs[0].input_value != "":
+            sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+            self.outputs[0].input_value = sound_sample.length
+            sample_rate, channels = sound_sample.specs
+            self.outputs[2].input_value = int(sample_rate)
+            self.outputs[3].input_value = channels
+            if sound_sample.length == -1:
+                self.outputs[0].input_value = -1
+            else:
+                if sample_rate != 0:
+                    self.outputs[1].input_value = sound_sample.length / sample_rate
+                else:
+                    self.outputs[1].input_value = 0
+                np_array = sound_sample.data()
+                length2 = len(np_array)
+                if length2 != sound_sample.length:
+                    print("Not same length")
+                    print(sound_sample.length)
+                    print(length2)
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        print("link")
+        print(link)
+        if isinstance(link.from_socket, SoundSampleSocket):
+            self.inputs[0].input_value = link.from_socket.input_value
+            self.refresh_outputs()
+
+    def update_obm(self):
+        self.update()
+        for output in (self.outputs[0], self.outputs[1], self.outputs[2], self.outputs[3]):
+            for link in output.links:
+                # link.to_node.update_obm(self, self.outputs[0])
+                link.to_node.update_obm()
+
+    def update(self):
+        # This method is called when the node updates
+        print("update Sample Info node")
+        self.refresh_outputs()
+
+    def socket_update(self, socket):
+        # self.glob_prop.linked_object_name = self.inputs[0].name
+        print("socket_update Sound Info Node")

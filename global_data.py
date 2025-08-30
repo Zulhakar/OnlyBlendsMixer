@@ -31,6 +31,8 @@ class Data:
     uuid_data_storage = {}
     uuid_operator_class_storage = {}
     uuid_node_socket_storage = {}
+    uuid_geometry_data_storage = {}
+    geometry_sound_nodes = {}
     @classmethod
     def create_import_wave_panel(cls, parent, node_uuid):
         op_class = create_dynamic_import_wav_op(parent, node_uuid)

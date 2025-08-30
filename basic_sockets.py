@@ -1,7 +1,7 @@
 import bpy
 
 from .constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
-                        COLOR_EMPTY_SOCKET)
+                        COLOR_EMPTY_SOCKET, COLOR_BOOL_SOCKET)
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 from bpy.utils import (register_class,
                        unregister_class)
@@ -116,9 +116,22 @@ class ObmStringSocket(ObmBasicSocket):
     def draw_color_simple(cls):
         return cls.sock_col
 
-classes = (NodeTreeInterfaceSocketSound, SoundSocket, NodeTreeInterfaceSocketObject, ObjectSocket ,
-           NodeTreeInterfaceSocketObmFloat, ObmFloatSocket, NodeTreeInterfaceSocketObmInt, ObmIntSocket,
-           ObmStringSocket, NodeTreeInterfaceSocketObmString)
+class NodeTreeInterfaceSocketObmBool(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
+    bl_socket_idname = 'BoolSocketType'
+
+class ObmBoolSocket(ObmBasicSocket):
+    """Boolean Socket Type"""
+    bl_idname = 'BoolSocketType'
+    bl_label = 'Bool'
+    sock_col = COLOR_BOOL_SOCKET
+
+    input_value: bpy.props.BoolProperty(update=lambda self, context: self.update_prop(), name="Bool")
+
+   # Socket color
+    @classmethod
+    def draw_color_simple(cls):
+        return cls.sock_col
+
 
 class NodeTreeInterfaceSocketObmEmpty(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'EmptySocketType'
@@ -141,31 +154,10 @@ class ObmEmptySocket(NodeSocket):
 classes = (NodeTreeInterfaceSocketSound, SoundSocket, NodeTreeInterfaceSocketObject, ObjectSocket ,
            NodeTreeInterfaceSocketObmFloat, ObmFloatSocket, NodeTreeInterfaceSocketObmInt, ObmIntSocket,
            ObmStringSocket, NodeTreeInterfaceSocketObmString,
-           ObmEmptySocket, NodeTreeInterfaceSocketObmEmpty
+           ObmEmptySocket, NodeTreeInterfaceSocketObmEmpty,
+           ObmBoolSocket, NodeTreeInterfaceSocketObmBool
            )
 
-
-# def create_basic_socket(class_name, class_type, bl_idname, bl_label, sock_col=COLOR_BLACK):
-#     @classmethod
-#     def draw_color_simple(cls):
-#         # cls.display_shape = "SQUARE"
-#         return cls.sock_col
-#
-#     ObmBasicSocketClass = type(class_name, (ObmBasicSocket, NodeSocket), {
-#         "bl_label": bl_label,
-#         "bl_idname": bl_idname,
-#         "sock_col": sock_col,
-#         "draw_color_simple": draw_color_simple,
-#         "input_value": bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name=class_name,
-#                                                  type=class_type)
-#     })
-#     return ObmBasicSocketClass
-
-
-#class_name, class_type = "ObmObjectSocket", bpy.types.Object
-#ObmObjectSocket = create_basic_socket(class_name, class_type, "ObmObjectSocketType", "Object Socket")
-#class_name, class_type = "SoundSocket", bpy.types.Sound
-#SoundSocket = create_basic_socket(class_name, class_type, "SoundSocketType", "Sound Socket")
 
 def register():
     for cls in classes:
