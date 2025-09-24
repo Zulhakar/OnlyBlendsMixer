@@ -6,11 +6,13 @@ from bl_ui import node_add_menu
 from .obm_nodes import (ImportWavNode, SoundInfoNode, SoundToSampleNode, EditSampleNode, OscillatorNode, \
                         CreateDeviceNode, \
                         PlayDeviceNode, CUSTOM_OT_actions, CUSTOM_UL_items, GatewayEntry, GatewayExit,
-                        SoundFromGeometry, SampleToSoundNode,
-                        SampleInfoNode, SoundToGeometry, SoundSampleToMeshNode)
+                        GeometryToSampleNode, SampleToSoundNode,
+                        SampleInfoNode, SampleToGeometryNode, SampleToMeshNode, DeviceActionNode,
+                        PLAY_DEVICE_OT_actions, PLAY_DEVICE_OT_actions2)
+
 from .obm_sockets import WavImportSocket, NodeTreeInterfaceSocketWavImport, SoundSampleSocket, \
     NodeTreeInterfaceSocketSoundSample, DeviceSocket, NodeTreeInterfaceSocketDevice
-from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode
+from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
 import aud
 
 
@@ -35,75 +37,6 @@ def handle_muted_node(node):
             value = get_socket_value(node.inputs[0])
 
         output_socket.default_value = value
-    #   print(f" → Output[{i}] = {value}")
-
-
-# def get_socket_value(socket: NodeSocket):
-#     """
-#     Retrieves the value from a socket, recursively following links (e.g., through Reroute nodes).
-#     It fetches the *actual* data value from the source of the link or the socket's default value.
-#     Converts the value to the expected type based on the target socket's type.
-#     """
-#     current_socket = socket
-#
-#     # Traverse through linked sockets until we find the actual data source
-#     # or an unlinked socket
-#     while current_socket.is_linked:
-#         from_socket = current_socket.links[0].from_socket
-#
-#         # If the 'from_socket' is an output of a Reroute node,
-#         # we need to go to its input to find the true source.
-#         # Otherwise, the from_socket itself is our next candidate.
-#         if hasattr(from_socket.node, 'bl_idname') and from_socket.node.bl_idname == 'NodeReroute':
-#             # A Reroute node's output socket doesn't hold a value directly.
-#             # Its value comes from its *single input socket*.
-#             # So, we set the current_socket to the Reroute's input socket
-#             # to continue tracing the connection backward.
-#             if from_socket.node.inputs[0].is_linked:
-#                 current_socket = from_socket.node.inputs[0].links[0].from_socket
-#             else:
-#                 # Reroute node's input is not linked, so it provides no value
-#                 current_socket = None  # Break the loop, effectively meaning no value
-#                 break
-#         else:
-#             # If it's not a Reroute node, then this 'from_socket' is our actual source.
-#             current_socket = from_socket
-#             break  # Found the source, exit the loop
-#
-#     val = None
-#     if current_socket:
-#         # Now current_socket should be the source socket
-#         if hasattr(current_socket, "default_value"):
-#             val = current_socket.default_value
-#
-#     # --- Type Conversion based on Target Socket Type ---
-#
-#     if val is not None:
-#         if isinstance(socket, (NodeSocketFloat)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)) and hasattr(val, '__len__') and len(val) > 0:
-#                 # Take the first component if it's an array/tuple (e.g., from a vector or color output)
-#                 return float(val[0])  # type: ignore
-#
-#             return float(val) if val is not None else 0.0
-#
-#         elif isinstance(socket, (NodeSocketInt)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)) and hasattr(val, '__len__') and len(val) > 0:
-#                 return int(val[0])  # type: ignore
-#
-#             return int(val) if val is not None else 0
-#
-#         elif isinstance(socket, (NodeSocketColor)):
-#             if isinstance(val, (tuple, list, bpy.types.bpy_prop_array)):
-#                 if len(val) == 3:
-#                     return (*val, 1.0)  # Add default alpha
-#                 elif len(val) == 4:
-#                     return tuple(val)
-#                 return val if val is not None else (0.7, 0.7, 0.7, 1)
-#
-#         # elif isinstance(socket, NodeSocketInt) or isinstance(socket, CCNCustomIntegerSocket):
-#         #     return int(val) if val is not None else 0
-#
-#     return val  # Return for other socket types
 
 
 class ObmSoundTree(NodeTree):
@@ -115,6 +48,68 @@ class ObmSoundTree(NodeTree):
     color_tag = 'COLOR'
 
 
+class ConstantsMenu(bpy.types.Menu):
+    bl_label = 'Constants'
+    bl_idname = 'obs.constants_node_menu'
+
+    def draw(self, context):
+        layout = self.layout
+
+        node_add_menu.add_node_type(layout, "ObmObjectNodeType")
+        node_add_menu.add_node_type(layout, "ObmFloatNodeType")
+        node_add_menu.add_node_type(layout, "ObmIntNodeType")
+        node_add_menu.add_node_type(layout, "ObmStringNodeType")
+        node_add_menu.add_node_type(layout, "ObmBooleanNodeType")
+
+
+class DeviceMenu(bpy.types.Menu):
+    bl_label = 'Device'
+    bl_idname = 'obs.device_node_menu'
+
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "PlayDeviceNodeType")
+        node_add_menu.add_node_type(layout, "CreateDeviceNodeType")
+        node_add_menu.add_node_type(layout, "DeviceActionNodeType")
+
+
+class SampleMenu(bpy.types.Menu):
+    bl_label = 'Sample'
+    bl_idname = 'obs.sample_node_menu'
+
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "SampleToGeometryType")
+        node_add_menu.add_node_type(layout, "SampleToSoundNodeType")
+        node_add_menu.add_node_type(layout, "CutSampleNodeType")
+        node_add_menu.add_node_type(layout, "SampleToMeshType")
+        node_add_menu.add_node_type(layout, "SampleInfoNodeType")
+
+        layout.separator()
+        node_add_menu.add_node_type(layout, "OscillatorNodeType")
+
+
+class GatewayMenu(bpy.types.Menu):
+    bl_label = 'Gateways'
+    bl_idname = 'obs.gateways_node_menu'
+
+    def draw(self, context):
+        layout = self.layout
+
+        node_add_menu.add_node_type(layout, "GatewayEntryNodeType")
+        node_add_menu.add_node_type(layout, "GatewayExitNodeType")
+
+
+class SoundMenu(bpy.types.Menu):
+    bl_label = 'Sounds'
+    bl_idname = 'obs.sounds_node_menu'
+
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "SoundInfoNodeType")
+        node_add_menu.add_node_type(layout, "SoundToSampleNodeType")
+
+
 # Add custom nodes to the Add menu.
 def draw_add_menu(self, context):
     layout = self.layout
@@ -123,34 +118,17 @@ def draw_add_menu(self, context):
         return
     # Add nodes to the layout. Can use submenus, separators, etc. as in any other menu.
 
-    node_add_menu.add_node_type(layout, "ObmObjectNodeType")
-    node_add_menu.add_node_type(layout, "ObmFloatNodeType")
-    node_add_menu.add_node_type(layout, "ObmIntNodeType")
-    node_add_menu.add_node_type(layout, "ObmStringNodeType")
+    # Device, Sample, Sound, ToObject/Geometry, Helper
 
-    node_add_menu.add_node_type(layout, "SoundInfoNodeType")
+    layout.menu(ConstantsMenu.bl_idname)
+    layout.menu(DeviceMenu.bl_idname)
+    layout.menu(SampleMenu.bl_idname)
+    layout.menu(GatewayMenu.bl_idname)
+    layout.menu(SoundMenu.bl_idname)
+
     node_add_menu.add_node_type(layout, "ImportWavNodeType")
 
-    node_add_menu.add_node_type(layout, "SoundToSampleNodeType")
-    node_add_menu.add_node_type(layout, "SampleToSoundNodeType")
-
-    node_add_menu.add_node_type(layout, "CutSampleNodeType")
-
-    node_add_menu.add_node_type(layout, "OscillatorNodeType")
-    node_add_menu.add_node_type(layout, "PlayDeviceNodeType")
-    node_add_menu.add_node_type(layout, "CreateDeviceNodeType")
-
-    node_add_menu.add_node_type(layout, "GatewayEntryNodeType")
-    node_add_menu.add_node_type(layout, "GatewayExitNodeType")
-
-    node_add_menu.add_node_type(layout, "SoundFromGeometryType")
-
-    node_add_menu.add_node_type(layout, "SampleInfoNodeType")
-    node_add_menu.add_node_type(layout, "SoundToGeometryType")
-    # SoundSampleToMeshType
-    node_add_menu.add_node_type(layout, "SoundSampleToMeshType")
-
-    # node_add_menu.draw_node_group_add_menu(context, layout)
+    node_add_menu.add_node_type(layout, "GeometryToSampleType")
 
 
 classes = [
@@ -158,6 +136,7 @@ classes = [
     FloatNode,
     IntNode,
     StringNode,
+    BooleanNode,
 
     ObmSoundTree,
     SoundInfoNode,
@@ -166,19 +145,28 @@ classes = [
     EditSampleNode,
     OscillatorNode,
     PlayDeviceNode,
+
+    DeviceActionNode, PLAY_DEVICE_OT_actions, PLAY_DEVICE_OT_actions2,
+
     CreateDeviceNode, DeviceSocket, NodeTreeInterfaceSocketDevice,
 
     GatewayEntry, GatewayExit,
     CUSTOM_UL_items, CUSTOM_OT_actions,
 
-    SoundFromGeometry,
+    GeometryToSampleNode,
 
     SampleToSoundNode,
 
     SampleInfoNode,
-    SoundToGeometry,
+    SampleToGeometryNode,
 
-    SoundSampleToMeshNode
+    SampleToMeshNode,
+
+    ConstantsMenu,
+    DeviceMenu,
+    SampleMenu,
+    GatewayMenu,
+    SoundMenu
 ]
 
 

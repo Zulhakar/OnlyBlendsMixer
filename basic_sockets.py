@@ -1,10 +1,10 @@
 import bpy
-
 from .constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
-                        COLOR_EMPTY_SOCKET, COLOR_BOOL_SOCKET)
+                        COLOR_EMPTY_SOCKET, COLOR_BOOL_SOCKET, IS_DEBUG)
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 from bpy.utils import (register_class,
                        unregister_class)
+import sys
 
 
 class ObmBasicSocket(NodeSocket):
@@ -16,10 +16,24 @@ class ObmBasicSocket(NodeSocket):
             layout.prop(self, "input_value", text=text)
 
     def update_prop(self):
-        print("Prop update")
-        print(self.input_value)
+        if IS_DEBUG:
+            print(f"Prop update {self.bl_label}: {self.name}")
+            print(f"Value: {self.input_value}")
         if hasattr(self.node, "socket_update"):
             self.node.socket_update(self)
+
+    # Socket color
+    @classmethod
+    def draw_color_simple(cls):
+        return cls.sock_col
+
+
+class ObmBasicSocketConstant(ObmBasicSocket):
+
+    def draw(self, context, layout, node, text):
+        layout.alignment = 'EXPAND'
+        layout.prop(self, "input_value", text="")
+
 
 class ObmNodeTreeInterfaceSocket(NodeTreeInterfaceSocket):
     default_value: None
@@ -35,8 +49,10 @@ class ObmNodeTreeInterfaceSocket(NodeTreeInterfaceSocket):
         self.default_value = socket.input_value
         print("from_socket")
 
+
 class NodeTreeInterfaceSocketSound(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'SoundSocketType'
+
 
 class SoundSocket(ObmBasicSocket):
     """Sound Socket to play"""
@@ -46,30 +62,34 @@ class SoundSocket(ObmBasicSocket):
 
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Sound",
                                            type=bpy.types.Sound)  # poll=poll_domain)
-    # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
+
 
 class NodeTreeInterfaceSocketObject(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'SoundSocketType'
+
 
 class ObjectSocket(ObmBasicSocket):
     """Sound Socket to play"""
     bl_idname = 'ObjectSocketType'
     bl_label = "Object Socket"
     sock_col = COLOR_OBJECT_SOCKET
-
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Object",
                                            type=bpy.types.Object)  # poll=poll_domain)
 
-   # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
+
+class ObjectSocketConstant(ObmBasicSocketConstant):
+    """Sound Socket to play"""
+    bl_idname = 'ObjectSocketConstantType'
+    bl_label = "Object Socket"
+    sock_col = COLOR_OBJECT_SOCKET
+    input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Object",
+                                           type=bpy.types.Object)  # poll=poll_domain)
+
+
 
 class NodeTreeInterfaceSocketObmFloat(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'FloatSocketType'
+
 
 class ObmFloatSocket(ObmBasicSocket):
     """Sound Socket to play"""
@@ -79,13 +99,19 @@ class ObmFloatSocket(ObmBasicSocket):
 
     input_value: bpy.props.FloatProperty(update=lambda self, context: self.update_prop(), name="Float")
 
-   # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
+
+class ObmFloatSocketConstant(ObmBasicSocketConstant):
+    """Sound Socket to play"""
+    bl_idname = 'FloatSocketConstantType'
+    bl_label = "Float"
+    sock_col = COLOR_FLOAT_SOCKET
+
+    input_value: bpy.props.FloatProperty(update=lambda self, context: self.update_prop(), name="Float")
+
 
 class NodeTreeInterfaceSocketObmInt(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'IntSocketType'
+
 
 class ObmIntSocket(ObmBasicSocket):
     """Sound Socket to play"""
@@ -95,13 +121,19 @@ class ObmIntSocket(ObmBasicSocket):
 
     input_value: bpy.props.IntProperty(update=lambda self, context: self.update_prop(), name="Integer")
 
-   # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
+
+class ObmIntSocketConstant(ObmBasicSocketConstant):
+    """Sound Socket to play"""
+    bl_idname = 'IntSocketConstantType'
+    bl_label = "Integer"
+    sock_col = COLOR_INT_SOCKET
+
+    input_value: bpy.props.IntProperty(update=lambda self, context: self.update_prop(), name="Integer")
+
 
 class NodeTreeInterfaceSocketObmString(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'StringSocketType'
+
 
 class ObmStringSocket(ObmBasicSocket):
     """Sound Socket to play"""
@@ -111,13 +143,19 @@ class ObmStringSocket(ObmBasicSocket):
 
     input_value: bpy.props.StringProperty(update=lambda self, context: self.update_prop(), name="String")
 
-   # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
+
+class ObmStringSocketConstant(ObmBasicSocketConstant):
+    """Sound Socket to play"""
+    bl_idname = 'StringSocketConstantType'
+    bl_label = "String"
+    sock_col = COLOR_STRING_SOCKET
+
+    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_prop(), name="String")
+
 
 class NodeTreeInterfaceSocketObmBool(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'BoolSocketType'
+
 
 class ObmBoolSocket(ObmBasicSocket):
     """Boolean Socket Type"""
@@ -127,22 +165,30 @@ class ObmBoolSocket(ObmBasicSocket):
 
     input_value: bpy.props.BoolProperty(update=lambda self, context: self.update_prop(), name="Bool")
 
-   # Socket color
-    @classmethod
-    def draw_color_simple(cls):
-        return cls.sock_col
 
+class ObmBoolSocketConstant(ObmBasicSocketConstant):
+    """Boolean Socket Type"""
+    bl_idname = 'BoolSocketConstantType'
+    bl_label = 'Bool'
+    sock_col = COLOR_BOOL_SOCKET
+
+    input_value: bpy.props.BoolProperty(update=lambda self, context: self.update_prop(), name="Bool")
+
+    def draw(self, context, layout, node, text):
+        layout.alignment = 'LEFT'
+        layout.prop(self, "input_value", text=text)
 
 class NodeTreeInterfaceSocketObmEmpty(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'EmptySocketType'
 
+
 class ObmEmptySocket(NodeSocket):
-    """Sound Socket to play"""
+    """Connect a link to create a new socket"""
     bl_idname = 'EmptySocketType'
     bl_label = "Empty"
     sock_col = COLOR_EMPTY_SOCKET
 
-   # Socket color
+    # Socket color
     @classmethod
     def draw_color_simple(cls):
         return cls.sock_col
@@ -151,11 +197,12 @@ class ObmEmptySocket(NodeSocket):
         pass
 
 
-classes = (NodeTreeInterfaceSocketSound, SoundSocket, NodeTreeInterfaceSocketObject, ObjectSocket ,
+classes = (NodeTreeInterfaceSocketSound, SoundSocket, NodeTreeInterfaceSocketObject, ObjectSocket,
            NodeTreeInterfaceSocketObmFloat, ObmFloatSocket, NodeTreeInterfaceSocketObmInt, ObmIntSocket,
            ObmStringSocket, NodeTreeInterfaceSocketObmString,
            ObmEmptySocket, NodeTreeInterfaceSocketObmEmpty,
-           ObmBoolSocket, NodeTreeInterfaceSocketObmBool
+           ObmBoolSocket, NodeTreeInterfaceSocketObmBool, ObmBoolSocketConstant, ObmStringSocketConstant,
+           ObmIntSocketConstant, ObmFloatSocketConstant, ObjectSocketConstant
            )
 
 

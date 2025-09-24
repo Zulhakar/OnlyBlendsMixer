@@ -1,97 +1,97 @@
+import bpy
 from bpy.types import NodeCustomGroup
+from .constants import IS_DEBUG
 
 
 class ObmSoundNode:
+
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'ObmSoundTreeType'
 
+    def copy(self, node):
+        if IS_DEBUG:
+            print(f"Copying from node {self.bl_idname}")
 
-class ObjectNode(ObmSoundNode, NodeCustomGroup):
+    def free(self):
+        if IS_DEBUG:
+            print(f"Removing node {self.bl_idname}")
+
+    def refresh_outputs(self):
+        if IS_DEBUG:
+            print(f"refresh outputs {self.bl_idname}")
+
+    def draw_label(self):
+        return self.bl_label
+
+    def insert_link(self, link):
+        if IS_DEBUG:
+            print(f"link {self.bl_idname}")
+
+    def update(self):
+        if IS_DEBUG:
+            print(f"update {self.bl_idname}")
+
+    def socket_update(self, socket):
+        if IS_DEBUG:
+            print(f"socket_update {self.bl_idname}")
+
+    def update_obm(self):
+        if IS_DEBUG:
+            print(f"update_obm {self.bl_idname}")
+
+
+class ObmConstantNode(ObmSoundNode, NodeCustomGroup):
+    def socket_update(self, socket):
+        super().socket_update(socket)
+        if not socket.is_output:
+            self.outputs[0].input_value = socket.input_value
+            for link in self.outputs[0].links:
+                link.to_socket.input_value = self.outputs[0].input_value
+                if hasattr(link.to_node, "update_obm"):
+                    link.to_node.update_obm()
+
+
+class ObjectNode(ObmConstantNode):
     '''Object Node'''
     bl_idname = 'ObmObjectNodeType'
-    bl_label = "Object Node"
-
-    # object_name =  bpy.props.StringProperty(update=)
+    bl_label = "Object"
 
     def init(self, context):
-        self.inputs.new('ObjectSocketType', "Object")
-        self.outputs.new('ObjectSocketType', "Object")
-        print("shape")
+        self.outputs.new('ObjectSocketConstantType', "Object")
 
-    def socket_update(self, socket):
-        print(socket)
-        if not socket.is_output:
-            self.outputs[0].input_value = self.inputs[0].input_value
 
-class FloatNode(ObmSoundNode, NodeCustomGroup):
+class FloatNode(ObmConstantNode):
     '''Float Value Node'''
     bl_idname = 'ObmFloatNodeType'
-    bl_label = "Float Node"
-    # object_name =  bpy.props.StringProperty(update=)
+    bl_label = "Value"
 
     def init(self, context):
-        #self.use_custom_color = True
-        self.inputs.new('FloatSocketType', "Float")
-        self.outputs.new('FloatSocketType', "Float")
-    def update(self):
-        print("update float")
+        self.outputs.new('FloatSocketConstantType', "Float")
 
-    def socket_update(self, socket):
-        print("float socket update node")
-        if not socket.is_output:
-            print("pups")
-            self.outputs[0].input_value = socket.input_value
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
-                #link.to_node.outputs[0].input_value = link.to_node.outputs[0].input_value
-                print("pups")
-    def socket_value_update(self, context):
-        print("#######socket_value_update origin")
 
-class IntNode(ObmSoundNode, NodeCustomGroup):
-    '''Float Value Node'''
+class IntNode(ObmConstantNode):
+    '''Value Node'''
     bl_idname = 'ObmIntNodeType'
-    bl_label = "Integer Node"
-
-    # object_name =  bpy.props.StringProperty(update=)
+    bl_label = "Integer"
 
     def init(self, context):
-        self.inputs.new('IntSocketType', "Integer")
-        self.outputs.new('IntSocketType', "Integer")
+        self.outputs.new('IntSocketConstantType', "Integer")
 
-    def socket_update(self, socket):
-        print(socket)
-        if not socket.is_output:
-            print("pups")
-            self.outputs[0].input_value = socket.input_value
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
 
-    def socket_value_update(self, context):
-        print("#######socket_value_update origin")
-
-class StringNode(ObmSoundNode, NodeCustomGroup):
+class StringNode(ObmConstantNode):
     '''Float Value Node'''
     bl_idname = 'ObmStringNodeType'
-    bl_label = "String Node"
-
-    # object_name =  bpy.props.StringProperty(update=)
+    bl_label = "String"
 
     def init(self, context):
-        self.inputs.new('StringSocketType', "String")
-        self.outputs.new('StringSocketType', "String")
+        self.outputs.new('StringSocketConstantType', "String")
 
-    def socket_update(self, socket):
-        print(socket)
-        if not socket.is_output:
-            print("pups")
-            self.outputs[0].input_value = socket.input_value
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
 
-    def socket_value_update(self, context):
-        print("#######socket_value_update origin")
+class BooleanNode(ObmConstantNode):
+    '''Boolean Value Node'''
+    bl_idname = 'ObmBooleanNodeType'
+    bl_label = "Boolean"
+
+    def init(self, context):
+        self.outputs.new('BoolSocketConstantType', "Boolean")
