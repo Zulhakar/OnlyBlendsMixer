@@ -72,6 +72,12 @@ class SoundSampleSocket(bpy.types.NodeSocket):
         print("SoundSampleSocketType: input_value update")
         print(self.input_value)
 
+    def poll(self, other_socket):
+        # Entscheidet, ob Verbindung erlaubt ist
+        ttt = getattr(other_socket, "socket_type", None) == self.input_value
+        print(ttt)
+        return ttt
+
     @classmethod
     def draw_color_simple(cls):
         # cls.display_shape = "SQUARE"

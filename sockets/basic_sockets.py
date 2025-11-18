@@ -1,10 +1,9 @@
 import bpy
-from .constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
-                        COLOR_EMPTY_SOCKET, COLOR_BOOL_SOCKET, IS_DEBUG)
+from ..constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
+                         COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, IS_DEBUG)
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 from bpy.utils import (register_class,
                        unregister_class)
-import sys
 
 
 class ObmBasicSocket(NodeSocket):
@@ -64,8 +63,22 @@ class SoundSocket(ObmBasicSocket):
                                            type=bpy.types.Sound)  # poll=poll_domain)
 
 
+class NodeTreeInterfaceSocketSpeaker(ObmNodeTreeInterfaceSocket):
+    bl_socket_idname = 'SpeakerSocketType'
+
+
+class SpeakerSocket(ObmBasicSocketConstant):
+    """Sound Socket to play"""
+    bl_idname = 'SpeakerSocketType'
+    bl_label = "Speaker Socket"
+    sock_col = COLOR_SPEAKER_SOCKET
+
+    input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Speaker",
+                                           type=bpy.types.Speaker)  # poll=poll_domain)
+
+
 class NodeTreeInterfaceSocketObject(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
-    bl_socket_idname = 'SoundSocketType'
+    bl_socket_idname = 'ObjectSocketType'
 
 
 class ObjectSocket(ObmBasicSocket):
@@ -84,7 +97,6 @@ class ObjectSocketConstant(ObmBasicSocketConstant):
     sock_col = COLOR_OBJECT_SOCKET
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Object",
                                            type=bpy.types.Object)  # poll=poll_domain)
-
 
 
 class NodeTreeInterfaceSocketObmFloat(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
@@ -178,6 +190,7 @@ class ObmBoolSocketConstant(ObmBasicSocketConstant):
         layout.alignment = 'LEFT'
         layout.prop(self, "input_value", text=text)
 
+
 class NodeTreeInterfaceSocketObmEmpty(ObmNodeTreeInterfaceSocket, NodeTreeInterfaceSocket):
     bl_socket_idname = 'EmptySocketType'
 
@@ -202,7 +215,9 @@ classes = (NodeTreeInterfaceSocketSound, SoundSocket, NodeTreeInterfaceSocketObj
            ObmStringSocket, NodeTreeInterfaceSocketObmString,
            ObmEmptySocket, NodeTreeInterfaceSocketObmEmpty,
            ObmBoolSocket, NodeTreeInterfaceSocketObmBool, ObmBoolSocketConstant, ObmStringSocketConstant,
-           ObmIntSocketConstant, ObmFloatSocketConstant, ObjectSocketConstant
+           ObmIntSocketConstant, ObmFloatSocketConstant, ObjectSocketConstant,
+
+           SpeakerSocket, NodeTreeInterfaceSocketSpeaker
            )
 
 

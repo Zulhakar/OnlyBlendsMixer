@@ -4,8 +4,8 @@ import aud
 import numpy as np
 
 from .constants import SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION, SAMPLE_TO_MESH_NODE_DESCRIPTION
-from .basic_nodes import ObmSoundNode
-from .basic_sockets import SoundSocket, ObmStringSocket
+from .nodes.basic_nodes import ObmSoundNode
+from .sockets.basic_sockets import SoundSocket
 from .constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
 from .obm_sockets import SoundSampleSocket
 from .global_data import Data
@@ -17,6 +17,17 @@ class ImportWavNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     bl_label = "Import WAV"
     import_path: bpy.props.StringProperty(update=lambda self, context: self.__update_import_path())
     node_uuid: bpy.props.StringProperty()
+
+    header_color: bpy.props.FloatVectorProperty(
+        name="Header Color",
+        subtype='COLOR',
+        size=3,
+        min=0.0, max=1.0,
+        default=(0.0, 0.0, 0.09)
+    )
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "header_color")
 
     def init(self, context):
         uuid_tmp = str(uuid.uuid4()).replace("-", "")
@@ -193,360 +204,6 @@ class SoundToSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                     self.refresh_outputs()
 
 
-class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
-    '''Sound Sample  which can be modified, played and recorded'''
-    bl_idname = 'CutSampleNodeType'
-    bl_label = "Edit Sample"
-    node_uuid: bpy.props.StringProperty()
-    operations = [
-        ('ACCUMULATE', "Accumulate", "Accumulates a sound by summing over positive input differences thus generating a"
-                                     " monotonic sigal. If additivity is set to true negative input differences get"
-                                     " added too, but positive ones with a factor of two. Note that with additivity"
-                                     " the signal is not monotonic anymore."),
-
-        ('JOIN', "Join", "Plays two Samples in sequence"),
-        ('MIX', "Mix", "Mixes two Samples"),
-        ('MODULATE', "Modulate", "Modulates two Samples"),
-        ('DELAY', "Delay", "Adds delay to Sample"),
-        ('ENVELOPE', "Envelope", "Adds a more complex delay to Sample. Synth Buttons"),
-        ('FADEIN', "Fadein", "Fades a Sample in by raising the volume linearly in the given time interval"),
-        ('FADEOUT', "Fadeout", "Fades a Sample in by lowering the volume linearly in the given time interval."),
-        ('ADSR', "ADSR",
-         "Attack-Decay-Sustain-Release envelopes the volume of a sound. Note: there is currently no way to trigger the release with this API."),
-        ('LIMIT', "Limit", "Limits a sample within a specific start and end time."),
-        ('LOOP', "Loop", "Loops a Sample"),
-        ('HIGHPASS', "Highpass", "Creates a second order highpass filter based on the transfer function"),
-        ('LOWPASS', "Lowpass", "Creates a second order lowpass filter based on the transfer function"),
-
-        ('PINGPONG', "Pingpong",
-         "Plays a sound forward and then backward. This is like joining a sound with its reverse."),
-        ('PITCH', "Pitch", "Changes the pitch of a sound with a specific factor."),
-        ('RECHANNEL', "Rechannels", "Rechannels the sound."),
-        ('RESAMPLE', "Resample", "Resamples the sound."),
-        ('REVERSE', "Reverse", "Plays a sound reversed"),
-        ('SUM', "Sum", "Sums the samples of a sound."),
-        ('THRESHOLD', "Threshold",
-         "Makes a threshold wave out of an audio wave by setting all samples with a amplitude >= threshold to 1, all <= -threshold to -1 and all between to 0."),
-        ('VOLUME', "Volume", "Changes the volume of a sound.")
-    ]
-    operation: bpy.props.EnumProperty(  # type: ignore
-        name="Operation"
-        , items=operations
-        , default='LIMIT'
-        , update=lambda self, context: self.operation_update())
-
-    def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sound Sample")
-        self.outputs.new('SoundSampleSocketType', "Sound Sample")
-        self.inputs.new("FloatSocketType", "start")
-        self.inputs.new("FloatSocketType", "end")
-
-        self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
-        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        # self.outputs[0].input_value = self.node_uuid
-
-    # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        super().copy(node)
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        self.outputs[0].input_value = ""
-
-    # Free function to clean up on removal.
-    def free(self):
-        super().free()
-        del Data.uuid_data_storage[self.node_uuid]
-
-    # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
-                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
-            layout.label(text=self.inputs[0].input_value)
-            layout.label(text=self.outputs[0].input_value)
-        layout.prop(self, "operation", text="Operation")
-
-    def operation_update(self):
-        length_inputs = len(self.inputs)
-        list_of_inputs = []
-        for i in range(1, length_inputs):
-            list_of_inputs.append(self.inputs[i])
-        for socket in list_of_inputs:
-            self.inputs.remove(socket)
-        if self.operation == 'DELAY':
-            self.inputs.new("FloatSocketType", "time")
-        elif self.operation == 'ACCUMULATE':
-            self.inputs.new('BoolSocketType', "Additive")
-        elif self.operation == 'JOIN':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'MIX':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'MODULATE':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'ENVELOPE':
-            self.inputs.new("FloatSocketType", "attack")
-            self.inputs.new("FloatSocketType", "release")
-            self.inputs.new("FloatSocketType", "threshold")
-            self.inputs.new("FloatSocketType", "arthreshold")
-        elif self.operation == 'FADEIN':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "length")
-        elif self.operation == 'FADEOUT':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "length")
-        elif self.operation == 'ADSR':
-            self.inputs.new("FloatSocketType", "attack")
-            self.inputs.new("FloatSocketType", "decay")
-            self.inputs.new("FloatSocketType", "sustain")
-            self.inputs.new("FloatSocketType", "release")
-        elif self.operation == 'LIMIT':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "end")
-        elif self.operation == 'LOOP':
-            self.inputs.new("IntSocketType", "count")
-        elif self.operation == 'HIGHPASS':
-            self.inputs.new("FloatSocketType", "frequency")
-            self.inputs.new("FloatSocketType", "q")
-        elif self.operation == 'LOWPASS':
-            self.inputs.new("FloatSocketType", "frequency")
-            self.inputs.new("FloatSocketType", "q")
-        elif self.operation == 'PINGPONG':
-            pass
-        elif self.operation == 'REVERSE':
-            pass
-        elif self.operation == 'PITCH':
-            self.inputs.new("FloatSocketType", "factor")
-        elif self.operation == 'SUM':
-            pass
-        elif self.operation == 'RECHANNEL':
-            self.inputs.new("IntSocketType", "channels")
-        elif self.operation == 'RESAMPLE':
-            self.inputs.new("FloatSocketType", "rate")
-            self.inputs.new("IntSocketType", "quality")
-        elif self.operation == 'THRESHOLD':
-            self.inputs.new("FloatSocketType", "threshold")
-        elif self.operation == 'VOLUME':
-            self.inputs.new("FloatSocketType", "volume")
-
-    def test_update(self, context):
-
-        self.refresh_outputs()
-
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        if self.inputs[0].input_value is not None and self.inputs[0].input_value != "":
-            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-            new_sample = None
-            if self.operation == 'DELAY':
-                new_sample = parent_sample.delay(self.inputs[1].input_value)
-            elif self.operation == 'ACCUMULATE':
-                new_sample = parent_sample.accumulate(self.inputs[1].input_value)
-            elif self.operation == 'JOIN':
-                new_sample = parent_sample.join(Data.uuid_data_storage[self.inputs[1].input_value])
-            elif self.operation == 'MIX':
-                new_sample = parent_sample.mix(Data.uuid_data_storage[self.inputs[1].input_value])
-            elif self.operation == 'MODULATE':
-                new_sample = parent_sample.modulate(Data.uuid_data_storage[self.inputs[1].input_value])
-            elif self.operation == 'ENVELOPE':
-                new_sample = parent_sample.envelope(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                    self.inputs[3].input_value, self.inputs[4].input_value)
-            elif self.operation == 'FADEIN':
-                new_sample = parent_sample.fadein(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'FADEOUT':
-                new_sample = parent_sample.fadeout(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'ADSR':
-                new_sample = parent_sample.ADSR(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                self.inputs[3].input_value, self.inputs[4].input_value)
-            elif self.operation == 'LIMIT':
-                new_sample = parent_sample.limit(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'LOOP':
-                new_sample = parent_sample.loop(self.inputs[1].input_value)
-            elif self.operation == 'HIGHPASS':
-                new_sample = parent_sample.highpass(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'LOWPASS':
-                new_sample = parent_sample.lowpass(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'PINGPONG':
-                new_sample = parent_sample.pingpong()
-            elif self.operation == 'REVERSE':
-                new_sample = parent_sample.reverse()
-            elif self.operation == 'PITCH':
-                new_sample = parent_sample.pitch(self.inputs[1].input_value)
-            elif self.operation == 'SUM':
-                new_sample = parent_sample.sum()
-            elif self.operation == 'RECHANNEL':
-                new_sample = parent_sample.rechannel(self.inputs[1].input_value)
-            elif self.operation == 'RESAMPLE':
-                new_sample = parent_sample.resample(self.inputs[1].input_value, self.inputs[2].input_value)
-            elif self.operation == 'THRESHOLD':
-                new_sample = parent_sample.threshold(self.inputs[1].input_value)
-            elif self.operation == 'VOLUME':
-                new_sample = parent_sample.volume(self.inputs[1].input_value)
-            Data.uuid_data_storage[self.node_uuid] = new_sample
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        if link.to_socket.bl_idname != link.from_socket.bl_idname:
-            print("Wrong Socket Type")
-        elif link.to_socket == self.inputs[0]:
-            self.outputs[0].input_value = self.node_uuid
-            self.inputs[0].input_value = link.from_socket.input_value
-            self.refresh_outputs()
-        else:
-            link.to_socket.input_value = link.from_socket.input_value
-            print("PARAMETER:", str(link.to_socket.input_value))
-            if self.inputs[0].is_linked:
-                self.refresh_outputs()
-
-    def update(self):
-        super().update()
-        if not self.inputs[0].is_linked:
-            self.inputs[0].input_value = ""
-        self.refresh_outputs()
-
-    def update_obm(self):
-        self.update()
-        for link in self.outputs[0].links:
-            # link.to_node.update_obm(self, self.outputs[0])
-            link.to_node.update_obm()
-
-    def socket_update(self, socket):
-        super().socket_update(socket)
-        if not socket.is_output:
-            self.refresh_outputs()
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
-
-
-class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
-    '''Sound Sample  which can be modified, played and recorded'''
-
-    bl_idname = 'OscillatorNodeType'
-    bl_label = "Oscillator"
-    node_uuid: bpy.props.StringProperty()
-    operations = [
-        ('SAWTOOTH', "sawtooth", "Creates a sawtooth sound which plays a sawtooth wave."),
-        ('SILENCE', "silence", "Creates a silence sound which plays simple silence."),
-        ('SINE', "sine", "Creates a sine sound which plays a sine wave."),
-        ('SQUARE', "square", "Creates a square sound which plays a square wave."),
-        ('TRIANGLE', "triangle", "Creates a triangle sound which plays a triangle wave."),
-    ]
-    operation: bpy.props.EnumProperty(  # type: ignore
-        name="Operation"
-        , items=operations
-        , default='SINE'
-        , update=lambda self, context: self.operation_update())
-
-    prev_frequency: bpy.props.FloatProperty(default=0.0)
-
-    def init(self, context):
-
-        self.outputs.new('SoundSampleSocketType', "Sound Sample")
-        self.inputs.new("IntSocketType", "rate")
-        self.inputs.new("FloatSocketType", "frequency")
-        self.inputs[1].input_value = 110.0
-        self.inputs[0].input_value = 44100
-        self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
-
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-
-        self.outputs[0].input_value = self.node_uuid
-        # Data.uuid_data_storage[self.node_uuid] =  aud.Sound.sine(44100)
-        Data.uuid_data_storage[self.node_uuid] = aud.Sound.silence(44100).limit(0, 0.2)
-
-    # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        super().copy(node)
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        Data.uuid_data_storage[self.node_uuid] = Data.uuid_data_storage[node.node_uuid]
-        self.outputs[0].input_value = self.node_uuid
-
-    # Free function to clean up on removal.
-    def free(self):
-        super().free()
-        del Data.uuid_data_storage[self.node_uuid]
-
-    # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
-                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
-            layout.label(text=self.outputs[0].input_value)
-        layout.prop(self, "operation", text="Operation")
-
-    def operation_update(self):
-        if self.operation == "SILENCE":
-            self.prev_frequency = self.inputs[1].input_value
-            self.inputs.remove(self.inputs[1])
-        else:
-            if len(self.inputs) <= 1:
-                self.inputs.new("FloatSocketType", "frequency")
-                self.inputs[1].input_value = self.prev_frequency
-        self.update()
-
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        if len(self.inputs) > 0 and len(self.outputs) > 0:
-            new_sample = None
-            if self.operation == "SINE":
-                new_sample = aud.Sound.sine(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SQUARE":
-                new_sample = aud.Sound.square(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "TRIANGLE":
-                new_sample = aud.Sound.triangle(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SAWTOOTH":
-                new_sample = aud.Sound.sawtooth(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SILENCE":
-                new_sample = aud.Sound.silence(self.inputs[0].input_value)
-            Data.uuid_data_storage[self.node_uuid] = new_sample
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        for sock in self.inputs:
-            if sock.identifier == link.to_socket.identifier:
-                sock.input_value = link.from_socket.input_value
-
-        self.refresh_outputs()
-
-    def update(self):
-        # This method is called when the node updates
-        super().update()
-        self.refresh_outputs()
-
-    def get_exit_nodes(self):
-        exit_nodes = []
-        for nodegroup in bpy.data.node_groups:
-            for node in nodegroup.nodes:
-                # if node.
-                if node.name == self.name:
-                    return nodegroup.name
-        return None
-
-    def update_obm(self):
-        super().update_obm()
-        self.update()
-        for link in self.outputs[0].links:
-            # link.to_node.update_obm(self, self.outputs[0])
-            link.to_node.update_obm()
-
-    def socket_update(self, socket):
-        super().socket_update(socket)
-        if not socket.is_output:
-            self.refresh_outputs()
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
-
-
 class CreateDeviceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''A Device To Play Sound Samples'''
 
@@ -705,40 +362,6 @@ class PLAY_DEVICE_OT_actions2(bpy.types.Operator):
             self.handle = device.stopAll()
             return {"FINISHED"}
         return {"FINISHED"}
-
-    # def modal(self, context, event):
-    #     if event.type != "TIMER_REPORT":
-    #         print(event.type)
-    #     if event.type == 'LEFTMOUSE':  # Confirm.
-    #         print("finish")
-    #         if event.value == "PRESS":
-    #             sound = Data.uuid_data_storage[self.sample_uuid]
-    #             device = Data.uuid_data_storage[self.device_uuid]
-    #             handle = device.play(sound)
-    #             print("PRESS")
-    #         elif event.value == "RELEASE":
-    #             print("RELEASE")
-    #             device = Data.uuid_data_storage[self.device_uuid]
-    #             device.stopAll()
-    #         # return {'FINISHED'}
-    #     elif event.type == "ESC":
-    #         return {'FINISHED'}
-    #     return {'RUNNING_MODAL'}
-
-    # def invoke(self, context, event):
-    #     print("INVOKE")
-    #     print(event.type)
-    #     info = "test info"
-    #     self.report({'INFO'}, info)
-    #     sound = Data.uuid_data_storage[self.sample_uuid]
-    #     device = Data.uuid_data_storage[self.device_uuid]
-    #     if self.action == "PLAY":
-    #         # handle = device.play(sound)
-    #         context.window_manager.modal_handler_add(self)
-    #         return {'RUNNING_MODAL'}
-    #     elif self.action == "STOP_ALL":
-    #         handle = device.stopAll()
-    #         return {"FINISHED"}
 
 
 class DeviceActionNode(ObmSoundNode, bpy.types.NodeCustomGroup):
@@ -916,8 +539,6 @@ class CUSTOM_UL_items(bpy.types.UIList):
 
     def invoke(self, context, event):
         pass
-
-
 
 
 class GatewayEntry(ObmSoundNode, bpy.types.Node):
@@ -1128,7 +749,6 @@ class GeometryToSampleNode(ObmSoundNode, bpy.types.Node):
         self.outputs[0].input_value = self.node_uuid
         Data.uuid_data_storage[self.node_uuid] = aud.Sound.silence(44100).limit(0, 0.2)
         Data.geometry_to_sample_nodes[self.node_uuid] = self
-
 
         bpy.context.scene.geometry_to_sample_nodes_num += 1
         if bpy.context.scene.geometry_to_sample_nodes_num == 1:
@@ -1473,91 +1093,6 @@ class SampleToMeshNode(ObmSoundNode, bpy.types.Node):
         super().socket_update(socket)
         if self.inputs[0].input_value != "":
             self.update_obm()
-
-
-class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
-    '''Transform Sample to Sound'''
-
-    bl_idname = 'SampleToSoundNodeType'
-    bl_label = "Sample To Sound"
-    # update=lambda self, context: self.update_sound_prop(),
-    node_uuid: bpy.props.StringProperty()
-
-    def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sound Sample")
-        self.inputs.new("StringSocketType", "File Name")
-        self.inputs.new("IntSocketType", "Sample Rate")
-        self.inputs[2].input_value = 44100
-        self.outputs.new('SoundSocketType', "Sound")
-        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-
-    def store_data(self):
-        sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-        data_path = self.inputs[1].input_value
-        sound_sample.write(data_path, self.inputs[2].input_value, 2)
-        args = {"filepath": data_path}
-
-        result = bpy.ops.sound.open(**args)
-
-        last = None
-        sound = None
-        for s in bpy.data.sounds:
-            if s.filepath == data_path:
-                last = s
-                sound = bpy.types.BlendDataSounds(last)
-        self.outputs[0].input_value = sound
-
-    # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        print("Copying from node ", node)
-
-    # Free function to clean up on removal.
-    def free(self):
-        print("Removing node ", self, ", Goodbye!")
-        del Data.uuid_data_storage[self.node_uuid]
-
-    # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        layout.label(text="Infos")
-        layout.label(text=self.outputs[0].input_value)
-        if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
-            layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
-            # r = layout.row()
-            # r.prop(self, 'import_path', text="")
-            # layout.label(text="Path: " + self.outputs[0].default_value)
-            # layout.label(text="Blender Path: " + self.outputs[1].default_value)
-            # layout.label(text="Channels: " + self.outputs[2].default_value)
-            # layout.label(text="Samplerate: " + str(self.outputs[3].default_value))
-            # r.label(text="Path: " + self.outputs[0].default_value)
-
-    def refresh_outputs(self):
-        print("refresh outputs")
-
-    def draw_label(self):
-        return self.bl_label
-
-    def insert_link(self, link):
-        print("link")
-        print(link)
-        if isinstance(link.from_socket, ObmStringSocket):
-            self.store_data()
-        else:
-            print("no update")
-
-    def update(self):
-        # This method is called when the node updates
-        print("update Sample_to_sound node")
-
-    def socket_update(self, socket):
-        # self.glob_prop.linked_object_name = self.inputs[0].name
-        print("socket_update sample_to_sound")
-        print(socket)
-        if isinstance(socket, ObmStringSocket):
-            self.store_data()
-        else:
-            print("no update")
 
 
 class SampleInfoNode(ObmSoundNode, bpy.types.NodeCustomGroup):

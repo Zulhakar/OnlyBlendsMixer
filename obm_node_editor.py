@@ -3,16 +3,18 @@ from bpy.types import (Node, NodeCustomGroup, NodeTree, NodeSocket, Operator, No
                        NodeTreeInterfaceSocket, GeometryNodeTree, NodeGroupInput, NodeGroupOutput)
 from bl_ui import node_add_menu
 
-from .obm_nodes import (ImportWavNode, SoundInfoNode, SoundToSampleNode, EditSampleNode, OscillatorNode, \
-                        CreateDeviceNode, \
+from .nodes.speaker_nodes.speaker_node import SpeakerNode
+from .obm_nodes import (ImportWavNode, SoundInfoNode, SoundToSampleNode, CreateDeviceNode, \
                         PlayDeviceNode, CUSTOM_OT_actions, CUSTOM_UL_items, GatewayEntry, GatewayExit,
-                        GeometryToSampleNode, SampleToSoundNode,
-                        SampleInfoNode, SampleToGeometryNode, SampleToMeshNode, DeviceActionNode,
+                        GeometryToSampleNode, SampleInfoNode, SampleToGeometryNode, SampleToMeshNode, DeviceActionNode,
                         PLAY_DEVICE_OT_actions, PLAY_DEVICE_OT_actions2)
+from .nodes.sample_nodes.sample_to_sound_node import SampleToSoundNode
+from .nodes.sample_nodes.oscillator_node import OscillatorNode
+from .nodes.sample_nodes.edit_node import EditSampleNode
 
 from .obm_sockets import WavImportSocket, NodeTreeInterfaceSocketWavImport, SoundSampleSocket, \
     NodeTreeInterfaceSocketSoundSample, DeviceSocket, NodeTreeInterfaceSocketDevice
-from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
+from .nodes.basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode, NoteNode
 import aud
 
 
@@ -61,6 +63,14 @@ class ConstantsMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "ObmStringNodeType")
         node_add_menu.add_node_type(layout, "ObmBooleanNodeType")
 
+        layout.separator()
+        node_add_menu.add_node_type(layout, "ObmNoteNodeType")
+        # example to set default size of Value Node
+        # props = node_add_menu.add_node_type(layout, "ObmFloatNodeType")
+        # ops = props.settings.add()
+        # ops.name = "width"
+        # ops.value = "350"
+
 
 class DeviceMenu(bpy.types.Menu):
     bl_label = 'Device'
@@ -79,14 +89,16 @@ class SampleMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        node_add_menu.add_node_type(layout, "SampleToGeometryType")
+        # node_add_menu.add_node_type(layout, "SampleToGeometryType")
         node_add_menu.add_node_type(layout, "SampleToSoundNodeType")
         node_add_menu.add_node_type(layout, "CutSampleNodeType")
-        node_add_menu.add_node_type(layout, "SampleToMeshType")
-        node_add_menu.add_node_type(layout, "SampleInfoNodeType")
+        # node_add_menu.add_node_type(layout, "SampleToMeshType")
+        # node_add_menu.add_node_type(layout, "SampleInfoNodeType")
 
         layout.separator()
         node_add_menu.add_node_type(layout, "OscillatorNodeType")
+        layout.separator()
+        node_add_menu.add_node_type(layout, "SpeakerNodeType")
 
 
 class GatewayMenu(bpy.types.Menu):
@@ -121,14 +133,14 @@ def draw_add_menu(self, context):
     # Device, Sample, Sound, ToObject/Geometry, Helper
 
     layout.menu(ConstantsMenu.bl_idname)
-    layout.menu(DeviceMenu.bl_idname)
+    # layout.menu(DeviceMenu.bl_idname)
     layout.menu(SampleMenu.bl_idname)
-    layout.menu(GatewayMenu.bl_idname)
-    layout.menu(SoundMenu.bl_idname)
+    # layout.menu(GatewayMenu.bl_idname)
+    # layout.menu(SoundMenu.bl_idname)
 
-    node_add_menu.add_node_type(layout, "ImportWavNodeType")
+    # node_add_menu.add_node_type(layout, "ImportWavNodeType")
 
-    node_add_menu.add_node_type(layout, "GeometryToSampleType")
+    # node_add_menu.add_node_type(layout, "GeometryToSampleType")
 
 
 classes = [
@@ -137,6 +149,7 @@ classes = [
     IntNode,
     StringNode,
     BooleanNode,
+    NoteNode,
 
     ObmSoundTree,
     SoundInfoNode,
@@ -145,6 +158,8 @@ classes = [
     EditSampleNode,
     OscillatorNode,
     PlayDeviceNode,
+
+    SpeakerNode,
 
     DeviceActionNode, PLAY_DEVICE_OT_actions, PLAY_DEVICE_OT_actions2,
 

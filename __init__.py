@@ -2,9 +2,9 @@ import bpy
 from .properties import SoundSampleCollection, GatewayCollection, GroupOutputCollection
 from .obm_node_editor import register as register_obm_nodes
 from .obm_node_editor import unregister as unregister_obm_nodes
-from .basic_sockets import register as register_basic_sockets
-from .basic_sockets import unregister as unregister_basic_sockets
-from .helper import play_selection, play_sample, stop_play
+from .sockets.basic_sockets import register as register_basic_sockets
+from .sockets.basic_sockets import unregister as unregister_basic_sockets
+from .helper import play_sample
 from .global_data import Data
 from bpy.app.handlers import persistent
 from .properties import on_depsgraph_update
@@ -62,11 +62,14 @@ def load_blend_file_job(file_name):
 # reg_classes = ui_classes
 # reg_classes.extend([ SoundSampleCollection])
 
-
 class_register, class_unregister = bpy.utils.register_classes_factory([SoundSampleCollection, GatewayCollection,
                                                                        GroupOutputCollection])
 
 
+# bpy.ops.workspace.append_activate(
+#     idname='SoundNodes',  # Name of the workspace to import
+#     filepath='startup.blend'
+# )
 def register():
     register_obm_nodes()
     register_basic_sockets()
