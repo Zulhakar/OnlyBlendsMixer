@@ -14,7 +14,8 @@ from .nodes.sample_nodes.edit_node import EditSampleNode
 
 from .obm_sockets import WavImportSocket, NodeTreeInterfaceSocketWavImport, SoundSampleSocket, \
     NodeTreeInterfaceSocketSoundSample, DeviceSocket, NodeTreeInterfaceSocketDevice
-from .nodes.basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode, NoteNode
+from .nodes.basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
+from .nodes.constant_nodes.note_node import NoteNode
 import aud
 
 

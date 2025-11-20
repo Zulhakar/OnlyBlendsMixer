@@ -33,4 +33,5 @@ New Nodes
 - [X] Notes -> value with correct frequency
 - [ ] SpeakerNode
   - [x] create SpeakerSocket
-  - [ ] create action automatically
+  - [x] create action automatically
+  - 

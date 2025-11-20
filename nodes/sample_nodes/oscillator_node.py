@@ -28,13 +28,11 @@ class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     prev_frequency: bpy.props.FloatProperty(default=0.0)
 
     def init(self, context):
-
         self.outputs.new('SoundSampleSocketType', "Sound Sample")
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
         self.inputs[1].input_value = 110.0
         self.inputs[0].input_value = 44100
-        self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
 
         uuid_tmp = str(uuid.uuid4()).replace("-", "")
         self.node_uuid = uuid_tmp
@@ -42,6 +40,7 @@ class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         self.outputs[0].input_value = self.node_uuid
         # Data.uuid_data_storage[self.node_uuid] =  aud.Sound.sine(44100)
         Data.uuid_data_storage[self.node_uuid] = aud.Sound.silence(44100).limit(0, 0.2)
+        super().init(context)
 
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
@@ -74,7 +73,7 @@ class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                 self.inputs.new("FloatSocketType", "frequency")
                 self.inputs[1].input_value = self.prev_frequency
         self.update()
-
+        super().init(self)
     def refresh_outputs(self):
         super().refresh_outputs()
         if len(self.inputs) > 0 and len(self.outputs) > 0:
@@ -92,12 +91,8 @@ class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             Data.uuid_data_storage[self.node_uuid] = new_sample
 
     def insert_link(self, link):
-        super().insert_link(link)
-        for sock in self.inputs:
-            if sock.identifier == link.to_socket.identifier:
-                sock.input_value = link.from_socket.input_value
-
-        self.refresh_outputs()
+        if super().insert_link(link) is None:
+            self.refresh_outputs()
 
     def update(self):
         # This method is called when the node updates
@@ -121,9 +116,10 @@ class OscillatorNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             link.to_node.update_obm()
 
     def socket_update(self, socket):
-        super().socket_update(socket)
-        if not socket.is_output:
-            self.refresh_outputs()
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
+        if not self.mute:
+            super().socket_update(socket)
+            if not socket.is_output:
+                self.refresh_outputs()
+                for link in self.outputs[0].links:
+                    link.to_socket.input_value = self.outputs[0].input_value
+                    link.to_node.update_obm()

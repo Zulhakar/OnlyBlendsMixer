@@ -56,11 +56,10 @@ class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         self.inputs.new("FloatSocketType", "start")
         self.inputs.new("FloatSocketType", "end")
 
-        self.outputs[0].display_shape = SOUND_SOCKET_SHAPE
-        self.inputs[0].display_shape = SOUND_SOCKET_SHAPE
         uuid_tmp = str(uuid.uuid4()).replace("-", "")
         self.node_uuid = uuid_tmp
         # self.outputs[0].input_value = self.node_uuid
+        super().init(context)
 
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
@@ -148,7 +147,7 @@ class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             self.inputs.new("FloatSocketType", "threshold")
         elif self.operation == 'VOLUME':
             self.inputs.new("FloatSocketType", "volume")
-
+        super().init(self)
     def test_update(self, context):
 
         self.refresh_outputs()
