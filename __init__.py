@@ -8,6 +8,7 @@ from .helper import play_sample
 from .global_data import Data
 from bpy.app.handlers import persistent
 from .properties import on_depsgraph_update
+from .workspace import sound_nodes_workspace
 
 current_frame = 0
 
@@ -84,6 +85,8 @@ def register():
     bpy.app.handlers.frame_change_post.append(frame_change_update)
     bpy.app.handlers.load_post.append(load_blend_file_job)
 
+    #bpy.app.timers.register(sound_nodes_workspace.register, first_interval=10.0)
+    #sound_nodes_workspace.register()
 
 def unregister():
     unregister_obm_nodes()

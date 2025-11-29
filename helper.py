@@ -6,7 +6,6 @@ import os
 from .global_data import Data
 from .aud_helper import import_wave_file, wav_metadata
 
-
 def import_wav(filepath):
     wav_array  = import_wave_file(filepath)
     meta_data = wav_metadata(filepath)

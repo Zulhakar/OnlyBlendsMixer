@@ -1,16 +1,18 @@
+import bpy
+import aud
 import uuid
 
-import bpy
-
-from ..basic_nodes import ObmSoundNode
+from ..basic_nodes import ObmSampleNode
 from ...constants import SOUND_SOCKET_SHAPE, IS_DEBUG
 from ...global_data import Data
 
 
-class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+class EditSampleNode(ObmSampleNode):
     '''Sound Sample  which can be modified, played and recorded'''
     bl_idname = 'CutSampleNodeType'
     bl_label = "Edit Sample"
+
+    # if node has node_uuid, an aud sound is stored, and free() and copy() are differ from the other nodes
     node_uuid: bpy.props.StringProperty()
     operations = [
         ('ACCUMULATE', "Accumulate", "Accumulates a sound by summing over positive input differences thus generating a"
@@ -47,43 +49,9 @@ class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         name="Operation"
         , items=operations
         , default='LIMIT'
-        , update=lambda self, context: self.operation_update())
+        , update=lambda self, context: self.__operation_update())
 
-
-    def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sound Sample")
-        self.outputs.new('SoundSampleSocketType', "Sound Sample")
-        self.inputs.new("FloatSocketType", "start")
-        self.inputs.new("FloatSocketType", "end")
-
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        # self.outputs[0].input_value = self.node_uuid
-        super().init(context)
-
-    # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        super().copy(node)
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        self.outputs[0].input_value = ""
-
-    # Free function to clean up on removal.
-    def free(self):
-        super().free()
-        del Data.uuid_data_storage[self.node_uuid]
-
-    # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
-                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
-            layout.label(text=self.inputs[0].input_value)
-            layout.label(text=self.outputs[0].input_value)
-        layout.prop(self, "operation", text="Operation")
-
-    def operation_update(self):
+    def __operation_update(self):
         length_inputs = len(self.inputs)
         list_of_inputs = []
         for i in range(1, length_inputs):
@@ -126,10 +94,12 @@ class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             self.inputs.new("IntSocketType", "count")
         elif self.operation == 'HIGHPASS':
             self.inputs.new("FloatSocketType", "frequency")
-            self.inputs.new("FloatSocketType", "q")
+            q = self.inputs.new("FloatSocketType", "q")
+            q.input_value = 0.5
         elif self.operation == 'LOWPASS':
             self.inputs.new("FloatSocketType", "frequency")
-            self.inputs.new("FloatSocketType", "q")
+            q = self.inputs.new("FloatSocketType", "q")
+            q.input_value = 0.5
         elif self.operation == 'PINGPONG':
             pass
         elif self.operation == 'REVERSE':
@@ -148,91 +118,89 @@ class EditSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         elif self.operation == 'VOLUME':
             self.inputs.new("FloatSocketType", "volume")
         super().init(self)
-    def test_update(self, context):
 
-        self.refresh_outputs()
-
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        if self.inputs[0].input_value is not None and self.inputs[0].input_value != "":
+    def __sound_function(self):
+        if self.inputs[0].input_value != "" and self.inputs[0].input_value in Data.uuid_data_storage:
             parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
             new_sample = None
             if self.operation == 'DELAY':
-                new_sample = parent_sample.delay(self.inputs[1].input_value)
+                new_sample = parent_sample.delay(self.inputs[1].input_value).cache()
             elif self.operation == 'ACCUMULATE':
-                new_sample = parent_sample.accumulate(self.inputs[1].input_value)
+                new_sample = parent_sample.accumulate(self.inputs[1].input_value).cache()
             elif self.operation == 'JOIN':
-                new_sample = parent_sample.join(Data.uuid_data_storage[self.inputs[1].input_value])
+                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.join(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
             elif self.operation == 'MIX':
-                new_sample = parent_sample.mix(Data.uuid_data_storage[self.inputs[1].input_value])
+                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.mix(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
             elif self.operation == 'MODULATE':
-                new_sample = parent_sample.modulate(Data.uuid_data_storage[self.inputs[1].input_value])
+                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.modulate(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
             elif self.operation == 'ENVELOPE':
                 new_sample = parent_sample.envelope(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                    self.inputs[3].input_value, self.inputs[4].input_value)
+                                                    self.inputs[3].input_value, self.inputs[4].input_value).cache()
             elif self.operation == 'FADEIN':
-                new_sample = parent_sample.fadein(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.fadein(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'FADEOUT':
-                new_sample = parent_sample.fadeout(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.fadeout(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'ADSR':
                 new_sample = parent_sample.ADSR(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                self.inputs[3].input_value, self.inputs[4].input_value)
+                                                self.inputs[3].input_value, self.inputs[4].input_value).cache()
             elif self.operation == 'LIMIT':
-                new_sample = parent_sample.limit(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.limit(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'LOOP':
-                new_sample = parent_sample.loop(self.inputs[1].input_value)
+                new_sample = parent_sample.loop(self.inputs[1].input_value).cache()
             elif self.operation == 'HIGHPASS':
-                new_sample = parent_sample.highpass(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.highpass(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'LOWPASS':
-                new_sample = parent_sample.lowpass(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.lowpass(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'PINGPONG':
-                new_sample = parent_sample.pingpong()
+                new_sample = parent_sample.pingpong().cache()
             elif self.operation == 'REVERSE':
-                new_sample = parent_sample.reverse()
+                new_sample = parent_sample.reverse().cache()
             elif self.operation == 'PITCH':
-                new_sample = parent_sample.pitch(self.inputs[1].input_value)
+                new_sample = parent_sample.pitch(self.inputs[1].input_value).cache()
             elif self.operation == 'SUM':
-                new_sample = parent_sample.sum()
+                new_sample = parent_sample.sum().cache()
             elif self.operation == 'RECHANNEL':
-                new_sample = parent_sample.rechannel(self.inputs[1].input_value)
+                new_sample = parent_sample.rechannel(self.inputs[1].input_value).cache()
             elif self.operation == 'RESAMPLE':
-                new_sample = parent_sample.resample(self.inputs[1].input_value, self.inputs[2].input_value)
+                new_sample = parent_sample.resample(self.inputs[1].input_value, self.inputs[2].input_value).cache()
             elif self.operation == 'THRESHOLD':
-                new_sample = parent_sample.threshold(self.inputs[1].input_value)
+                new_sample = parent_sample.threshold(self.inputs[1].input_value).cache()
             elif self.operation == 'VOLUME':
-                new_sample = parent_sample.volume(self.inputs[1].input_value)
-            Data.uuid_data_storage[self.node_uuid] = new_sample
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        if link.to_socket.bl_idname != link.from_socket.bl_idname:
-            print("Wrong Socket Type")
-        elif link.to_socket == self.inputs[0]:
-            self.outputs[0].input_value = self.node_uuid
-            self.inputs[0].input_value = link.from_socket.input_value
-            self.refresh_outputs()
+                new_sample = parent_sample.volume(self.inputs[1].input_value).cache()
+            if new_sample is not None:
+                Data.uuid_data_storage[self.node_uuid] = new_sample
+                self.outputs[0].input_value = self.node_uuid
+                for link in self.outputs[0].links:
+                    link.to_socket.input_value = self.outputs[0].input_value
+                    if hasattr(link.to_node, "update_obm"):
+                        link.to_node.update_obm()
         else:
-            link.to_socket.input_value = link.from_socket.input_value
-            print("PARAMETER:", str(link.to_socket.input_value))
-            if self.inputs[0].is_linked:
-                self.refresh_outputs()
+            if len(self.outputs) > 0:
+                self.outputs[0].input_value = ""
+                for link in self.outputs[0].links:
+                    link.to_socket.input_value = ""
 
-    def update(self):
-        super().update()
-        if not self.inputs[0].is_linked:
-            self.inputs[0].input_value = ""
-        self.refresh_outputs()
+    def init(self, context):
+        self.inputs.new('SoundSampleSocketType', "Sample")
+        self.outputs.new('SoundSampleSocketType', "Sample")
+        self.inputs.new("FloatSocketType", "start")
+        self.inputs.new("FloatSocketType", "end")
+        super().init(context)
 
-    def update_obm(self):
-        self.update()
-        for link in self.outputs[0].links:
-            # link.to_node.update_obm(self, self.outputs[0])
-            link.to_node.update_obm()
+    def draw_buttons(self, context, layout):
+        if IS_DEBUG:
+            layout.label(text="Debug Infos:")
+            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
+                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
+            layout.label(text=self.inputs[0].input_value)
+            layout.label(text=self.outputs[0].input_value)
+        layout.prop(self, "operation", text="Operation")
 
-    def socket_update(self, socket):
-        super().socket_update(socket)
-        if not socket.is_output:
-            self.refresh_outputs()
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
-                link.to_node.update_obm()
+    def state_update(self):
+        super().state_update()
+        self.__sound_function()
+
+

@@ -11,9 +11,10 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
     bl_idname = 'SampleToSoundNodeType'
     bl_label = "Sample To Sound"
+    bl_icon = 'FILE_SOUND'
 
     def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sound Sample")
+        self.inputs.new('SoundSampleSocketType', "Sample")
         sample_rate = self.inputs.new("IntSocketType", "Sample Rate")
         self.outputs.new('SoundSocketType', "Sound")
         sample_rate.input_value = 44100
@@ -22,7 +23,7 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     def store_data(self):
         sample_socket = self.inputs[0]
         sound_socket = self.outputs[0]
-        if sample_socket.is_linked and sample_socket.input_value != "":
+        if sample_socket.input_value != "":
             sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
             sample_rate = self.inputs[1].input_value
             tmp_dir = tempfile.gettempdir()
@@ -32,12 +33,18 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             print("Soundblock erstellt:", self.outputs[0].input_value.name)
 
         else:
-            print("NOT")
+            print("no sample")
+            #if sound is not None:
+            #    sound.user_clear()
+            #    bpy.data.sounds.remove(sound)
+            self.outputs[0].input_value = None
 
     # Free function to clean up on removal.
     def free(self):
         super().free()
-
+        sound = self.outputs[0].input_value
+        sound.user_clear()
+        bpy.data.sounds.remove(sound)
 
     def refresh_outputs(self):
         super().refresh_outputs()
@@ -48,12 +55,17 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
     def insert_link(self, link):
         super().insert_link(link)
-        if link.to_socket.type != link.from_socket.type:
-            # self.error_message_set("Falscher Socket-Typ!")
-            print("Wrong Socket ", str(link.from_socket.type))
+        if link.is_valid:
+            if link.to_socket == self.inputs[0]:
+                self.inputs[0].input_value = link.from_socket.input_value
+                self.store_data()
+            if link.to_socket == self.inputs[1]:
+                if self.inputs[0].input_value is not None and self.inputs[0].input_value != "":
+                    self.store_data()
         else:
-            # self.error_message_clear()
-            self.store_data()
+            pass
+            #print(link.is_valid)
+
 
     def socket_update(self, socket):
         # self.glob_prop.linked_object_name = self.inputs[0].name

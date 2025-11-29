@@ -532,8 +532,8 @@ class CUSTOM_UL_items(bpy.types.UIList):
         # layout.label(text=item.name)  # avoids renaming the item by accident
         if index == 0:
             layout.label(text=item.name)
-        elif index >= len(data.inputs) - 1:
-            pass
+        #elif index >= len(data.items_tree) - 1:
+        #    pass
         else:
             layout.prop(item, "name", emboss=False, text="")
 
@@ -937,7 +937,7 @@ class SampleToGeometryNode(ObmSoundNode, bpy.types.Node):
         channel_id = 0
         sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
         np_array_sound = sound_sample.data()
-        file_name = self.inputs[2].input_value
+        file_name = self.inputs[1].input_value
 
         sample_rate, channels = sound_sample.specs
         duration = sound_sample.length / sample_rate
@@ -967,11 +967,6 @@ class SampleToGeometryNode(ObmSoundNode, bpy.types.Node):
 
             channel_id += 1
 
-    def draw_buttons(self, context, layout):
-        # layout.label(text=self.get_node_tree_name())
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-
     def insert_link(self, link):
         super().insert_link(link)
         if link.to_socket.type != link.from_socket.type:
@@ -992,8 +987,7 @@ class SampleToGeometryNode(ObmSoundNode, bpy.types.Node):
         else:
             self.bl_icon = "NONE"
             self.bl_description = SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION
-
-        if self.inputs[1].input_value != "":
+            self.inputs[0].input_value = link.from_socket.input_value
             self.create_geometry_node()
 
     def update(self):

@@ -2,6 +2,9 @@ import bpy
 
 from .constants import IMPORT_ICON, COLOR_STRING_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, COLOR_DEVICE_SOCKET
 from .global_data import Data
+from .constants import IS_DEBUG
+from .sockets.basic_sockets import ObmNodeTreeInterfaceSocket
+
 
 class WavImportSocket(bpy.types.NodeSocket):
     """Obm Object Socket"""
@@ -9,7 +12,6 @@ class WavImportSocket(bpy.types.NodeSocket):
     bl_idname = 'WavImportSocketType'
     # Label for nice name display
     bl_label = "Wav Import Socket"
-
     input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
 
     # Optional function for drawing the socket input value
@@ -32,35 +34,17 @@ class WavImportSocket(bpy.types.NodeSocket):
         return COLOR_STRING_SOCKET
 
 
-class NodeTreeInterfaceSocketWavImport(bpy.types.NodeTreeInterfaceSocket):
+class NodeTreeInterfaceSocketWavImport(ObmNodeTreeInterfaceSocket):
     # The type of socket that is generated.
     bl_socket_idname = 'WavImportSocketType'
 
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
-
 
 class SoundSampleSocket(bpy.types.NodeSocket):
-    """Obm Object Socket"""
+    """Obm Sample Socket"""
     # Optional identifier string. If not explicitly defined, the python class name is used.
     bl_idname = 'SoundSampleSocketType'
     # Label for nice name display
-    bl_label = "Sound Sample Socket"
+    bl_label = "Sample"
 
     input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
 
@@ -69,50 +53,40 @@ class SoundSampleSocket(bpy.types.NodeSocket):
         layout.label(text=text)
 
     def update_path_action(self):
-        print("SoundSampleSocketType: input_value update")
-        print(self.input_value)
+        if IS_DEBUG:
+            log_string = f"{self.bl_idname}-> update_path_action: [name: {self.name},  value: {self.input_value}]"
+            print(log_string)
 
-    def poll(self, other_socket):
-        # Entscheidet, ob Verbindung erlaubt ist
-        ttt = getattr(other_socket, "socket_type", None) == self.input_value
-        print(ttt)
-        return ttt
+    # def poll(self, other_socket):
+    #     ttt = getattr(other_socket, "socket_type", None) == self.input_value
+    #     return ttt
 
     @classmethod
     def draw_color_simple(cls):
         # cls.display_shape = "SQUARE"
         return COLOR_SOUND_SAMPLE_SOCKET
 
+    def draw_color(self, context, node):
+        # cls.display_shape = "SQUARE"
+        return COLOR_SOUND_SAMPLE_SOCKET
 
-class NodeTreeInterfaceSocketSoundSample(bpy.types.NodeTreeInterfaceSocket):
+
+class NodeTreeInterfaceSocketSoundSample(ObmNodeTreeInterfaceSocket):
     # The type of socket that is generated.
     bl_socket_idname = 'SoundSampleSocketType'
 
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
+    def draw_color(self, context, node):
+        # cls.display_shape = "SQUARE"
+        return COLOR_SOUND_SAMPLE_SOCKET
 
 
 class DeviceSocket(bpy.types.NodeSocket):
     """Obm Object Socket"""
     bl_idname = 'DeviceSocketType'
-    bl_label = "Device Socket"
+    bl_label = "Device"
 
     input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
+    value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
 
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
@@ -126,25 +100,14 @@ class DeviceSocket(bpy.types.NodeSocket):
         # cls.display_shape = "SQUARE"
         return COLOR_DEVICE_SOCKET
 
+    def draw_color(self, context, node):
+        return COLOR_DEVICE_SOCKET
 
-class NodeTreeInterfaceSocketDevice(bpy.types.NodeTreeInterfaceSocket):
+
+class NodeTreeInterfaceSocketDevice(ObmNodeTreeInterfaceSocket):
     # The type of socket that is generated.
     bl_socket_idname = 'DeviceSocketType'
 
-    default_value: bpy.props.StringProperty()
-
-    def draw(self, context, layout):
-        # Display properties of the interface.
-        layout.prop(self, "default_value")
-
-    # Set properties of newly created sockets
-    def init_socket(self, node, socket, data_path):
-        # socket.display_shape = "SQUARE"
-        socket.input_value = self.default_value
-        print("init_socket")
-
-    # Use an existing socket to initialize the group interface
-    def from_socket(self, node, socket):
-        # Current value of the socket becomes the default
-        self.default_value = socket.input_value
-        print("from_socket")
+    def draw_color(self, context, node):
+        # cls.display_shape = "SQUARE"
+        return COLOR_DEVICE_SOCKET

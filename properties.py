@@ -7,7 +7,7 @@ def on_mesh_update(obj, scene):
     print(obj.name)
     for node_key in Data.geometry_to_sample_nodes:
         node = Data.geometry_to_sample_nodes[node_key]
-        if node.inputs[0].input_value.name == obj.name:
+        if obj.name and node.inputs[0].input_value.name == obj.name:
             print(obj.name)
             print("Operation UPDATE")
             node.operation_update()

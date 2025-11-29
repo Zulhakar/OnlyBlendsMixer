@@ -154,13 +154,14 @@ class CUSTOM_OT_clearList(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CUSTOM_UL_items(bpy.types.UIList):
+class CUSTOM_UL_items2(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         split = layout.split(factor=0.5)
-        split.label(text="Index: %d" % (index))
+
+        split.label(text="sadfdf")
         custom_icon = "OUTLINER_OB_%s" % item.obj_type
         # split.prop(item, "name", text="", emboss=False, translate=False, icon=custom_icon)
-        split.label(text=item.name, icon=custom_icon)  # avoids renaming the item by accident
+        split.label(text=item.name,)  # avoids renaming the item by accident
 
     def invoke(self, context, event):
         pass
@@ -260,5 +261,5 @@ class CUSTOM_OT_actions(bpy.types.Operator):
 
 # PLAY_OT,
 ui_classes = [MainPt, SUB1_PT, SUB2_PT, PLAY_OT, FILE_SELECT_OT_rec, FILE_SELECT_OT_import_wav,
-              CUSTOM_UL_items, CUSTOM_PT_objectList, CUSTOM_OT_clearList, CUSTOM_OT_actions]
+              CUSTOM_UL_items2, CUSTOM_PT_objectList, CUSTOM_OT_clearList, CUSTOM_OT_actions]
 
