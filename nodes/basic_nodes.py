@@ -132,7 +132,7 @@ class ObmSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                 self.state_update()
                 for link in self.outputs[0].links:
                     link.to_socket.input_value = self.outputs[0].input_value
-                    link.to_node.update_obm()
+                    #link.to_node.update_obm()
 
 
 class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):

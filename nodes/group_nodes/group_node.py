@@ -1,8 +1,14 @@
 import bpy
 from ...constants import SOUND_TREE_TYPE, IS_DEBUG
 from ..basic_nodes import ObmSoundNode
+from ...nodes.basic_nodes import ObmConstantNode
 
-class GroupNodeObm(bpy.types.NodeCustomGroup):
+def get_socket_index(sockets, socket):
+    for i , value in enumerate(sockets):
+        if socket == value:
+            return i
+
+class GroupNodeObm(ObmConstantNode):
     #bl_idname = "GroupNodeObm"
     bl_label = "Sound Group"
     bl_icon = 'NODETREE'
@@ -19,25 +25,34 @@ class GroupNodeObm(bpy.types.NodeCustomGroup):
         update=lambda self, context: self.node_group_tree_update(context)
     )
 
-    def __log(self, func_name):
-        if IS_DEBUG:
-            log_string = f"{self.bl_idname}-> {self.name}: {func_name} was called"
-            print(log_string)
+    group_input_node : bpy.props.StringProperty()
+    group_output_node :  bpy.props.StringProperty()
 
     def node_group_tree_update(self, context):
         self.__log("node_group_tree_update")
 
-
     def draw_buttons(self, context, layout):
         layout.prop(self, "all_trees", text="")
-
-    def free(self):
-        self.__log("free")
-        #print("GroupNode deleted")
-        #self.node_tree.group_node_list.remove(self.name)
-        #for element in self.node_tree.group_node_list:
-        #    print(element.value)
 
     def sync_sockets(self):
         self.__log("sync_sockets")
 
+    def socket_update(self, socket):
+        super().socket_update(socket)
+        if socket.name in self.inputs:
+            input_group = None
+            output_group = None
+            if self.node_tree:
+                if self.group_input_node:
+                    input_group = self.node_tree.nodes[self.group_input_node]
+                if self.group_output_node:
+                    output_group = self.node_tree.nodes[self.group_output_node]
+            if input_group:
+                index = get_socket_index(self.inputs, socket)
+                input_group.outputs[index].input_value = socket.input_value
+                for link in input_group.outputs[index].links:
+                    link.to_socket.input_value = socket.input_value
+                print("CASSCADE END")
+
+                for i, output_sockets in enumerate(self.outputs):
+                    self.outputs[i].input_value = output_group.inputs[i].input_value

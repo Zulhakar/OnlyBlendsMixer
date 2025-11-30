@@ -7,7 +7,7 @@ from .constants import SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION, SAMPLE_TO_MESH_NODE_
 from .nodes.basic_nodes import ObmSoundNode
 from .sockets.basic_sockets import SoundSocket
 from .constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
-from .obm_sockets import SoundSampleSocket
+from .sockets.basic_sockets import SoundSampleSocket
 from .global_data import Data
 from .util import get_node_tree_name
 

@@ -39,45 +39,7 @@ class NodeTreeInterfaceSocketWavImport(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'WavImportSocketType'
 
 
-class SoundSampleSocket(bpy.types.NodeSocket):
-    """Obm Sample Socket"""
-    # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'SoundSampleSocketType'
-    # Label for nice name display
-    bl_label = "Sample"
 
-    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_path_action())
-
-    # Optional function for drawing the socket input value
-    def draw(self, context, layout, node, text):
-        layout.label(text=text)
-
-    def update_path_action(self):
-        if IS_DEBUG:
-            log_string = f"{self.bl_idname}-> update_path_action: [name: {self.name},  value: {self.input_value}]"
-            print(log_string)
-
-    # def poll(self, other_socket):
-    #     ttt = getattr(other_socket, "socket_type", None) == self.input_value
-    #     return ttt
-
-    @classmethod
-    def draw_color_simple(cls):
-        # cls.display_shape = "SQUARE"
-        return COLOR_SOUND_SAMPLE_SOCKET
-
-    def draw_color(self, context, node):
-        # cls.display_shape = "SQUARE"
-        return COLOR_SOUND_SAMPLE_SOCKET
-
-
-class NodeTreeInterfaceSocketSoundSample(ObmNodeTreeInterfaceSocket):
-    # The type of socket that is generated.
-    bl_socket_idname = 'SoundSampleSocketType'
-
-    def draw_color(self, context, node):
-        # cls.display_shape = "SQUARE"
-        return COLOR_SOUND_SAMPLE_SOCKET
 
 
 class DeviceSocket(bpy.types.NodeSocket):

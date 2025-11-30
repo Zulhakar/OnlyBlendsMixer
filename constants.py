@@ -1,7 +1,7 @@
 APP_NAME = "OnlyBlends.Mixer"
 APP_NAME_SHORT = "obm"
 
-IS_DEBUG = False
+IS_DEBUG = True
 # UI
 ## Base Panel
 BL_SPACE_TYPE = 'VIEW_3D'

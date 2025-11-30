@@ -12,8 +12,6 @@ from .nodes.sample_nodes.sample_sequencer import NoteSequenceToSampleNode
 from .nodes.group_nodes.group_node import GroupNodeObm
 
 from .nodes.speaker_nodes.speaker_link_node import SpeakerLinkNode
-from .obm_sockets import WavImportSocket, NodeTreeInterfaceSocketWavImport, SoundSampleSocket, \
-    NodeTreeInterfaceSocketSoundSample, DeviceSocket, NodeTreeInterfaceSocketDevice
 from .nodes.basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
 from .nodes.constant_nodes.note_node import NoteNode
 import aud
@@ -34,7 +32,7 @@ classes = [
     #SoundInfoNode,
     #ImportWavNode, WavImportSocket, NodeTreeInterfaceSocketWavImport,
 
-    SoundToSampleNode, SoundSampleSocket, NodeTreeInterfaceSocketSoundSample,
+    SoundToSampleNode,
     EditSampleNode,
     OscillatorNode,
     NoteSequenceToSampleNode,

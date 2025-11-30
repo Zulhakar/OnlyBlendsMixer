@@ -23,6 +23,7 @@ def create_child_node_tree(old_tree, selected):
     for node in selected:
         new = new_tree.nodes.new(node.bl_idname)
         new.location = node.location
+        new.copy(node)
         min_x, min_y = min(new.location.x, min_x), min(new.location.y, min_y)
         max_x, max_y = max(new.location.x, max_x), max(new.location.y, max_y)
         # mapping[node] = new
@@ -82,21 +83,22 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         group_node.all_trees = new_tree
         group_node.location = selected[0].location
 
+        group_node.group_input_node = new_input_node.name
+        group_node.group_output_node = new_output_node.name
+
         # -----------------------------
         new_link_list = []
+        group_input_socket_index = 0
         for link in old_tree.links:
             if link.from_node not in selected and link.to_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname)
                 new_sock.display_shape = 'LINE'
                 new_sock2 = group_node.inputs.new(link.to_socket.bl_idname, link.from_socket.bl_label)
                 new_sock2.display_shape = 'LINE'
-                #new_link = old_tree.links.new(new_sock2, link.from_socket)
                 new_link_list.append((new_sock2, link.from_socket))
-                #new_link_list.append((new_sock2, link.from_socket,
-                #                      get_index_of_socket(link.to_node, link.to_socket), get_index_of_socket(link.from_node, link.from_socket),
-                #                      new_names_dict[link.to_node.name], new_names_dict[link.from_node.name]))
-                new_tree.links.new(new_input_node.outputs[get_index_of_socket(link.from_node, link.from_socket)[0]],
-                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.from_node, link.from_socket)[0]]).is_valid = True
+                new_tree.links.new(new_input_node.outputs[group_input_socket_index],
+                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+                group_input_socket_index += 1
             elif link.to_node not in selected and link.from_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname, in_out="OUTPUT")
                 new_sock.display_shape = 'LINE'
@@ -104,9 +106,7 @@ class NODE_OT_my_make_group(bpy.types.Operator):
                 new_sock2.display_shape = 'LINE'
                 #new_link = old_tree.links.new(new_sock2, link.from_socket)
                 new_link_list.append(( link.to_socket, new_sock2))
-
-                new_tree.links.new(
-                                   get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
+                new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
                 new_output_node.inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
             elif link.to_node in selected and link.from_node in selected:
@@ -233,10 +233,20 @@ class MY_OT_RemoveSelected(bpy.types.Operator):
     def execute(self, context):
         tree = context.space_data.node_tree
         idx = tree.interface.active_index
-
+        in_out = tree.interface.items_tree[idx].in_out
+        print(in_out)
+        num_outputs = 0
+        for interface in tree.interface.items_tree:
+            if interface.in_out == "OUTPUT":
+                num_outputs += 1
         if 0 <= idx < len(tree.interface.items_tree):
             tree.interface.remove(tree.interface.items_tree[idx])
-
+            if in_out == "INPUT":
+                for node in tree.get_parent_group_nodes():
+                    node.inputs.remove(node.inputs[idx - num_outputs])
+            elif in_out == "OUTPUT":
+                for node in tree.get_parent_group_nodes():
+                    node.outputs.remove(node.outputs[idx])
         return {'FINISHED'}
 
 

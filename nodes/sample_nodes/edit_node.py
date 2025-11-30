@@ -120,8 +120,9 @@ class EditSampleNode(ObmSampleNode):
         super().init(self)
 
     def __sound_function(self):
-        if self.inputs[0].input_value != "" and self.inputs[0].input_value in Data.uuid_data_storage:
+        if self.inputs[0].input_value != "" and self.inputs[0].input_value in Data.uuid_data_storage and Data.uuid_data_storage[self.inputs[0].input_value]:
             parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+            length = parent_sample.length
             new_sample = None
             if self.operation == 'DELAY':
                 new_sample = parent_sample.delay(self.inputs[1].input_value).cache()
@@ -137,7 +138,8 @@ class EditSampleNode(ObmSampleNode):
                 if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
                     new_sample = parent_sample.modulate(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
             elif self.operation == 'ENVELOPE':
-                new_sample = parent_sample.envelope(self.inputs[1].input_value, self.inputs[2].input_value,
+                if length > 0:
+                    new_sample = parent_sample.envelope(self.inputs[1].input_value, self.inputs[2].input_value,
                                                     self.inputs[3].input_value, self.inputs[4].input_value).cache()
             elif self.operation == 'FADEIN':
                 new_sample = parent_sample.fadein(self.inputs[1].input_value, self.inputs[2].input_value).cache()
@@ -175,8 +177,12 @@ class EditSampleNode(ObmSampleNode):
                 self.outputs[0].input_value = self.node_uuid
                 for link in self.outputs[0].links:
                     link.to_socket.input_value = self.outputs[0].input_value
-                    if hasattr(link.to_node, "update_obm"):
-                        link.to_node.update_obm()
+                    #if hasattr(link.to_node, "update_obm"):
+                    #    link.to_node.update_obm()
+            else:
+                self.outputs[0].input_value = ""
+                for link in self.outputs[0].links:
+                    link.to_socket.input_value = ""
         else:
             if len(self.outputs) > 0:
                 self.outputs[0].input_value = ""
@@ -203,4 +209,11 @@ class EditSampleNode(ObmSampleNode):
         super().state_update()
         self.__sound_function()
 
-
+    def copy(self, node):
+        super().copy(node)
+        print("Copy")
+        self.operation = node.operation
+        for i, value in enumerate(node.inputs):
+            self.inputs[i].input_value = node.inputs[i].input_value
+            #node.operation = self.operation
+            #node.inputs[i].input_value = self.inputs[i].input_value

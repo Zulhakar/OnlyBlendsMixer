@@ -1,7 +1,7 @@
 import bpy
 from ..constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
                          COLOR_FLOAT_VECTOR_SOCKET,
-                         COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, IS_DEBUG)
+                         COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, IS_DEBUG)
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 from bpy.utils import (register_class,
                        unregister_class)
@@ -22,7 +22,7 @@ class ObmBasicSocket(NodeSocket):
 
     def update_prop(self):
         if IS_DEBUG:
-            log_string = f"{self.bl_idname}-> update_prop: [name: {self.name},  value: {self.input_value}]"
+            log_string = f"{self.node.bl_idname}-> Socket: {self.bl_idname} update_prop: [name: {self.name},  value: {self.input_value}]"
             print(log_string)
         if hasattr(self.node, "socket_update"):
             self.node.socket_update(self)
@@ -50,6 +50,41 @@ class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
 
     def draw_color(self, context, node):
         return COLOR_BLACK
+
+
+class NodeTreeInterfaceSocketSoundSample(ObmNodeTreeInterfaceSocket):
+    # The type of socket that is generated.
+    bl_socket_idname = 'SoundSampleSocketType'
+
+    def draw_color(self, context, node):
+        # cls.display_shape = "SQUARE"
+        return COLOR_SOUND_SAMPLE_SOCKET
+
+class SoundSampleSocket(ObmBasicSocket):
+    """Obm Sample Socket"""
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'SoundSampleSocketType'
+    # Label for nice name display
+    bl_label = "Sample"
+
+    input_value: bpy.props.StringProperty(update=lambda self, context: self.update_prop())
+
+    # Optional function for drawing the socket input value
+    def draw(self, context, layout, node, text):
+        layout.label(text=text)
+
+
+    @classmethod
+    def draw_color_simple(cls):
+        # cls.display_shape = "SQUARE"
+        return COLOR_SOUND_SAMPLE_SOCKET
+
+    def draw_color(self, context, node):
+        # cls.display_shape = "SQUARE"
+        return COLOR_SOUND_SAMPLE_SOCKET
+
+
+
 
 
 class NodeTreeInterfaceSocketSound(ObmNodeTreeInterfaceSocket):
@@ -229,6 +264,7 @@ class ObmEmptySocket(NodeSocket):
 
 
 classes = (SoundSocket, NodeTreeInterfaceSocketSound,
+           SoundSampleSocket, NodeTreeInterfaceSocketSoundSample,
            ObjectSocket, NodeTreeInterfaceSocketObject,
            ObmFloatSocket, NodeTreeInterfaceSocketObmFloat,
            ObmIntSocket, NodeTreeInterfaceSocketObmInt,

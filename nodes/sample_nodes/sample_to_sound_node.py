@@ -22,16 +22,18 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
     def store_data(self):
         sample_socket = self.inputs[0]
-        sound_socket = self.outputs[0]
         if sample_socket.input_value != "":
             sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-            sample_rate = self.inputs[1].input_value
-            tmp_dir = tempfile.gettempdir()
-            tmp_path = os.path.join(tmp_dir, f"{self.name}.wav")
-            sound_sample.write(tmp_path, sample_rate, 1)
-            sound_socket.input_value = bpy.data.sounds.load(tmp_path, check_existing=True)
-            print("Soundblock erstellt:", self.outputs[0].input_value.name)
-
+            if sound_sample is not None:
+                sample_rate = self.inputs[1].input_value
+                tmp_dir = tempfile.gettempdir()
+                tmp_path = os.path.join(tmp_dir, f"{self.name}.wav")
+                sound_sample.write(tmp_path, sample_rate, 1)
+                new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
+                self.outputs[0].input_value = new_data
+                #print("Soundblock erstellt:", self.outputs[0].input_value.name)
+            else:
+                self.outputs[0].input_value = None
         else:
             print("no sample")
             #if sound is not None:
@@ -75,7 +77,6 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                 self.store_data()
                 for link in self.outputs[0].links:
                     link.to_socket.input_value = self.outputs[0].input_value
-                    link.to_node.update_obm()
         else:
             print("no update")
 
@@ -85,16 +86,5 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     def update_obm(self):
         super().update_obm()
         self.store_data()
-        for link in self.outputs[0].links:
-            link.to_node.update_obm()
-    # def update(self):
-    #     super().update()
-    #     if not self.inputs[0].is_linked:
-    #         self.inputs[0].input_value = ""
-    #     self.refresh_outputs()
-    #
-    # def update_obm(self):
-    #     self.update()
-    #     for link in self.outputs[0].links:
-    #         # link.to_node.update_obm(self, self.outputs[0])
-    #         link.to_node.update_obm()
+        # for link in self.outputs[0].links:
+        #     link.to_node.update_obm()
