@@ -40,7 +40,7 @@ class SpeakerLinkNode(ObmConstantNode):
             if hasattr(self.inputs[0], 'input_value') and hasattr(self.inputs[1], 'input_value'):
                 speaker = self.inputs[0].input_value
                 sound = self.inputs[1].input_value
-                if speaker is not None and sound is not None:
+                if speaker is not None and sound is not None and speaker.name in bpy.data.objects:
                     speaker.sound = sound
                     speaker.animation_data_create()
                     action_name = f"{speaker.name}_action"

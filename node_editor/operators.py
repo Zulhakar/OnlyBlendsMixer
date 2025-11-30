@@ -8,7 +8,6 @@ def create_child_node_tree(old_tree, selected):
         "Sound Tree",
         SOUND_TREE_TYPE
     )
-    new_tree.parent = old_tree
     # Input / Output Nodes
     input_node = new_tree.nodes.new("NodeGroupInput")
     output_node = new_tree.nodes.new("NodeGroupOutput")
@@ -83,10 +82,13 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         group_node.all_trees = new_tree
         group_node.location = selected[0].location
 
+        new_output_node.parent = group_node
+        #new_output_node["parent_group_node"] = bpy.props.PointerProperty(type=bpy.types.Node)
+        #new_output_node.parent_group_node = group_node
+        new_tree.parent = old_tree
         group_node.group_input_node = new_input_node.name
         group_node.group_output_node = new_output_node.name
 
-        # -----------------------------
         new_link_list = []
         group_input_socket_index = 0
         for link in old_tree.links:
@@ -109,12 +111,8 @@ class NODE_OT_my_make_group(bpy.types.Operator):
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
                 new_output_node.inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+
             elif link.to_node in selected and link.from_node in selected:
-                #inner links
-                #new_link_list.append((new_sock2, link.from_socket,
-                #                     get_index_of_socket(link.to_node, link.to_socket),
-                #                     get_index_of_socket(link.from_node, link.from_socket),
-                #                     new_names_dict[link.to_node.name], new_names_dict[link.from_node.name]))
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
                                    get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
@@ -122,15 +120,14 @@ class NODE_OT_my_make_group(bpy.types.Operator):
             old_tree.links.new(link_tupel[0], link_tupel[1]).is_valid = True
 
 
-            #print(new_link.to_socket.bl_idname)
-            #print(new_link.from_socket.bl_idname)
-            #new_link.is_valid = True
-
         for output in new_input_node.outputs[:-1]:
             output.display_shape = "LINE"
         for input in new_output_node.inputs[:-1]:
             input.display_shape = "LINE"
-
+            # -----------------------------
+            # inject
+            input.group_node_tree_name = old_tree.name
+            input.group_node_name = group_node.name
 
         group_name_string = new_tree.group_node_list.add()
         group_name_string.value = group_node.name

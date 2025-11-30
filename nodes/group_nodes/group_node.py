@@ -2,11 +2,7 @@ import bpy
 from ...constants import SOUND_TREE_TYPE, IS_DEBUG
 from ..basic_nodes import ObmSoundNode
 from ...nodes.basic_nodes import ObmConstantNode
-
-def get_socket_index(sockets, socket):
-    for i , value in enumerate(sockets):
-        if socket == value:
-            return i
+from ...helper import get_socket_index
 
 class GroupNodeObm(ObmConstantNode):
     #bl_idname = "GroupNodeObm"

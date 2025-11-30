@@ -239,3 +239,8 @@ def point_cloud(ob_name, coords):
     # ob.show_name = True
     me.update()
     return ob
+
+def get_socket_index(sockets, socket):
+    for i , value in enumerate(sockets):
+        if socket == value:
+            return i

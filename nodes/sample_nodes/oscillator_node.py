@@ -4,7 +4,7 @@ import bpy
 from ..basic_nodes import ObmSampleNode
 from ...constants import SOUND_SOCKET_SHAPE, IS_DEBUG
 from ...global_data import Data
-
+import mathutils
 class OscillatorNode(ObmSampleNode):
     '''Sound Sample  which can be modified, played and recorded'''
 
@@ -26,6 +26,8 @@ class OscillatorNode(ObmSampleNode):
 
     prev_frequency: bpy.props.FloatProperty(default=0.0)
 
+    color_tag = 'INTERFACE'
+    color = mathutils.Color((1.0, 1.0, 1.0))
     def __sound_function(self):
         if len(self.inputs) > 0 and len(self.outputs) > 0:
             new_sample = None
@@ -63,6 +65,8 @@ class OscillatorNode(ObmSampleNode):
         self.inputs[0].input_value = 44100
         self.inputs[1].input_value = 110.0
         super().init(context)
+        color_tag = 'INTERFACE'
+        color = mathutils.Color((1.0, 1.0, 1.0))
     # Additional buttons displayed on the node.
 
     def draw_buttons(self, context, layout):

@@ -1,15 +1,17 @@
 import bpy
-from ..constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
-                         COLOR_FLOAT_VECTOR_SOCKET,
-                         COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, IS_DEBUG)
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 from bpy.utils import (register_class,
                        unregister_class)
+from ..constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
+                         COLOR_FLOAT_VECTOR_SOCKET,
+                         COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, IS_DEBUG)
 
+from ..helper import get_socket_index
 
 class ObmBasicSocket(NodeSocket):
     is_constant: bpy.props.BoolProperty()
-
+    group_node_tree_name: bpy.props.StringProperty()
+    group_node_name: bpy.props.StringProperty()
     def draw(self, context, layout, node, text):
         if self.is_constant:
             layout.alignment = 'EXPAND'
@@ -27,6 +29,22 @@ class ObmBasicSocket(NodeSocket):
         if hasattr(self.node, "socket_update"):
             self.node.socket_update(self)
 
+        # ----------------------------------------------------------
+        # inject update for build in nodes (Group Input/Output Node)
+        # maybee pointer for socket group_output inputs with group_node output
+        else:
+            if self.node.bl_idname == "NodeGroupOutput":
+                #get tree -> get group_node -> boom
+                if self.group_node_tree_name != "":
+                    node = self.node
+                    #print("Trigger from Socket")
+                    tree = bpy.data.node_groups[self.group_node_tree_name]
+                    group_node = tree.nodes[self.group_node_name]
+                    #print(group_node.name)
+                    sock_index = get_socket_index(node.inputs, self)
+                    group_node.outputs[sock_index].input_value = self.input_value
+        # ----------------------------------------------------------
+
     # Socket color
     @classmethod
     def draw_color_simple(cls):
@@ -37,7 +55,6 @@ class ObmBasicSocket(NodeSocket):
 
 class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
     default_value: bpy.props.StringProperty()
-
     def draw(self, context, layout):
         layout.prop(self, "default_value")
 
