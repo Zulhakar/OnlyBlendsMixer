@@ -80,6 +80,7 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         group_node = old_tree.nodes.new("GroupNodeObm")
         group_node.node_tree = new_tree
         group_node.all_trees = new_tree
+        group_node.parent_node_tree = bpy.data.node_groups[old_tree.name]
         group_node.location = selected[0].location
 
         new_output_node.parent = group_node

@@ -9,7 +9,7 @@ from functools import wraps
 
 class ObmSoundNode:
 
-    def __log(self, func_name):
+    def log(self, func_name):
         if IS_DEBUG:
             log_string = f"{self.bl_idname}-> {self.name}: {func_name} was called"
             print(log_string)
@@ -42,11 +42,11 @@ class ObmSoundNode:
         return ntree.bl_idname == SOUND_TREE_TYPE
 
     def copy(self, node):
-        self.__log("copy")
+        self.log("copy")
         self.sound_data_init()
 
     def free(self):
-        self.__log("free")
+        self.log("free")
         if hasattr(self, "node_uuid"):
             if self.node_uuid in Data.uuid_data_storage.keys():
                 del Data.uuid_data_storage[self.node_uuid]
@@ -54,13 +54,13 @@ class ObmSoundNode:
                     print(f"{self.node_uuid} data deleted")
 
     def refresh_outputs(self):
-        self.__log("refresh")
+        self.log("refresh")
 
     def draw_label(self):
         return self.bl_label
 
     def insert_link(self, link):
-        self.__log("insert_link")
+        self.log("insert_link")
         if link.to_socket.bl_idname != link.from_socket.bl_idname:
             # self.error_message_set("Falscher Socket-Typ!")
             if IS_DEBUG:
@@ -77,19 +77,19 @@ class ObmSoundNode:
             pass
 
     def update(self):
-        self.__log("update")
+        self.log("update")
 
     def socket_update(self, socket):
-        self.__log("socket_update")
+        self.log("socket_update")
 
     def socket_value_update(self, context):
-        self.__log("socket_value_update")
+        self.log("socket_value_update")
 
     def update_obm(self):
-        self.__log("update_obm")
+        self.log("update_obm")
 
     def state_update(self):
-        self.__log("state_update")
+        self.log("state_update")
 
 
 class ObmSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):

@@ -4,6 +4,15 @@ from ..basic_nodes import ObmSoundNode
 from ...nodes.basic_nodes import ObmConstantNode
 from ...helper import get_socket_index
 
+
+def _checker(self, tree):
+    parent = self.parent_node_tree
+    while parent:
+        if tree.name == parent.name:
+            return False
+        parent = parent.parent
+    return True
+
 class GroupNodeObm(ObmConstantNode):
     #bl_idname = "GroupNodeObm"
     bl_label = "Sound Group"
@@ -17,21 +26,25 @@ class GroupNodeObm(ObmConstantNode):
     all_trees: bpy.props.PointerProperty(
         name="Group",
         type=bpy.types.NodeTree,
-        poll=lambda self, tree: (tree.bl_idname == SOUND_TREE_TYPE),
+        poll=lambda self, tree: (tree.bl_idname == SOUND_TREE_TYPE and _checker(self, tree)),
         update=lambda self, context: self.node_group_tree_update(context)
+    )
+    parent_node_tree: bpy.props.PointerProperty(
+        name="Node Tree",
+        type=bpy.types.NodeTree
     )
 
     group_input_node : bpy.props.StringProperty()
     group_output_node :  bpy.props.StringProperty()
 
     def node_group_tree_update(self, context):
-        self.__log("node_group_tree_update")
+        self.log("node_group_tree_update")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "all_trees", text="")
 
     def sync_sockets(self):
-        self.__log("sync_sockets")
+        self.log("sync_sockets")
 
     def socket_update(self, socket):
         super().socket_update(socket)
@@ -50,5 +63,5 @@ class GroupNodeObm(ObmConstantNode):
                     link.to_socket.input_value = socket.input_value
                 print("CASSCADE END")
 
-                for i, output_sockets in enumerate(self.outputs):
-                    self.outputs[i].input_value = output_group.inputs[i].input_value
+                #for i, output_sockets in enumerate(self.outputs):
+                #    self.outputs[i].input_value = output_group.inputs[i].input_value
