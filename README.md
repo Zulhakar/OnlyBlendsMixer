@@ -12,6 +12,15 @@ Creating Sounds with Geometry Nodes
   - [x] selection for optional duration mapping to node group
 - [x] New vector nodes : Vector and Combine-XYZ
 - [x] Note Sequence Node (maybee rename it)
+- [ ] Note Node
+  - [ ] selectable octave
+  - [ ] duration as 1/4 1/8 etc
+  - [ ] input for dpm
+  - [ ] new sockets: note string 
+- [x] Note To Frequency
+    - [x]  selectable note
+    - [ ] optional: string input as alternative
+    - [ ] optional: selection of octave
 - [ ] simplify node_tree update
 - [ ] simplify graph updates, make performance improvements
 - [ ] group node, switch tree etc

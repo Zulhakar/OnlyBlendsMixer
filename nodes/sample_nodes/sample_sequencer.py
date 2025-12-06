@@ -120,20 +120,9 @@ class NoteSequenceToSampleNode(ObmSampleNode):
     def init(self, context):
         self.outputs.new('SoundSampleSocketType', "Sample")
         self.inputs.new("FloatVectorFieldSocketType", "Note")
-
         super().init(context)
         self.inputs[0].display_shape = "DIAMOND"
-        # frequency duration intensity
-        # pips = self.inputs[0].input_value.add()
-        # pips.value = (110.0, 2.0, 1.0)
-        # pips = self.inputs[0].input_value.add()
-        # pips.value = (0.0, 0.5, 0.0)
-        # pips = self.inputs[0].input_value.add()
-        # pips.value = (210.0, 1.0, 0.5)
-        # pips = self.inputs[0].input_value.add()
-        # pips.value = (210.0, 1.0, 0.1)
 
-    # Additional buttons displayed on the node.
 
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
@@ -160,7 +149,7 @@ class NoteSequenceToSampleNode(ObmSampleNode):
 
                     use_duration = self.duration_socket != "" and int(self.duration_socket) + 1 <= len(
                         input_group.outputs)
-                    if use_duration and isinstance(input_group.outputs[int(self.duration_socket_socket)].input_value,
+                    if use_duration and isinstance(input_group.outputs[int(self.duration_socket)].input_value,
                                                    float):
                         use_duration = True
                     for item in input_notes_socket.input_value:

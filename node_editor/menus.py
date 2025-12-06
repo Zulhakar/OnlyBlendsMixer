@@ -1,6 +1,5 @@
 import bpy
 
-from .sound_node_tree import SoundTree
 from bl_ui import node_add_menu
 from ..constants import SOUND_TREE_TYPE
 
@@ -21,13 +20,13 @@ class ConstantsMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "ObmVectorNodeType")
         node_add_menu.add_node_type(layout, "ObmCombineXyzNodeType")
         layout.separator()
-        node_add_menu.add_node_type(layout, "ObmNoteNodeType")
+        node_add_menu.add_node_type(layout, "NoteToFrequencyNode")
         node_add_menu.add_node_type(layout, "KeySequenceNodeType")
         layout.separator()
         node_add_menu.add_node_type(layout, "SpeakerNodeType")
         layout.separator()
-        #node_add_menu.add_node_type(layout, "NodeGroupInputObm")
-        #node_add_menu.add_node_type(layout, "NodeGroupInput")
+        node_add_menu.add_node_type(layout, "NodeGroupInput")
+        node_add_menu.add_node_type(layout, "NodeGroupOutput")
 
         # example to set default size of Value Node
         # props = node_add_menu.add_node_type(layout, "ObmFloatNodeType")
@@ -66,15 +65,6 @@ class SampleMenu(bpy.types.Menu):
         #node_add_menu.add_node_type(layout, "SampleToGeometryType")
         node_add_menu.add_node_type(layout, "SampleToMeshType")
 
-class GatewayMenu(bpy.types.Menu):
-    bl_label = 'Gateways'
-    bl_idname = 'NODE_MT_Obm_Gateways'
-
-    def draw(self, context):
-        layout = self.layout
-
-        node_add_menu.add_node_type(layout, "GatewayEntryNodeType")
-        node_add_menu.add_node_type(layout, "GatewayExitNodeType")
 
 
 class SpeakerMenu(bpy.types.Menu):
@@ -109,7 +99,7 @@ def draw_add_menu(self, context):
     layout.menu(SpeakerMenu.bl_idname)
     # layout.menu(DeviceMenu.bl_idname)
     layout.menu(SampleMenu.bl_idname)
-    # layout.menu(GatewayMenu.bl_idname)
+
     # layout.menu(SoundMenu.bl_idname)
 
     # node_add_menu.add_node_type(layout, "ImportWavNodeType")

@@ -3,7 +3,7 @@ from .operators import (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSo
                         MY_MT_add_interface, MY_OT_RemoveSelected, SOCKET_CHOICES, CUSTOM_UL_items2, CUSTOM_UL_items
                         )
 from .sound_node_tree import SoundTree, GroupStringCollectionItem
-from .menus import ConstantsMenu, DeviceMenu, SampleMenu, GatewayMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
+from .menus import ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
 from ..constants import SOUND_TREE_TYPE
 addon_keymaps = []
 
@@ -50,7 +50,6 @@ def register():
     bpy.utils.register_class(ConstantsMenu)
     bpy.utils.register_class(DeviceMenu)
     bpy.utils.register_class(SampleMenu)
-    bpy.utils.register_class(GatewayMenu)
     bpy.utils.register_class(SpeakerMenu)
     bpy.utils.register_class(SoundMenu)
 
@@ -76,7 +75,6 @@ def unregister():
     bpy.utils.unregister_class(ConstantsMenu)
     bpy.utils.unregister_class(DeviceMenu)
     bpy.utils.unregister_class(SampleMenu)
-    bpy.utils.unregister_class(GatewayMenu)
     bpy.utils.unregister_class(SpeakerMenu)
     bpy.utils.unregister_class(SoundMenu)
 

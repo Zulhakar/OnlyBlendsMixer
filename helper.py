@@ -1,88 +1,7 @@
 import bpy
 import aud
-
 import numpy as np
-import os
-from .global_data import Data
-from .aud_helper import import_wave_file, wav_metadata
-
-def import_wav(filepath):
-    wav_array  = import_wave_file(filepath)
-    meta_data = wav_metadata(filepath)
-    duration = meta_data.nframes / meta_data.framerate
-    file_name = os.path.basename(filepath)
-    channel_id = 0
-    for channel in wav_array:
-        coord = np.expand_dims(channel, 0)
-        # x = np.zeros(len(channel))
-        x = np.linspace(0, 1, len(channel))
-        # x = np.expand_dims(x, 0)
-        # z = x.copy()
-        z = np.zeros(len(channel))
-        # z = np.expand_dims(z, 0)
-        coord = np.vstack([x, coord, z])
-        coord = coord.T
-        coord = coord.tolist()
-        object_name = f"{file_name}_channel_{channel_id}"
-        new_pc = point_cloud(object_name, coord)
-        node_group_name = file_name.split(".wav")[0] + "_pc_from_mesh_GN"
-        bpy.context.collection.objects.link(new_pc)
-        geometry_nodes = point_cloud_from_mesh_gn_node_group(node_group_name)
-        new_pc.modifiers.new('GeometryNodes', 'NODES')
-        new_pc.modifiers['GeometryNodes'].node_group = bpy.data.node_groups[node_group_name]
-
-        new_pc.scale = (duration, 1, 1)
-
-        channel_id += 1
-
-
-def record(option="point_cloud", attr="position", axis=1, sampling_rate=44100):
-    # depsgraph = bpy.context.evaluated_depsgraph_get()
-    # axis: 0, 1, 2 -> x,y,z
-    objects_ = bpy.context.scene.custom
-    depsgraph = bpy.context.view_layer.depsgraph
-    track = []
-    element = bpy.data.objects[objects_[0].name]
-
-    channel_id = objects_[0].obj_id
-    print(objects_[0].obj_type)
-
-    obj_eval = depsgraph.id_eval_get(element)
-    geometry = obj_eval.evaluated_geometry()
-    pc = geometry.pointcloud
-    if pc is None:
-        print("No Pointcloud exist, only pointcloud are playable")
-
-    attr_data = pc.attributes[attr].data
-    # t_uple = tuple(attr_data)
-    length_of_data = len(attr_data)
-    duration = length_of_data / sampling_rate
-    for vert in attr_data:
-        v = vert.vector
-        # print(v)
-        v_tup = tuple(v)
-        track.append(v_tup[axis])
-        # print(v_tup)
-
-    Data.persistent_data.extend(track)
-    bpy.context.scene.mixer_props.record_duration = len(Data.persistent_data) / sampling_rate
-    arr = 32767 * np.asarray(track)
-
-    # to do specific channels
-    sound_array = np.asarray([arr, arr]).T.astype(np.int16)
-    pygame.mixer.quit()
-    pygame.mixer.init(channels=2)
-
-    sound = pygame.sndarray.make_sound(sound_array.copy())
-
-    if Data.channel is None:
-        Data.channel = sound.play()
-    else:
-        if Data.channel.get_busy():
-            Data.channel.queue(sound)
-        else:
-            Data.channel = sound.play()
-    return duration
+from .constants import NOTE_NAMES_1, NOTE_NAMES_2
 
 
 
@@ -253,3 +172,38 @@ def _checker(self, tree):
             return False
         parent = parent.parent
     return True
+
+
+def create_note_dict():
+    # source: https://en.wikipedia.org/wiki/Piano_key_frequencies
+    octaves_num = 9
+    notes_num = 12
+    names_1 = NOTE_NAMES_1
+    names_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
+    current_index = 0
+    midi_note_index = 12
+    piano_key_number_index = -8
+
+    notes_table = {}
+    for octave in range(octaves_num):
+        for note_index in range(notes_num):
+            current_note_name1 = names_1[note_index] + str(octave)
+            current_note_name2 = names_2[note_index] + str(octave)
+            frequency = ((2 ** (1 / 12)) ** (piano_key_number_index - 49)) * 440
+            notes_table[current_note_name1] = (current_note_name1, current_note_name2, midi_note_index,
+                                               piano_key_number_index, frequency)
+            current_index += 1
+            midi_note_index += 1
+            piano_key_number_index += 1
+
+    return notes_table, ("name1", "name2", "midi_note_index", "piano_key_number_index", "frequency")
+
+
+def create_note_enum_items(notes_table):
+    notes = []
+    for key, value in notes_table.items():
+        description = f"Note: {value[0]}/{value[1]}, Frequency: {value[4]} Hz, Midi Note Index: {value[2]}, Piano Key: {value[3]}"
+        notes.append((value[0], value[0],
+                      description))
+    # sorted_notes = sorted(notes, key=lambda item: item[2])
+    return notes

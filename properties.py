@@ -34,9 +34,3 @@ class SoundSampleCollection(bpy.types.PropertyGroup):
     device_uuid: bpy.props.StringProperty()
 
 
-class GatewayCollection(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty()
-    socket_num: bpy.props.IntProperty()
-
-# class GatewaySocketsCollection(bpy.types.PropertyGroup):
-#     name: bpy.props.StringProperty()

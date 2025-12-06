@@ -1,5 +1,5 @@
 import bpy
-from .properties import SoundSampleCollection, GatewayCollection, GroupOutputCollection
+from .properties import SoundSampleCollection, GroupOutputCollection
 from .obm_node_editor import register as register_obm_nodes
 from .obm_node_editor import unregister as unregister_obm_nodes
 from .sockets.basic_sockets import register as register_basic_sockets
@@ -8,7 +8,6 @@ from .helper import play_sample
 from .global_data import Data
 from bpy.app.handlers import persistent
 from .properties import on_depsgraph_update
-from .workspace import sound_nodes_workspace
 
 current_frame = 0
 
@@ -60,23 +59,15 @@ def load_blend_file_job(file_name):
                     print(e)
 
 
-# reg_classes = ui_classes
-# reg_classes.extend([ SoundSampleCollection])
-
-class_register, class_unregister = bpy.utils.register_classes_factory([SoundSampleCollection, GatewayCollection,
+class_register, class_unregister = bpy.utils.register_classes_factory([SoundSampleCollection,
                                                                        GroupOutputCollection])
 
 
-# bpy.ops.workspace.append_activate(
-#     idname='SoundNodes',  # Name of the workspace to import
-#     filepath='startup.blend'
-# )
 def register():
     register_obm_nodes()
     register_basic_sockets()
     class_register()
     bpy.types.Scene.samples = bpy.props.CollectionProperty(type=SoundSampleCollection)
-    bpy.types.Scene.obm_gateways = bpy.props.CollectionProperty(type=GatewayCollection)
 
     bpy.types.Scene.geometry_to_sample_nodes_num = bpy.props.IntProperty(default=0)
     bpy.types.Scene.group_collection_prop = bpy.props.CollectionProperty(type=GroupOutputCollection)
@@ -94,7 +85,6 @@ def unregister():
     class_unregister()
 
     del bpy.types.Scene.samples
-    del bpy.types.Scene.obm_gateways
     del bpy.types.Scene.geometry_to_sample_nodes_num
     del bpy.types.Scene.group_collection_prop
 

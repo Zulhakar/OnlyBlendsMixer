@@ -1,7 +1,7 @@
 APP_NAME = "OnlyBlends.Mixer"
 APP_NAME_SHORT = "obm"
 
-IS_DEBUG = False
+IS_DEBUG = True
 # UI
 ## Base Panel
 BL_SPACE_TYPE = 'VIEW_3D'
@@ -89,3 +89,7 @@ SAMPLE_TO_MESH_NODE_DESCRIPTION = "Create Mesh from Sound Sample Node"
 #Types
 
 SOUND_TREE_TYPE = "SoundTree"
+
+
+NOTE_NAMES_1 = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+NOTE_NAMES_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")

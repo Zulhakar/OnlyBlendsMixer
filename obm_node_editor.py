@@ -1,6 +1,6 @@
 import bpy
 from .obm_nodes import (ImportWavNode, SoundInfoNode, SoundToSampleNode, CreateDeviceNode, \
-                        PlayDeviceNode, CUSTOM_OT_actions, CUSTOM_UL_items, GatewayEntry, GatewayExit,
+                        PlayDeviceNode,
                         SampleInfoNode, SampleToGeometryNode, SampleToMeshNode, DeviceActionNode,
                         PLAY_DEVICE_OT_actions, PLAY_DEVICE_OT_actions2)
 
@@ -16,7 +16,7 @@ from .nodes.group_nodes.group_node import GroupNodeObm
 
 from .nodes.speaker_nodes.speaker_link_node import SpeakerLinkNode
 from .nodes.basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
-from .nodes.constant_nodes.note_node import NoteNode
+from .nodes.constant_nodes.note_to_frequency_node import NoteToFrequencyNode
 from .nodes.constant_nodes.vector_node import VectorNode
 from .nodes.constant_nodes.combine_xyz_node import CombineXyzNode
 from .nodes.constant_nodes.note_sequence_node import KeySequenceNode
@@ -30,7 +30,7 @@ classes = [
     StringNode,
     BooleanNode,
     VectorNode,
-    NoteNode,
+    NoteToFrequencyNode,
     SpeakerNode,
     SpeakerLinkNode,
     GroupNodeObm,
@@ -50,8 +50,6 @@ classes = [
 
     #CreateDeviceNode, DeviceSocket, NodeTreeInterfaceSocketDevice,
 
-    #GatewayEntry, GatewayExit,
-    #CUSTOM_UL_items, CUSTOM_OT_actions,
 
     GeometryGroupInputCollectionItem, CUSTOM_UL_geometry_group_input_items, GeometryToSampleNode,
 

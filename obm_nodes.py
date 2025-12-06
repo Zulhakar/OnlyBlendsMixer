@@ -9,7 +9,6 @@ from .sockets.basic_sockets import SoundSocket
 from .constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
 from .sockets.basic_sockets import SoundSampleSocket
 from .global_data import Data
-from .util import get_node_tree_name
 
 
 class ImportWavNode(ObmSoundNode, bpy.types.NodeCustomGroup):
@@ -159,13 +158,7 @@ class SoundToSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         layout.label(text=self.outputs[0].input_value)
         if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
             layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
-            # r = layout.row()
-            # r.prop(self, 'import_path', text="")
-            # layout.label(text="Path: " + self.outputs[0].default_value)
-            # layout.label(text="Blender Path: " + self.outputs[1].default_value)
-            # layout.label(text="Channels: " + self.outputs[2].default_value)
-            # layout.label(text="Samplerate: " + str(self.outputs[3].default_value))
-            # r.label(text="Path: " + self.outputs[0].default_value)
+
 
     def refresh_outputs(self):
         print("refresh outputs")
@@ -184,8 +177,6 @@ class SoundToSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         if isinstance(link.from_socket, SoundSocket):
             self.inputs[0].input_value = link.from_socket.input_value
             self.refresh_outputs()
-        else:
-            print("männlich")
 
     def update(self):
         # This method is called when the node updates
@@ -460,261 +451,7 @@ class EditDeviceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         self.create_device()
 
 
-class CUSTOM_OT_actions(bpy.types.Operator):
-    """Move items up and down, add and remove"""
-    bl_idname = "obm.socket_action"
-    bl_label = "Socket Actions"
-    bl_description = "Edit Socket of Gateway"
-    bl_options = {'REGISTER'}
 
-    action: bpy.props.EnumProperty(
-        items=(
-            ('UP', "Up", ""),
-            ('DOWN', "Down", ""),
-            ('REMOVE', "Remove", "")))
-
-    selection: bpy.props.IntProperty()
-
-    node_name: bpy.props.StringProperty()
-
-    def get_selected_node(self):
-        for group in bpy.data.node_groups:
-            for node in group.nodes:
-                if self.node_name == node.name:
-                    return node
-        return None
-
-    def invoke(self, context, event):
-        node = self.get_selected_node()
-        if self.action == 'DOWN' and self.selection < len(node.inputs):
-            if self.selection == 0:
-                info = "Gateway Name Socket can't be moved"
-                self.report({'INFO'}, info)
-            elif self.selection == len(node.inputs) - 2:
-                info = "Empty Socket have to be the last Socket"
-                self.report({'INFO'}, info)
-            else:
-                node.inputs.move(self.selection, self.selection + 1)
-                self.selection += 1
-                node.selection += 1
-                info = 'Item "%s" moved to position %d' % (node.name, self.selection)
-                self.report({'INFO'}, info)
-
-        elif self.action == 'UP' and self.selection >= 1:
-            if self.selection == 1:
-                info = "Gateway Name Socket must to be the first Socket"
-                self.report({'INFO'}, info)
-            elif self.selection == len(node.inputs) - 1:
-                info = "Empty Socket can't be moved"
-                self.report({'INFO'}, info)
-            else:
-                node.inputs.move(self.selection, self.selection - 1)
-                self.selection -= 1
-                node.selection -= 1
-                info = 'Item "%s" moved to position %d' % (node.name, self.selection)
-                self.report({'INFO'}, info)
-
-        elif self.action == 'REMOVE':
-            if self.selection == 0 or self.selection == (len(node.inputs) - 1):
-                info = "First and Last Socket can't be removed"
-            else:
-                info = "Remove Socket Number " + str(self.selection)
-                node.inputs.remove(node.inputs[self.selection])
-            self.report({'INFO'}, info)
-
-        return {"FINISHED"}
-
-
-class CUSTOM_UL_items(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        # split = layout.split(factor=0.5)
-        # split.label(text="Index: %d" % (index))
-        # layout.label(text=item.name)  # avoids renaming the item by accident
-        if index == 0:
-            layout.label(text=item.name)
-        #elif index >= len(data.items_tree) - 1:
-        #    pass
-        else:
-            layout.prop(item, "name", emboss=False, text="")
-
-    def invoke(self, context, event):
-        pass
-
-
-class GatewayEntry(ObmSoundNode, bpy.types.Node):
-    bl_idname = 'GatewayEntryNodeType'
-    bl_label = "Gateway Entry"
-    show_options = True
-    selection: bpy.props.IntProperty()
-    remove_socket: bpy.props.BoolProperty(default=False)
-
-    # added_sockets: bpy.props.CollectionProperty(type=GatewaySocketsCollection)
-
-    def init(self, context):
-        self.inputs.new("StringSocketType", "Name")
-        self.inputs[0].input_value = self.name
-        self.inputs.new("EmptySocketType", "Connect a link to create a new socket")
-        new_gateway = bpy.context.scene.obm_gateways.add()
-        new_gateway.name = self.name
-        new_gateway.socket_num = 0
-
-    def get_gateway_exits(self):
-        exit_gateways = []
-        for nodegroup in bpy.data.node_groups:
-            for node in nodegroup.nodes:
-                if node.bl_idname == 'GatewayExitNodeType':
-                    if node.enum_gateways == self.name:
-                        exit_gateways.append((node.name, nodegroup.name, node))
-        return exit_gateways
-
-    def draw_buttons(self, context, layout):
-
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-        layout.label(text="selection: " + str(self.selection))
-
-    def draw_buttons_ext(self, context, layout):
-        scn = bpy.context.scene
-        rows = 2
-        row = layout.row()
-        row.template_list("CUSTOM_UL_items", "", self, "inputs", self, "selection", rows=rows)
-        col = row.column(align=True)
-
-        op = col.operator("obm.socket_action", icon='REMOVE', text="")
-        op.action = "REMOVE"
-        op.selection = self.selection
-        op.node_name = self.name
-        col.separator()
-        op2 = col.operator("obm.socket_action", icon='TRIA_UP', text="")
-        op2.action = "UP"
-        op2.selection = self.selection
-        op2.node_name = self.name
-
-        op3 = col.operator("obm.socket_action", icon='TRIA_DOWN', text="")
-        op3.action = "DOWN"
-        op3.selection = self.selection
-        op3.node_name = self.name
-
-        row = layout.row()
-        col = row.column(align=True)
-        row = col.row(align=True)
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        if link.to_socket == self.inputs[-1]:
-            t = link.from_socket.bl_idname
-
-            to_connect = self.inputs.new(t, link.from_socket.name)
-            if link.from_socket.bl_idname == "SoundSampleSocketType":
-                to_connect.display_shape = SOUND_SOCKET_SHAPE
-            elif link.from_socket.bl_idname == "DeviceSocketType":
-                to_connect.display_shape = DEVICE_SOCKET_SHAPE
-            tree_name = get_node_tree_name(self)
-            new = self.inputs.new("EmptySocketType", "new input")
-            tree = bpy.data.node_groups[tree_name]
-            tree.links.new(link.from_socket, to_connect, handle_dynamic_sockets=True)
-            # remove_socket = link.to_socket
-            # self.inputs.remove(remove_socket)
-            # HACK to avoid segmentation Error
-            self.remove_socket = True
-            allready_connected_g_exits = self.get_gateway_exits()
-            if len(allready_connected_g_exits) > 0:
-                for exit in allready_connected_g_exits:
-                    name, node_tree, node = exit
-                    exit_socket = node.outputs.new(t, link.from_socket.name)
-                    exit_socket.display_shape = to_connect.display_shape
-                    exit_socket.input_value = to_connect.input_value
-            return None
-
-    def update_obm(self):
-        super().update_obm()
-        exit_gateways = self.get_gateway_exits()
-        for exit_gateway in exit_gateways:
-            exit_gateway[2].refresh_outputs()
-
-    def update(self):
-        super().update()
-        if self.remove_socket:
-            self.remove_socket = False
-            self.inputs.remove(self.inputs[-3])
-
-
-def get_gateway_entries(self, context):
-    existing_gateways = []
-    for nodegroup in bpy.data.node_groups:
-        for node in nodegroup.nodes:
-            if node.bl_idname == 'GatewayEntryNodeType':
-                existing_gateways.append((node.name, node.name, nodegroup.name))
-    return existing_gateways
-
-
-class GatewayExit(ObmSoundNode, bpy.types.Node):
-    bl_idname = 'GatewayExitNodeType'
-    bl_label = "Gateway Exit"
-
-    enum_gateways: bpy.props.EnumProperty(name="enum_gateways", items=get_gateway_entries, description="",
-                                          update=lambda self, context: self.update_gateways())
-
-    def init(self, context):
-        self.inputs.new("StringSocketType", "Name")
-
-    def update_gateways(self):
-        self.inputs[0].input_value = self.enum_gateways
-
-    def draw_buttons(self, context, layout):
-        # layout.label(text=self.get_node_tree_name())
-        if IS_DEBUG:
-            layout.label(text="Debug Infos:")
-        layout.prop(self, "enum_gateways")
-
-    # Copy function to initialize a copied node from an existing one.
-    def copy(self, node):
-        super().copy(node)
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
-        # Data.uuid_data_storage[self.node_uuid] = Data.uuid_data_storage[node.node_uuid]
-        # self.outputs[0].input_value = self.node_uuid
-
-    def get_node_tree_name(self):
-        for nodegroup in bpy.data.node_groups:
-            for node in nodegroup.nodes:
-                if node.name == self.name:
-                    return nodegroup.name
-        return None
-
-    # Free function to clean up on removal.
-    def free(self):
-        super().free()
-
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        self.outputs.clear()
-        gateway_name = self.inputs[0].input_value
-        for node_group in bpy.data.node_groups:
-            for node in node_group.nodes:
-                if node.name == gateway_name:
-                    print("node found")
-                    print("node_type")
-                    print(node.type)
-
-                    for socket in node.inputs[1:-1]:
-                        print(socket)
-                        new_sock = self.outputs.new(socket.bl_idname, socket.name)
-                        if new_sock.bl_idname == "SoundSampleSocketType" or new_sock.bl_idname == "DeviceSocketType":
-                            new_sock.display_shape = SOUND_SOCKET_SHAPE
-                        new_sock.input_value = socket.input_value
-                        self.inputs.move(-1, 0)
-
-    def insert_link(self, link):
-        super().insert_link(link)
-
-    def update(self):
-        super().update()
-
-    def socket_update(self, socket):
-        super().socket_update(socket)
-        if socket == self.inputs[0]:
-            self.refresh_outputs()
 
 
 
@@ -894,9 +631,6 @@ class SampleToGeometryNode(ObmSoundNode, bpy.types.Node):
 
             bpy.context.window_manager.popup_menu(draw_error, title="ERROR", icon="INFO")
 
-            # tree_name = get_node_tree_name(self)
-            # tree = bpy.data.node_groups[tree_name]
-            # tree.links.remove(link)
         else:
             self.bl_icon = "NONE"
             self.bl_description = SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION

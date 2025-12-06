@@ -12,7 +12,10 @@ class SoundTree(bpy.types.NodeTree):
     # disable internal group interface because i build it custom for more control
     bl_use_group_interface = False
     #color_tag = 'COLOR'
-    parent = None
+    parent: bpy.props.PointerProperty(
+        name="Node Tree",
+        type=bpy.types.NodeTree
+    )
     group_node_list: bpy.props.CollectionProperty(type=GroupStringCollectionItem)
     group_node_input_list: bpy.props.CollectionProperty(type=GroupStringCollectionItem)
     group_node_output_list: bpy.props.CollectionProperty(type=GroupStringCollectionItem)
