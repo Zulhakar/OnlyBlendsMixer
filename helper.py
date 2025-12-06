@@ -1,8 +1,7 @@
 import bpy
 import aud
 import numpy as np
-from .constants import NOTE_NAMES_1, NOTE_NAMES_2
-
+from .core.constants import NOTE_NAMES_1, NOTE_NAMES_2
 
 
 def play_selection(obj_, option="point_cloud", attr="position", axis=1, sampling_rate=44100):
@@ -179,7 +178,7 @@ def create_note_dict():
     octaves_num = 9
     notes_num = 12
     names_1 = NOTE_NAMES_1
-    names_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
+    names_2 = NOTE_NAMES_2
     current_index = 0
     midi_note_index = 12
     piano_key_number_index = -8

@@ -1,6 +1,6 @@
 import bpy
 from bpy.app.handlers import persistent
-from .global_data import Data
+from .core.global_data import Data
 
 def on_mesh_update(obj, scene):
     print("mesh update")

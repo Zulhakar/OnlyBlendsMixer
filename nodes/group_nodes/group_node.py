@@ -1,5 +1,5 @@
 import bpy
-from ...constants import SOUND_TREE_TYPE
+from ...core.constants import SOUND_TREE_TYPE
 from ...nodes.basic_nodes import ObmConstantNode
 from ...helper import get_socket_index, _checker
 

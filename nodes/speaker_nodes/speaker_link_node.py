@@ -1,7 +1,7 @@
 import bpy
 from ...nodes.basic_nodes import ObmConstantNode
 from ...aud_helper import get_length_and_specs_from_sound
-from ...constants import IS_DEBUG
+from ...core.constants import IS_DEBUG
 
 
 def bad_calculation_of_length(sound):

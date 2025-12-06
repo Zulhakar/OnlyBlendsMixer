@@ -2,9 +2,11 @@ import aud
 import bpy
 
 from ..basic_nodes import ObmSampleNode
-from ...constants import SOUND_SOCKET_SHAPE, IS_DEBUG
-from ...global_data import Data
+from ...core.constants import IS_DEBUG
+from ...core.global_data import Data
 import mathutils
+
+
 class OscillatorNode(ObmSampleNode):
     '''Sound Sample  which can be modified, played and recorded'''
 
@@ -28,6 +30,7 @@ class OscillatorNode(ObmSampleNode):
 
     color_tag = 'INTERFACE'
     color = mathutils.Color((1.0, 1.0, 1.0))
+
     def __sound_function(self):
         if len(self.inputs) > 0 and len(self.outputs) > 0:
             new_sample = None
@@ -43,11 +46,10 @@ class OscillatorNode(ObmSampleNode):
                 new_sample = aud.Sound.silence(self.inputs[0].input_value)
             Data.uuid_data_storage[self.node_uuid] = new_sample
 
-
     def __operation_update(self):
         if self.operation == "SILENCE":
-            #self.prev_frequency = self.inputs[1].input_value
-            #self.inputs.remove(self.inputs[1])
+            # self.prev_frequency = self.inputs[1].input_value
+            # self.inputs.remove(self.inputs[1])
             self.inputs[1].hide = True
             self.inputs[1].hide_value = True
         elif self.operation != "SILENCE":
@@ -56,17 +58,17 @@ class OscillatorNode(ObmSampleNode):
         self.socket_update(self.inputs[0])
         super().init(self)
 
-
     def init(self, context):
         self.outputs.new('SoundSampleSocketType', "Sample")
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
-        #self.inputs.new("NodeSocketFloat", "Frequency")
+        # self.inputs.new("NodeSocketFloat", "Frequency")
         self.inputs[0].input_value = 44100
         self.inputs[1].input_value = 110.0
         super().init(context)
         color_tag = 'INTERFACE'
         color = mathutils.Color((1.0, 1.0, 1.0))
+
     # Additional buttons displayed on the node.
 
     def draw_buttons(self, context, layout):
@@ -80,5 +82,3 @@ class OscillatorNode(ObmSampleNode):
     def state_update(self):
         super().state_update()
         self.__sound_function()
-
-

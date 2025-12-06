@@ -3,8 +3,7 @@ import aud
 import tempfile
 import os
 from ..basic_nodes import ObmSoundNode
-from ...sockets.basic_sockets import ObmStringSocket
-from ...global_data import Data
+from ...core.global_data import Data
 
 
 class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):

@@ -1,7 +1,6 @@
 import bpy
-
 from bl_ui import node_add_menu
-from ..constants import SOUND_TREE_TYPE
+from ..core.constants import SOUND_TREE_TYPE
 
 class ConstantsMenu(bpy.types.Menu):
     bl_label = 'Constants'

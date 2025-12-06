@@ -2,9 +2,9 @@ import aud
 import bpy
 
 from ..basic_nodes import ObmSampleNode
-from ...constants import SOUND_SOCKET_SHAPE, IS_DEBUG
-from ...global_data import Data
-from ...constants import SOUND_TREE_TYPE
+from ...core.constants import IS_DEBUG
+from ...core.global_data import Data
+from ...core.constants import SOUND_TREE_TYPE
 
 
 def validate_node_tree(self, tree):

@@ -1,8 +1,7 @@
 import bpy
 
-from .constants import IMPORT_ICON, COLOR_STRING_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, COLOR_DEVICE_SOCKET
-from .global_data import Data
-from .constants import IS_DEBUG
+from .core.constants import IMPORT_ICON, COLOR_STRING_SOCKET, COLOR_DEVICE_SOCKET
+from .core.global_data import Data
 from .sockets.basic_sockets import ObmNodeTreeInterfaceSocket
 
 

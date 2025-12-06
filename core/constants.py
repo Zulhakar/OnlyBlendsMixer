@@ -30,21 +30,6 @@ PLAY_OT_ID = APP_NAME_SHORT + ".play_ot_id"
 PLAY_OT_label = "Play Object"
 
 
-class OnlyBlendsPanel:
-    # bl_space_type = BL_SPACE_TYPE
-    # bl_region_type = BL_REGION_TYPE
-    # bl_category = BL_CATEGORY
-
-    # bl_space_type = 'PROPERTIES'
-    # bl_region_type = 'WINDOW'
-    # bl_context = "modifier"
-    # bl_category = BL_CATEGORY
-
-    bl_space_type = 'NODE_EDITOR'
-    bl_region_type = 'UI'
-    # bl_context = "modifier"
-    bl_category = BL_CATEGORY
-
 
 # Icons
 RECORD_ICON = 'RECORD_ON'

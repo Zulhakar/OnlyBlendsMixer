@@ -1,10 +1,9 @@
 import bpy
 import aud
-import uuid
 
 from ..basic_nodes import ObmSampleNode
-from ...constants import SOUND_SOCKET_SHAPE, IS_DEBUG
-from ...global_data import Data
+from ...core.constants import SOUND_SOCKET_SHAPE, IS_DEBUG
+from ...core.global_data import Data
 
 
 class EditSampleNode(ObmSampleNode):

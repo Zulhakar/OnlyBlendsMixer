@@ -1,9 +1,9 @@
 import bpy
 import aud
 from ...properties import on_depsgraph_update
-from ...constants import IS_DEBUG, SOUND_SOCKET_SHAPE
+from ...core.constants import IS_DEBUG, SOUND_SOCKET_SHAPE
 from ..basic_nodes import ObmSoundNode
-from ...global_data import Data
+from ...core.global_data import Data
 import uuid
 import numpy as np
 

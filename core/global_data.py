@@ -23,11 +23,6 @@ def create_dynamic_import_wav_op(parent, node_uuid):
 
 
 class Data:
-    persistent_data = []
-    channel = None
-    buf = 256
-    sound_node = {}
-
     uuid_data_storage = {}
     uuid_operator_class_storage = {}
     uuid_node_socket_storage = {}

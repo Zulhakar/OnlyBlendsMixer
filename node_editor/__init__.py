@@ -4,7 +4,7 @@ from .operators import (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSo
                         )
 from .sound_node_tree import SoundTree, GroupStringCollectionItem
 from .menus import ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
-from ..constants import SOUND_TREE_TYPE
+
 addon_keymaps = []
 
 

@@ -34,9 +34,10 @@ Creating Sounds with Geometry Nodes
 - [ ] hide sockets and "store" previous input value for Edit Sample Node
 - [ ] add / remove socket -> add missing stuff
 - [ ] sample to mesh node 
-- [x] mesh to sample node
+- [ ] mesh to sample node
   - [x] geometry to sample with frequency input
   - [x] socket selectable via ui list
+  - [ ] reload from blend file no graph update
   - [ ] optional: make a operator ui list combo like enumproperty or enumproperty
 - [ ] menu make group (rebuild the entire menu)
 - [ ] load and save blend file tests

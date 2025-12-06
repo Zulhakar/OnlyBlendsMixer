@@ -5,7 +5,7 @@ from .obm_node_editor import unregister as unregister_obm_nodes
 from .sockets.basic_sockets import register as register_basic_sockets
 from .sockets.basic_sockets import unregister as unregister_basic_sockets
 from .helper import play_sample
-from .global_data import Data
+from .core.global_data import Data
 from bpy.app.handlers import persistent
 from .properties import on_depsgraph_update
 
