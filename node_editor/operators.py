@@ -247,7 +247,16 @@ class MY_OT_RemoveSelected(bpy.types.Operator):
                     node.outputs.remove(node.outputs[idx])
         return {'FINISHED'}
 
-
+def get_group_input(node_tree):
+    inputs = []
+    for node in node_tree.nodes:
+        if node.bl_idname == 'NodeGroupInput':
+            inputs.append(node)
+    return inputs
+class CUSTOM_UL_items(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        #layout.prop(item, "name", text="")
+        layout.template_node_view(active_data.node_tree, data, item)
 
 class CUSTOM_UL_items2(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):

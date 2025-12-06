@@ -71,8 +71,17 @@ class ObmSoundNode:
         if link.is_valid and not self.mute:
             for input in self.inputs:
                 if link.to_socket == input:
-                    input.input_value = link.from_socket.input_value
-            self.state_update()
+                    if link.to_socket.is_multi_input:
+                        pass
+                    else:
+                        if link.to_socket.bl_idname == "FloatVectorFieldSocketType":
+                            input.input_value.clear()
+                            for item in link.from_socket.input_value:
+                                new_item = input.input_value.add()
+                                new_item.value = item.value
+                        else:
+                            input.input_value = link.from_socket.input_value
+                        self.state_update()
         else:
             pass
 
@@ -140,7 +149,7 @@ class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         super().socket_update(socket)
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value
-            link.to_node.update_obm()
+            #link.to_node.update_obm()
 
 
 class ObjectNode(ObmConstantNode):

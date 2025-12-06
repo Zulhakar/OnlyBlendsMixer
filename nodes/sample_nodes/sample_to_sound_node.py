@@ -1,4 +1,5 @@
 import bpy
+import aud
 import tempfile
 import os
 from ..basic_nodes import ObmSoundNode
@@ -27,8 +28,8 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             if sound_sample is not None:
                 sample_rate = self.inputs[1].input_value
                 tmp_dir = tempfile.gettempdir()
-                tmp_path = os.path.join(tmp_dir, f"{self.name}.wav")
-                sound_sample.write(tmp_path, sample_rate, 1)
+                tmp_path = os.path.join(tmp_dir, f"{self.name}.flac")
+                sound_sample.write(tmp_path)#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
                 new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
                 self.outputs[0].input_value = new_data
                 #print("Soundblock erstellt:", self.outputs[0].input_value.name)

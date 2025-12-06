@@ -181,6 +181,15 @@ class ObmFloatVectorSocket(ObmBasicSocket):
 
     input_value: bpy.props.FloatVectorProperty(update=lambda self, context: self.update_prop(), name="FloatVector")
 
+    def draw(self, context, layout, node, text):
+        if self.is_constant:
+            layout.alignment = 'EXPAND'
+            layout.prop(self, "input_value", text="")
+        else:
+            if self.is_output or self.is_linked:
+                layout.label(text=text)
+            else:
+                layout.prop(self, "input_value", text=text)
 
 class NodeTreeInterfaceSocketObmFloatVector(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'FloatVectorSocketType'

@@ -244,3 +244,12 @@ def get_socket_index(sockets, socket):
     for i , value in enumerate(sockets):
         if socket == value:
             return i
+
+
+def _checker(self, tree):
+    parent = self.parent_node_tree
+    while parent:
+        if tree.name == parent.name:
+            return False
+        parent = parent.parent
+    return True

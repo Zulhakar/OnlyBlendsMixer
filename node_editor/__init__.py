@@ -1,6 +1,6 @@
 import bpy
 from .operators import (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSocket, NODE_PT_Sound_Group_Sockets,
-                        MY_MT_add_interface, MY_OT_RemoveSelected, SOCKET_CHOICES, CUSTOM_UL_items2,
+                        MY_MT_add_interface, MY_OT_RemoveSelected, SOCKET_CHOICES, CUSTOM_UL_items2, CUSTOM_UL_items
                         )
 from .sound_node_tree import SoundTree, GroupStringCollectionItem
 from .menus import ConstantsMenu, DeviceMenu, SampleMenu, GatewayMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
@@ -38,6 +38,7 @@ def register():
     bpy.utils.register_class(NODE_PT_Sound_Group_Sockets)
     bpy.utils.register_class(CUSTOM_UL_items2)
 
+    bpy.utils.register_class(CUSTOM_UL_items)
     register_keymap()
 
     bpy.types.NODE_MT_add.append(draw_add_menu)
@@ -68,6 +69,7 @@ def unregister():
     bpy.utils.unregister_class(NODE_PT_Sound_Group_Sockets)
     bpy.utils.unregister_class(CUSTOM_UL_items2)
 
+    bpy.utils.unregister_class(CUSTOM_UL_items)
 
     bpy.types.NODE_MT_context_menu.remove(menu_draw)
     bpy.types.NODE_MT_add.remove(draw_add_menu)

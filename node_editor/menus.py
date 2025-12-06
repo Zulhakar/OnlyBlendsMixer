@@ -17,9 +17,12 @@ class ConstantsMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "ObmIntNodeType")
         node_add_menu.add_node_type(layout, "ObmStringNodeType")
         node_add_menu.add_node_type(layout, "ObmBooleanNodeType")
-
+        layout.separator()
+        node_add_menu.add_node_type(layout, "ObmVectorNodeType")
+        node_add_menu.add_node_type(layout, "ObmCombineXyzNodeType")
         layout.separator()
         node_add_menu.add_node_type(layout, "ObmNoteNodeType")
+        node_add_menu.add_node_type(layout, "KeySequenceNodeType")
         layout.separator()
         node_add_menu.add_node_type(layout, "SpeakerNodeType")
         layout.separator()
@@ -54,7 +57,7 @@ class SampleMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SampleToSoundNodeType")
         node_add_menu.add_node_type(layout, "CutSampleNodeType")
         node_add_menu.add_node_type(layout, "NoteSequenceToSampleNodeType")
-
+        node_add_menu.add_node_type(layout, "GeometryToSampleType")
         # node_add_menu.add_node_type(layout, "SampleInfoNodeType")
 
         layout.separator()
@@ -110,8 +113,8 @@ def draw_add_menu(self, context):
     # layout.menu(SoundMenu.bl_idname)
 
     # node_add_menu.add_node_type(layout, "ImportWavNodeType")
-    layout.separator()
-    node_add_menu.add_node_type(layout, "GeometryToSampleType")
+    #layout.separator()
+
 
 
 def menu_draw(self, context):

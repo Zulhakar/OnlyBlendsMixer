@@ -1,17 +1,8 @@
 import bpy
-from ...constants import SOUND_TREE_TYPE, IS_DEBUG
-from ..basic_nodes import ObmSoundNode
+from ...constants import SOUND_TREE_TYPE
 from ...nodes.basic_nodes import ObmConstantNode
-from ...helper import get_socket_index
+from ...helper import get_socket_index, _checker
 
-
-def _checker(self, tree):
-    parent = self.parent_node_tree
-    while parent:
-        if tree.name == parent.name:
-            return False
-        parent = parent.parent
-    return True
 
 class GroupNodeObm(ObmConstantNode):
     #bl_idname = "GroupNodeObm"
