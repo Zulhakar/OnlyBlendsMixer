@@ -1,7 +1,7 @@
 import bpy
 import aud
 import numpy as np
-from .core.constants import NOTE_NAMES_1, NOTE_NAMES_2
+from .constants import NOTE_NAMES_1, NOTE_NAMES_2
 
 
 def play_selection(obj_, option="point_cloud", attr="position", axis=1, sampling_rate=44100):

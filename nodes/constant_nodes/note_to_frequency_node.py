@@ -1,6 +1,6 @@
 import bpy
 
-from ...helper import create_note_dict, create_note_enum_items
+from ...core.helper import create_note_dict, create_note_enum_items
 from ..basic_nodes import ObmConstantNode
 
 

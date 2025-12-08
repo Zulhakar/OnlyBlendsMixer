@@ -1,7 +1,7 @@
 import bpy
 from ...core.constants import SOUND_TREE_TYPE
 from ...nodes.basic_nodes import ObmConstantNode
-from ...helper import get_socket_index, _checker
+from ...core.helper import get_socket_index, _checker
 
 
 class GroupNodeObm(ObmConstantNode):

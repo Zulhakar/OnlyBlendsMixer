@@ -2,7 +2,7 @@ import bpy
 import mathutils
 from bpy_extras.io_utils import ImportHelper
 
-from .helper import play_selection
+from .core.helper import play_selection
 from .core.constants import *
 
 class PLAY_OT(bpy.types.Operator):

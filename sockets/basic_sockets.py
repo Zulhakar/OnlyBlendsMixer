@@ -6,7 +6,7 @@ from ..core.constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOC
                             COLOR_FLOAT_VECTOR_SOCKET,
                             COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, IS_DEBUG)
 
-from ..helper import get_socket_index
+from ..core.helper import get_socket_index
 
 class ObmBasicSocket(NodeSocket):
     is_constant: bpy.props.BoolProperty()
