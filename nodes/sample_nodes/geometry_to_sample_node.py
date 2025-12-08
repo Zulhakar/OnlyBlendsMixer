@@ -1,6 +1,6 @@
 import bpy
 import aud
-from ...properties import on_depsgraph_update
+from ...core.global_data import on_depsgraph_update
 from ...core.constants import IS_DEBUG, SOUND_SOCKET_SHAPE
 from ..basic_nodes import ObmSoundNode
 from ...core.global_data import Data

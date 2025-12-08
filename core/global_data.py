@@ -1,6 +1,49 @@
 import bpy
+from bpy.app.handlers import persistent
 from bpy_extras.io_utils import ImportHelper
 from .constants import FILE_IMPORT_OT_ID
+
+def on_mesh_update(obj, scene):
+    print("mesh update")
+    print(obj.name)
+    for node_key in Data.geometry_to_sample_nodes:
+        node = Data.geometry_to_sample_nodes[node_key]
+        if obj.name and node.obj and node.obj.name == obj.name:
+            print(obj.name)
+            print("Operation UPDATE")
+            node.operation_update()
+
+
+@persistent
+def on_depsgraph_update(scene):
+    print("depsgraph update")
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for update in depsgraph.updates:
+        if isinstance(update.id, bpy.types.Object):
+            if update.is_updated_geometry:
+                on_mesh_update(update.id, scene)
+
+@persistent
+def load_blend_file_job(file_name):
+    # print(bpy.data.node_groups)
+    for group in bpy.data.node_groups:
+        # print(group.name)
+        for node in group.nodes:
+            # print(node.name)
+            if hasattr(node, "refresh_outputs"):
+                print(node.name)
+                try:
+                    node.refresh_outputs()
+                except Exception as e:
+                    print(e)
+        for node in group.nodes:
+            # print(node.name)
+            if hasattr(node, "refresh_outputs"):
+                print(node.name)
+                try:
+                    node.refresh_outputs()
+                except Exception as e:
+                    print(e)
 
 def create_dynamic_import_wav_op(parent, node_uuid):
     class_name = FILE_IMPORT_OT_ID + "_" + node_uuid
