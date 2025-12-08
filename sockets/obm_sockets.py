@@ -1,8 +1,8 @@
 import bpy
 
-from .core.constants import IMPORT_ICON, COLOR_STRING_SOCKET, COLOR_DEVICE_SOCKET
-from .core.global_data import Data
-from .sockets.basic_sockets import ObmNodeTreeInterfaceSocket
+from ..core.constants import IMPORT_ICON, COLOR_STRING_SOCKET, COLOR_DEVICE_SOCKET
+from ..core.global_data import Data
+from .basic_sockets import ObmNodeTreeInterfaceSocket
 
 
 class WavImportSocket(bpy.types.NodeSocket):

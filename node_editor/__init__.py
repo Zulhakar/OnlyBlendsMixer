@@ -1,10 +1,8 @@
 import bpy
-from .operators import (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSocket, NODE_PT_Sound_Group_Sockets,
-                        MY_MT_add_interface, MY_OT_RemoveSelected, SOCKET_CHOICES, CUSTOM_UL_items2, CUSTOM_UL_items
-                        )
+from .operators import operator_classes
 from .sound_node_tree import SoundTree, GroupStringCollectionItem
 from .menus import ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
-
+from .operators import NODE_OT_my_group_tab
 addon_keymaps = []
 
 
@@ -20,7 +18,6 @@ def register_keymap():
         )
         addon_keymaps.append((km, kmi))
 
-
 def unregister_keymap():
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
@@ -28,24 +25,18 @@ def unregister_keymap():
 
 
 
+
 def register():
-    bpy.utils.register_class(NODE_OT_my_group_tab)
-    bpy.utils.register_class(NODE_OT_my_make_group)
 
-    bpy.utils.register_class(MY_MT_add_interface)
-    bpy.utils.register_class(MY_OT_AddSocket)
-    bpy.utils.register_class(MY_OT_RemoveSelected)
-    bpy.utils.register_class(NODE_PT_Sound_Group_Sockets)
-    bpy.utils.register_class(CUSTOM_UL_items2)
+    for o_class in operator_classes:
+        print(o_class)
+        bpy.utils.register_class(o_class)
 
-    bpy.utils.register_class(CUSTOM_UL_items)
     register_keymap()
 
     bpy.types.NODE_MT_add.append(draw_add_menu)
 
     bpy.types.NODE_MT_context_menu.append(menu_draw)
-    #bpy.types.NODE_MT_node.prepend(menu_draw)
-
 
     bpy.utils.register_class(ConstantsMenu)
     bpy.utils.register_class(DeviceMenu)
@@ -59,16 +50,8 @@ def register():
 
 def unregister():
     unregister_keymap()
-    bpy.utils.unregister_class(NODE_OT_my_group_tab)
-    bpy.utils.unregister_class(NODE_OT_my_make_group)
-
-    bpy.utils.unregister_class(MY_MT_add_interface)
-    bpy.utils.unregister_class(MY_OT_AddSocket)
-    bpy.utils.unregister_class(MY_OT_RemoveSelected)
-    bpy.utils.unregister_class(NODE_PT_Sound_Group_Sockets)
-    bpy.utils.unregister_class(CUSTOM_UL_items2)
-
-    bpy.utils.unregister_class(CUSTOM_UL_items)
+    for o_class in reversed(operator_classes):
+        bpy.utils.unregister_class(o_class)
 
     bpy.types.NODE_MT_context_menu.remove(menu_draw)
     bpy.types.NODE_MT_add.remove(draw_add_menu)

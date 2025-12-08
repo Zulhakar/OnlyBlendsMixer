@@ -1,7 +1,10 @@
 import bpy
-from ..core.constants import SOUND_TREE_TYPE
+from bpy_extras.io_utils import ImportHelper
+import aud
 
-
+from ..core.constants import (SOUND_TREE_TYPE, PLAY_OT_ID, PLAY_OT_label, FILE_REC_OT_ID, FILE_REC_OT_label,
+                              FILE_IMPORT_OT_ID, FILE_IMPORT_OT_label)
+from ..core.helper import play_selection
 
 def create_child_node_tree(old_tree, selected):
     new_tree = bpy.data.node_groups.new(
@@ -182,11 +185,7 @@ class NODE_OT_my_group_tab(bpy.types.Operator):
 
 # "ObmSoundTreeType"
 
-SOCKET_CHOICES = [
-    ("MY_FLOAT", "Float", (0.8, 0.7, 0.2, 1.0)),
-    ("MY_VECTOR", "Vector", (0.2, 0.6, 1.0, 1.0)),
-    ("MY_COLOR", "Color", (0.9, 0.2, 0.5, 1.0)),
-]
+
 class MY_MT_add_interface(bpy.types.Menu):
     bl_idname = "MY_MT_add_interface"
     bl_label = "Add"
@@ -253,6 +252,7 @@ def get_group_input(node_tree):
         if node.bl_idname == 'NodeGroupInput':
             inputs.append(node)
     return inputs
+
 class CUSTOM_UL_items(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         #layout.prop(item, "name", text="")
@@ -333,3 +333,66 @@ class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
 
                 #layout.prop(context.scene.mysettings, "socket_style", text="Custom")
 
+class PLAY_OT(bpy.types.Operator):
+    bl_label = PLAY_OT_label
+    bl_idname = PLAY_OT_ID
+
+    def execute(self, context):
+        obj_name = self.properties["object_name"]
+        print("play:", obj_name)
+        play_selection(bpy.data.objects[obj_name])
+        return {"FINISHED"}
+
+
+class FILE_SELECT_OT_rec(bpy.types.Operator, ImportHelper):
+    bl_idname = FILE_REC_OT_ID
+    bl_label = FILE_REC_OT_label
+
+    filename_ext = ".wav"
+
+    filter_glob: bpy.props.StringProperty(
+        default="*.wav"
+    )
+
+    def execute(self, context):
+        context.scene.mixer_props.record_file_path = self.filepath
+        print("NAME:", context.scene.mixer_props.record_file_path)
+        return {'FINISHED'}
+
+
+class FILE_SELECT_OT_import_wav(bpy.types.Operator, ImportHelper):
+    bl_idname = FILE_IMPORT_OT_ID
+    bl_label = FILE_IMPORT_OT_label
+
+    filename_ext = ".wav"
+
+    filter_glob: bpy.props.StringProperty(
+        default="*.wav",
+    )
+
+    def execute(self, context):
+        context.scene.mixer_props.import_wav_file_path = self.filepath
+        print("Import WAV:", self.filepath)
+        #import_wav(self.filepath)
+        print(self)
+        print(context)
+        args = {"filepath": self.filepath}
+        result = bpy.ops.sound.open(**args)
+        from pathlib import Path
+        file_name = Path(self.filepath).name
+        print(file_name)
+        last = None
+        for s in bpy.data.sounds:
+            print(s)
+            last = s
+        sound = bpy.types.BlendDataSounds(last)
+        #sound = aud.Sound.file(file_name)
+        print(sound)
+        device = aud.Device()
+        handle2 = device.play(sound)
+
+        return {'FINISHED'}
+
+operator_classes = (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSocket, NODE_PT_Sound_Group_Sockets,
+                        MY_MT_add_interface, MY_OT_RemoveSelected, CUSTOM_UL_items2, CUSTOM_UL_items,
+                        PLAY_OT, FILE_SELECT_OT_rec, FILE_SELECT_OT_import_wav)

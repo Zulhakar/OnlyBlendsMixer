@@ -3,12 +3,12 @@ import uuid
 import aud
 import numpy as np
 
-from .core.constants import SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION, SAMPLE_TO_MESH_NODE_DESCRIPTION
-from .nodes.basic_nodes import ObmSoundNode
-from .sockets.basic_sockets import SoundSocket
-from .core.constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
-from .sockets.basic_sockets import SoundSampleSocket
-from .core.global_data import Data
+from ..core.constants import SAMPLE_TO_GEOMETRY_NODE_DESCRIPTION, SAMPLE_TO_MESH_NODE_DESCRIPTION
+from .basic_nodes import ObmSoundNode
+from ..sockets.basic_sockets import SoundSocket
+from ..core.constants import SOUND_SOCKET_SHAPE, IS_DEBUG, DEVICE_SOCKET_SHAPE
+from ..sockets.basic_sockets import SoundSampleSocket
+from ..core.global_data import Data
 
 
 class ImportWavNode(ObmSoundNode, bpy.types.NodeCustomGroup):
