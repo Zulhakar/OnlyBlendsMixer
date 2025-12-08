@@ -38,9 +38,6 @@ class NodeTreeInterfaceSocketWavImport(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'WavImportSocketType'
 
 
-
-
-
 class DeviceSocket(bpy.types.NodeSocket):
     """Obm Object Socket"""
     bl_idname = 'DeviceSocketType'

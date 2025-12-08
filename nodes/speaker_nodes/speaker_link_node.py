@@ -1,6 +1,6 @@
 import bpy
 from ...nodes.basic_nodes import ObmConstantNode
-from ...aud_helper import get_length_and_specs_from_sound
+from ...core.helper import get_length_and_specs_from_sound
 from ...core.constants import IS_DEBUG
 
 
