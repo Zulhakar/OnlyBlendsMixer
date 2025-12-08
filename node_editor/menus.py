@@ -18,6 +18,7 @@ class ConstantsMenu(bpy.types.Menu):
         layout.separator()
         node_add_menu.add_node_type(layout, "ObmVectorNodeType")
         node_add_menu.add_node_type(layout, "ObmCombineXyzNodeType")
+        node_add_menu.add_node_type(layout, "MathNode")
         layout.separator()
         node_add_menu.add_node_type(layout, "NoteToFrequencyNode")
         node_add_menu.add_node_type(layout, "KeySequenceNodeType")
@@ -59,7 +60,7 @@ class SampleMenu(bpy.types.Menu):
         # node_add_menu.add_node_type(layout, "SampleInfoNodeType")
 
         layout.separator()
-        node_add_menu.add_node_type(layout, "OscillatorNodeType")
+        node_add_menu.add_node_type(layout, "OscillatorSampleNode")
         layout.separator()
         #node_add_menu.add_node_type(layout, "SampleToGeometryType")
         node_add_menu.add_node_type(layout, "SampleToMeshType")

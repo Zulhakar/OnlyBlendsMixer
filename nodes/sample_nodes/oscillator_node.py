@@ -7,10 +7,9 @@ from ...core.global_data import Data
 import mathutils
 
 
-class OscillatorNode(ObmSampleNode):
-    '''Sound Sample  which can be modified, played and recorded'''
+class OscillatorSampleNode(ObmSampleNode):
+    '''Oscillator to create synthetic sounds. Output is a Sample Socket with infinit duration.'''
 
-    bl_idname = 'OscillatorNodeType'
     bl_label = "Oscillator"
     node_uuid: bpy.props.StringProperty()
     operations = [
@@ -28,8 +27,6 @@ class OscillatorNode(ObmSampleNode):
 
     prev_frequency: bpy.props.FloatProperty(default=0.0)
 
-    color_tag = 'INTERFACE'
-    color = mathutils.Color((1.0, 1.0, 1.0))
 
     def __sound_function(self):
         if len(self.inputs) > 0 and len(self.outputs) > 0:

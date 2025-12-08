@@ -3,7 +3,7 @@ from .obm_nodes import SoundToSampleNode, PlayDeviceNode, SampleToMeshNode
 from .constant_nodes.speaker_node import SpeakerNode
 
 from .sample_nodes.sample_to_sound_node import SampleToSoundNode
-from .sample_nodes.oscillator_node import OscillatorNode
+from .sample_nodes.oscillator_node import OscillatorSampleNode
 from .sample_nodes.edit_node import EditSampleNode
 from .sample_nodes.sample_sequencer import NoteSequenceToSampleNode, NodeSocketCollectionItem
 from .sample_nodes.geometry_to_sample_node import (GeometryToSampleNode, GeometryGroupInputCollectionItem,
@@ -17,6 +17,7 @@ from .constant_nodes.vector_node import VectorNode
 from .constant_nodes.combine_xyz_node import CombineXyzNode
 from .constant_nodes.note_sequence_node import KeySequenceNode
 
+from .constant_nodes.math_node import MathNode
 classes = [
     ObjectNode,
     FloatNode,
@@ -30,12 +31,13 @@ classes = [
     GroupNodeObm,
     KeySequenceNode,
     CombineXyzNode,
+    MathNode,
     #SoundInfoNode,
     #ImportWavNode, WavImportSocket, NodeTreeInterfaceSocketWavImport,
 
     SoundToSampleNode,
     EditSampleNode,
-    OscillatorNode,
+    OscillatorSampleNode,
     NodeSocketCollectionItem,  NoteSequenceToSampleNode,
 
     PlayDeviceNode,
