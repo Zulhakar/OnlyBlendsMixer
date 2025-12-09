@@ -15,7 +15,6 @@ class ObmSoundNode:
 
     def init(self, context):
         self.sound_data_init()
-
         for output in self.outputs:
             if not output.is_multi_input:
                 if bpy.app.version < (5, 0, 1):
@@ -61,7 +60,6 @@ class ObmSoundNode:
     def insert_link(self, link):
         self.log("insert_link")
         if link.to_socket.bl_idname != link.from_socket.bl_idname:
-            # self.error_message_set("Falscher Socket-Typ!")
             if IS_DEBUG:
                 print("Wrong Socket ", str(link.from_socket.bl_idname))
             link.is_valid = False
@@ -80,7 +78,7 @@ class ObmSoundNode:
                                 new_item.value = item.value
                         else:
                             input.input_value = link.from_socket.input_value
-                        self.state_update()
+                            print(f"input_value: {input.input_value}")
         else:
             pass
 
@@ -93,54 +91,12 @@ class ObmSoundNode:
     def socket_value_update(self, context):
         self.log("socket_value_update")
 
-    def update_obm(self):
-        self.log("update_obm")
-
-    def state_update(self):
-        self.log("state_update")
 
 
 class ObmSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Sample Node'''
     bl_icon = 'SEQ_HISTOGRAM'
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        self.state_update()
-
-    def update(self):
-        # This method is called when the node updates
-        super().update()
-        if len(self.outputs) > 0:
-            if self.mute:
-                self.outputs[0].input_value = ""
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
-                    if hasattr(link.to_node, "update_obm"):
-                        link.to_node.update_obm()
-            else:
-                self.outputs[0].input_value = self.node_uuid
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
-                    if hasattr(link.to_node, "update_obm"):
-                        link.to_node.update_obm()
-                self.update_obm()
-
-    def update_obm(self):
-        super().update_obm()
-        self.state_update()
-        for link in self.outputs[0].links:
-            # link.to_node.update_obm(self, self.outputs[0])
-            if hasattr(link.to_node, "update_obm"):
-                link.to_node.update_obm()
-
-    def socket_update(self, socket):
-        if not self.mute:
-            super().socket_update(socket)
-            if not socket.is_output:
-                self.state_update()
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
-                    #link.to_node.update_obm()
+    node_uuid: bpy.props.StringProperty()
 
 
 class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
@@ -148,7 +104,7 @@ class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         super().socket_update(socket)
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value
-            #link.to_node.update_obm()
+
 
 
 class ObjectNode(ObmConstantNode):

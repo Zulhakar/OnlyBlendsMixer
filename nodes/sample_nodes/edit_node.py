@@ -7,12 +7,9 @@ from ...core.global_data import Data
 
 
 class EditSampleNode(ObmSampleNode):
-    '''Sound Sample  which can be modified, played and recorded'''
-    bl_idname = 'CutSampleNodeType'
+    '''Different functions to edit Samples. For example to limit the endless sample of an oscillator.'''
     bl_label = "Edit Sample"
 
-    # if node has node_uuid, an aud sound is stored, and free() and copy() are differ from the other nodes
-    node_uuid: bpy.props.StringProperty()
     operations = [
         ('ACCUMULATE', "Accumulate", "Accumulates a sound by summing over positive input differences thus generating a"
                                      " monotonic sigal. If additivity is set to true negative input differences get"
@@ -36,7 +33,7 @@ class EditSampleNode(ObmSampleNode):
         ('PINGPONG', "Pingpong",
          "Plays a sound forward and then backward. This is like joining a sound with its reverse."),
         ('PITCH', "Pitch", "Changes the pitch of a sound with a specific factor."),
-        ('RECHANNEL', "Rechannels", "Rechannels the sound."),
+        # ('RECHANNEL', "Rechannels", "Rechannels the sound."),
         ('RESAMPLE', "Resample", "Resamples the sound."),
         ('REVERSE', "Reverse", "Plays a sound reversed"),
         ('SUM', "Sum", "Sums the samples of a sound."),
@@ -48,152 +45,180 @@ class EditSampleNode(ObmSampleNode):
         name="Operation"
         , items=operations
         , default='LIMIT'
-        , update=lambda self, context: self.__operation_update())
-
-    def __operation_update(self):
-        length_inputs = len(self.inputs)
-        list_of_inputs = []
-        for i in range(1, length_inputs):
-            list_of_inputs.append(self.inputs[i])
-        for socket in list_of_inputs:
-            self.inputs.remove(socket)
-        if self.operation == 'DELAY':
-            self.inputs.new("FloatSocketType", "time")
-        elif self.operation == 'ACCUMULATE':
-            self.inputs.new('BoolSocketType', "Additive")
-        elif self.operation == 'JOIN':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'MIX':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'MODULATE':
-            self.inputs.new('SoundSampleSocketType', "Sound Sample")
-            self.inputs[1].display_shape = SOUND_SOCKET_SHAPE
-        elif self.operation == 'ENVELOPE':
-            self.inputs.new("FloatSocketType", "attack")
-            self.inputs.new("FloatSocketType", "release")
-            self.inputs.new("FloatSocketType", "threshold")
-            self.inputs.new("FloatSocketType", "arthreshold")
-        elif self.operation == 'FADEIN':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "length")
-        elif self.operation == 'FADEOUT':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "length")
-        elif self.operation == 'ADSR':
-            self.inputs.new("FloatSocketType", "attack")
-            self.inputs.new("FloatSocketType", "decay")
-            self.inputs.new("FloatSocketType", "sustain")
-            self.inputs.new("FloatSocketType", "release")
-        elif self.operation == 'LIMIT':
-            self.inputs.new("FloatSocketType", "start")
-            self.inputs.new("FloatSocketType", "end")
-        elif self.operation == 'LOOP':
-            self.inputs.new("IntSocketType", "count")
-        elif self.operation == 'HIGHPASS':
-            self.inputs.new("FloatSocketType", "frequency")
-            q = self.inputs.new("FloatSocketType", "q")
-            q.input_value = 0.5
-        elif self.operation == 'LOWPASS':
-            self.inputs.new("FloatSocketType", "frequency")
-            q = self.inputs.new("FloatSocketType", "q")
-            q.input_value = 0.5
-        elif self.operation == 'PINGPONG':
-            pass
-        elif self.operation == 'REVERSE':
-            pass
-        elif self.operation == 'PITCH':
-            self.inputs.new("FloatSocketType", "factor")
-        elif self.operation == 'SUM':
-            pass
-        elif self.operation == 'RECHANNEL':
-            self.inputs.new("IntSocketType", "channels")
-        elif self.operation == 'RESAMPLE':
-            self.inputs.new("FloatSocketType", "rate")
-            self.inputs.new("IntSocketType", "quality")
-        elif self.operation == 'THRESHOLD':
-            self.inputs.new("FloatSocketType", "threshold")
-        elif self.operation == 'VOLUME':
-            self.inputs.new("FloatSocketType", "volume")
-        super().init(self)
-
-    def __sound_function(self):
-        if self.inputs[0].input_value != "" and self.inputs[0].input_value in Data.uuid_data_storage and Data.uuid_data_storage[self.inputs[0].input_value]:
-            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-            length = parent_sample.length
-            new_sample = None
-            if self.operation == 'DELAY':
-                new_sample = parent_sample.delay(self.inputs[1].input_value).cache()
-            elif self.operation == 'ACCUMULATE':
-                new_sample = parent_sample.accumulate(self.inputs[1].input_value).cache()
-            elif self.operation == 'JOIN':
-                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
-                    new_sample = parent_sample.join(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
-            elif self.operation == 'MIX':
-                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
-                    new_sample = parent_sample.mix(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
-            elif self.operation == 'MODULATE':
-                if self.inputs[1].input_value != "" and self.inputs[1].input_value in Data.uuid_data_storage:
-                    new_sample = parent_sample.modulate(Data.uuid_data_storage[self.inputs[1].input_value]).cache()
-            elif self.operation == 'ENVELOPE':
-                if length > 0:
-                    new_sample = parent_sample.envelope(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                    self.inputs[3].input_value, self.inputs[4].input_value).cache()
-            elif self.operation == 'FADEIN':
-                new_sample = parent_sample.fadein(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'FADEOUT':
-                new_sample = parent_sample.fadeout(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'ADSR':
-                new_sample = parent_sample.ADSR(self.inputs[1].input_value, self.inputs[2].input_value,
-                                                self.inputs[3].input_value, self.inputs[4].input_value).cache()
-            elif self.operation == 'LIMIT':
-                new_sample = parent_sample.limit(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'LOOP':
-                new_sample = parent_sample.loop(self.inputs[1].input_value).cache()
-            elif self.operation == 'HIGHPASS':
-                new_sample = parent_sample.highpass(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'LOWPASS':
-                new_sample = parent_sample.lowpass(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'PINGPONG':
-                new_sample = parent_sample.pingpong().cache()
-            elif self.operation == 'REVERSE':
-                new_sample = parent_sample.reverse().cache()
-            elif self.operation == 'PITCH':
-                new_sample = parent_sample.pitch(self.inputs[1].input_value).cache()
-            elif self.operation == 'SUM':
-                new_sample = parent_sample.sum().cache()
-            elif self.operation == 'RECHANNEL':
-                new_sample = parent_sample.rechannel(self.inputs[1].input_value).cache()
-            elif self.operation == 'RESAMPLE':
-                new_sample = parent_sample.resample(self.inputs[1].input_value, self.inputs[2].input_value).cache()
-            elif self.operation == 'THRESHOLD':
-                new_sample = parent_sample.threshold(self.inputs[1].input_value).cache()
-            elif self.operation == 'VOLUME':
-                new_sample = parent_sample.volume(self.inputs[1].input_value).cache()
-            if new_sample is not None:
-                Data.uuid_data_storage[self.node_uuid] = new_sample
-                self.outputs[0].input_value = self.node_uuid
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
-                    #if hasattr(link.to_node, "update_obm"):
-                    #    link.to_node.update_obm()
-            else:
-                self.outputs[0].input_value = ""
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = ""
-        else:
-            if len(self.outputs) > 0:
-                self.outputs[0].input_value = ""
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = ""
+        , update=lambda self, context: self.operation_update())
 
     def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sample")
         self.outputs.new('SoundSampleSocketType', "Sample")
-        self.inputs.new("FloatSocketType", "start")
-        self.inputs.new("FloatSocketType", "end")
+        self.inputs.new('SoundSampleSocketType', "Sample")
+        float1_s = self.inputs.new("FloatSocketType", "Float")
+        float2_s = self.inputs.new("FloatSocketType", "Float")
+        self.inputs.new("FloatSocketType", "Float")
+        self.inputs.new("FloatSocketType", "Float")
+        self.inputs.new('BoolSocketType', "Additive")
+        self.inputs.new("IntSocketType", "count")
+        self.inputs.new('SoundSampleSocketType', "Sample")
+        self.hide_all_socks()
+        float1_s.hide = False
+        float1_s.hide_value = False
+        float2_s.hide = False
+        float2_s.hide_value = False
         super().init(context)
+
+    def hide_all_socks(self):
+        for i, sock in enumerate(self.inputs):
+            if i > 0:
+                sock.hide = True
+                sock.hide_value = True
+
+    def operation_update(self):
+        if self.inputs[0].input_value != "":
+            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        else:
+            parent_sample = None
+        new_sample = None
+        # sample_s = self.inputs[0]
+        float1_s = self.inputs[1]
+        float2_s = self.inputs[2]
+        float3_s = self.inputs[3]
+        float4_s = self.inputs[4]
+        int_s = self.inputs[5]
+        bool_s = self.inputs[6]
+        sample2_s = self.inputs[7]
+        self.hide_all_socks()
+        if self.operation == 'DELAY':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.delay(float1_s.input_value).cache()
+        elif self.operation == 'ACCUMULATE':
+            bool_s.hide = False
+            bool_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.accumulate(bool_s.input_value).cache()
+        elif self.operation == 'JOIN':
+            sample2_s.hide = False
+            sample2_s.hide_value = False
+            if parent_sample and sample2_s.is_linked and sample2_s.input_value and sample2_s.input_value != "":
+                if sample2_s.input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.join(Data.uuid_data_storage[sample2_s.input_value]).cache()
+
+        elif self.operation == 'MIX':
+            sample2_s.hide = False
+            sample2_s.hide_value = False
+            if parent_sample and sample2_s.is_linked and sample2_s.input_value and sample2_s.input_value != "":
+                if sample2_s.input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.mix(Data.uuid_data_storage[sample2_s.input_value]).cache()
+
+        elif self.operation == 'MODULATE':
+            sample2_s.hide = False
+            sample2_s.hide_value = False
+            if parent_sample and sample2_s.is_linked and sample2_s.input_value and sample2_s.input_value != "":
+                if sample2_s.input_value in Data.uuid_data_storage:
+                    new_sample = parent_sample.modulate(Data.uuid_data_storage[sample2_s.input_value]).cache()
+        elif self.operation == 'ENVELOPE':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            float3_s.hide = False
+            float3_s.hide_value = False
+            float4_s.hide = False
+            float4_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.envelope(float1_s.input_value, float2_s.input_value,
+                                                    float3_s.input_value, float4_s.input_value).cache()
+
+        elif self.operation == 'FADEIN':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            new_sample = parent_sample.fadein(float1_s.input_value, float2_s.input_value).cache()
+        elif self.operation == 'FADEOUT':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            new_sample = parent_sample.fadeout(float1_s.input_value, float2_s.input_value).cache()
+        elif self.operation == 'ADSR':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            float3_s.hide = False
+            float3_s.hide_value = False
+            float4_s.hide = False
+            float4_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.ADSR(float1_s.input_value, float2_s.input_value,
+                                                float3_s.input_value, float4_s.input_value).cache()
+        elif self.operation == 'LIMIT':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.limit(float1_s.input_value, float2_s.input_value).cache()
+        elif self.operation == 'LOOP':
+            int_s.hide = False
+            int_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.loop(int_s.input_value).cache()
+        elif self.operation == 'HIGHPASS':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            float2_s.input_value = 0.5
+            if parent_sample:
+                new_sample = parent_sample.highpass(float1_s.input_value, float2_s.input_value).cache()
+        elif self.operation == 'LOWPASS':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            float2_s.hide = False
+            float2_s.hide_value = False
+            float2_s.input_value = 0.5
+            if parent_sample:
+                new_sample = parent_sample.lowpass(float1_s.input_value, float2_s.input_value).cache()
+        elif self.operation == 'PINGPONG':
+            if parent_sample:
+                new_sample = parent_sample.pingpong().cache()
+        elif self.operation == 'REVERSE':
+            if parent_sample:
+                new_sample = parent_sample.reverse().cache()
+        elif self.operation == 'PITCH':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.pitch(float1_s.input_value).cache()
+        elif self.operation == 'SUM':
+            if parent_sample:
+                new_sample = parent_sample.sum().cache()
+
+        elif self.operation == 'RESAMPLE':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            int_s.hide = False
+            int_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.resample(float1_s.input_value, int_s.input_value).cache()
+        elif self.operation == 'THRESHOLD':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.threshold(float1_s.input_value).cache()
+        elif self.operation == 'VOLUME':
+            float1_s.hide = False
+            float1_s.hide_value = False
+            if parent_sample:
+                new_sample = parent_sample.volume(float1_s.input_value).cache()
+        if new_sample is None:
+            Data.uuid_data_storage[self.node_uuid] = parent_sample
+        else:
+            Data.uuid_data_storage[self.node_uuid] = new_sample
+        self.outputs[0].input_value = self.node_uuid
+        for link in self.outputs[0].links:
+            link.to_socket.input_value = self.outputs[0].input_value
 
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
@@ -204,15 +229,13 @@ class EditSampleNode(ObmSampleNode):
             layout.label(text=self.outputs[0].input_value)
         layout.prop(self, "operation", text="Operation")
 
-    def state_update(self):
-        super().state_update()
-        self.__sound_function()
-
     def copy(self, node):
         super().copy(node)
         print("Copy")
         self.operation = node.operation
         for i, value in enumerate(node.inputs):
             self.inputs[i].input_value = node.inputs[i].input_value
-            #node.operation = self.operation
-            #node.inputs[i].input_value = self.inputs[i].input_value
+
+    def socket_update(self, socket):
+        if socket != self.outputs[0]:
+            self.operation_update()

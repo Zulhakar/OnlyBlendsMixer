@@ -40,14 +40,15 @@ class MathNode(ObmConstantNode):
         if IS_DEBUG:
             if len(self.outputs) > 0:
                 layout.label(text=f"input1: {self.inputs[0].input_value}")
-                layout.label(text=str(self.inputs[1].input_value))
-                layout.label(text=str(self.outputs[0].input_value))
+                layout.label(text=f"input2: {self.inputs[1].input_value}")
+                layout.label(text=f"output: {self.outputs[0].input_value}")
         layout.prop(self, "operation", text="")
 
     def init(self, context):
         self.inputs.new('FloatSocketType', "Float")
         self.inputs.new('FloatSocketType', "Float")
         self.outputs.new('FloatSocketType', "Float")
+        super().init(context)
 
     def socket_update(self, socket):
         if socket != self.outputs[0]:

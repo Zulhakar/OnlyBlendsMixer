@@ -11,62 +11,51 @@ class OscillatorSampleNode(ObmSampleNode):
     '''Oscillator to create synthetic sounds. Output is a Sample Socket with infinit duration.'''
 
     bl_label = "Oscillator"
-    node_uuid: bpy.props.StringProperty()
-    operations = [
+    waveform_enums = [
         ('SAWTOOTH', "sawtooth", "Creates a sawtooth sound which plays a sawtooth wave."),
         ('SILENCE', "silence", "Creates a silence sound which plays simple silence."),
         ('SINE', "sine", "Creates a sine sound which plays a sine wave."),
         ('SQUARE', "square", "Creates a square sound which plays a square wave."),
         ('TRIANGLE', "triangle", "Creates a triangle sound which plays a triangle wave."),
     ]
-    operation: bpy.props.EnumProperty(  # type: ignore
-        name="Operation"
-        , items=operations
+    waveform_selection: bpy.props.EnumProperty(  # type: ignore
+        name="Waveform"
+        , items=waveform_enums
         , default='SINE'
-        , update=lambda self, context: self.__operation_update())
-
-    prev_frequency: bpy.props.FloatProperty(default=0.0)
+        , update=lambda self, context: self.waveform_selection_update())
 
 
-    def __sound_function(self):
-        if len(self.inputs) > 0 and len(self.outputs) > 0:
-            new_sample = None
-            if self.operation == "SINE":
-                new_sample = aud.Sound.sine(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SQUARE":
-                new_sample = aud.Sound.square(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "TRIANGLE":
-                new_sample = aud.Sound.triangle(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SAWTOOTH":
-                new_sample = aud.Sound.sawtooth(self.inputs[1].input_value, self.inputs[0].input_value)
-            elif self.operation == "SILENCE":
-                new_sample = aud.Sound.silence(self.inputs[0].input_value)
-            Data.uuid_data_storage[self.node_uuid] = new_sample
-
-    def __operation_update(self):
-        if self.operation == "SILENCE":
-            # self.prev_frequency = self.inputs[1].input_value
-            # self.inputs.remove(self.inputs[1])
+    def waveform_selection_update(self):
+        new_sample = None
+        if self.waveform_selection == "SILENCE":
             self.inputs[1].hide = True
             self.inputs[1].hide_value = True
-        elif self.operation != "SILENCE":
+            new_sample = aud.Sound.silence(self.inputs[0].input_value)
+        elif self.waveform_selection != "SILENCE":
             self.inputs[1].hide = False
             self.inputs[1].hide_value = False
-        self.socket_update(self.inputs[0])
-        super().init(self)
+        if self.waveform_selection == "SINE":
+            new_sample = aud.Sound.sine(self.inputs[1].input_value, self.inputs[0].input_value)
+        elif self.waveform_selection == "SQUARE":
+            new_sample = aud.Sound.square(self.inputs[1].input_value, self.inputs[0].input_value)
+        elif self.waveform_selection == "TRIANGLE":
+            new_sample = aud.Sound.triangle(self.inputs[1].input_value, self.inputs[0].input_value)
+        elif self.waveform_selection == "SAWTOOTH":
+            new_sample = aud.Sound.sawtooth(self.inputs[1].input_value, self.inputs[0].input_value)
+        Data.uuid_data_storage[self.node_uuid] = new_sample
+        self.outputs[0].input_value = self.node_uuid
+        for link in self.outputs[0].links:
+            link.to_socket.input_value = self.outputs[0].input_value
 
     def init(self, context):
         self.outputs.new('SoundSampleSocketType', "Sample")
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
         # self.inputs.new("NodeSocketFloat", "Frequency")
-        self.inputs[0].input_value = 44100
+        self.inputs[0].input_value = 48000
         self.inputs[1].input_value = 110.0
         super().init(context)
-        color_tag = 'INTERFACE'
-        color = mathutils.Color((1.0, 1.0, 1.0))
-
-    # Additional buttons displayed on the node.
+        self.waveform_selection_update()
 
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
@@ -74,8 +63,8 @@ class OscillatorSampleNode(ObmSampleNode):
             if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
                 layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
             layout.label(text=self.outputs[0].input_value)
-        layout.prop(self, "operation", text="Operation")
+        layout.prop(self, "waveform_selection", text="Waveform")
 
-    def state_update(self):
-        super().state_update()
-        self.__sound_function()
+    def socket_update(self, socket):
+        if socket != self.outputs[0]:
+            self.waveform_selection_update()
