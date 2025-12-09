@@ -41,7 +41,7 @@ class SoundTree(bpy.types.NodeTree):
                     link.is_valid = True
                 if not link.is_valid:
                     print("invalid link removed:", link)
-                    #self.links.remove(link)
+                    self.links.remove(link)
                     print(link.to_socket.bl_idname, link.from_socket.bl_idname)
                     print(link.to_node.name, link.from_node.name)
 
