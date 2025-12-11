@@ -1,5 +1,5 @@
 import bpy
-from ...nodes.basic_nodes import ObmConstantNode
+from ...nodes.basic_nodes import ObmSoundNode
 from ...core.helper import get_length_and_specs_from_sound
 from ...core.constants import IS_DEBUG
 
@@ -14,9 +14,8 @@ def bad_calculation_of_length(sound):
     return strip_frame_length
 
 
-class SpeakerLinkNode(ObmConstantNode):
-    '''Speaker Node'''
-    bl_idname = 'SpeakerLinkNodeType'
+class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+    '''Speaker Link Node to assign a Sound to a Speaker'''
     bl_label = "Speaker Link"
     bl_icon = 'OUTLINER_DATA_SPEAKER'
     def init(self, context):
@@ -36,47 +35,30 @@ class SpeakerLinkNode(ObmConstantNode):
                     speaker.sound = None
 
     def link_sound_and_speaker(self):
-        if len(self.inputs) > 2:
-            if hasattr(self.inputs[0], 'input_value') and hasattr(self.inputs[1], 'input_value'):
-                speaker = self.inputs[0].input_value
-                sound = self.inputs[1].input_value
-                if speaker is not None and sound is not None and speaker.name in bpy.data.objects:
-                    speaker.sound = sound
-                    speaker.animation_data_create()
-                    action_name = f"{speaker.name}_action"
-                    if action_name in bpy.data.actions:
-                        bpy.data.actions.remove(bpy.data.actions[action_name])
-                    action = bpy.data.actions.new(action_name)
+        #if len(self.inputs) > 2:
+        #    if hasattr(self.inputs[0], 'input_value') and hasattr(self.inputs[1], 'input_value'):
+        speaker = self.inputs[0].input_value
+        sound = self.inputs[1].input_value
+        if speaker is not None and sound is not None and speaker.name in bpy.data.objects:
+            speaker.sound = sound
+            speaker.animation_data_create()
+            action_name = f"{speaker.name}_action"
+            if action_name in bpy.data.actions:
+                bpy.data.actions.remove(bpy.data.actions[action_name])
+            action = bpy.data.actions.new(action_name)
 
-                    speaker.animation_data.action = action
-                    strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
-                    strip_frame_length = bad_calculation_of_length(sound)
-                    strip.name = f"{speaker.name}_Strip"
-                    strip.frame_end = strip.frame_start + strip_frame_length
-                else:
-                    print("speaker or sound is None")
-                    print(speaker)
-                    print(sound)
+            speaker.animation_data.action = action
+            strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
+            strip_frame_length = bad_calculation_of_length(sound)
+            strip.name = f"{speaker.name}_Strip"
+            strip.frame_end = strip.frame_start + strip_frame_length
         else:
-            print(str(len(self.inputs)))
-
-    def update(self):
-        super().update()
-        self.link_sound_and_speaker()
-
-    def update_obm(self):
-        self.link_sound_and_speaker()
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        if link.is_valid:
-            if link.to_socket == self.inputs[1]:
-                self.inputs[1].input_value = link.from_socket.input_value
-            self.link_sound_and_speaker()
-        else:
-            print(link.is_valid)
+            if speaker and speaker.name not in bpy.data.objects:
+                self.inputs[0].input_value = None
 
     def socket_update(self, socket):
-        if IS_DEBUG:
-            print(f"socket_update {self.bl_idname}")
+        super().socket_update(socket)
+        #if self.inputs[0].input_value and self.inputs[0].input_value.name in bpy.data.objects:
+        #    self.inputs[0].input_value = None
+        #else:
         self.link_sound_and_speaker()
