@@ -4,20 +4,59 @@ import tempfile
 import os
 from ..basic_nodes import ObmSoundNode
 from ...core.global_data import Data
+import inspect
 
+def get_sample_rates():
+    sample_rates = []
+    all_members = aud.__dict__
+    for member in all_members:
+        if member.startswith("RATE_") and not member.startswith("RATE_INVALID"):
+            sample_rates.append((member, member, ""))
+    return sample_rates
+
+def get_container_types():
+    container_types = []
+    all_members = aud.__dict__
+    for member in all_members:
+        if member.startswith("CONTAINER_") and not member.startswith("CONTAINER_INVALID"):
+            container_types.append((member, member, ""))
+    return container_types
 
 class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
-    '''Transform Sample to Sound'''
+    '''Transform a Sample to Sound which can be used with Speaker'''
 
-    bl_idname = 'SampleToSoundNodeType'
     bl_label = "Sample To Sound"
     bl_icon = 'FILE_SOUND'
+
+    sample_rate_selection: bpy.props.EnumProperty(  # type: ignore
+        name="Sample Rates"
+        , items=get_sample_rates()
+        , default='RATE_48000'
+        , update=lambda self, context: self.sample_rate_update()
+    )
+    container_selection: bpy.props.EnumProperty(  # type: ignore
+        name="Container"
+        , items=get_container_types()
+        #, default='RATE_48000'
+        , update=lambda self, context: self.container_update()
+    )
+
+    def sample_rate_update(self):
+        sample_rate_socket = self.inputs[1]
+        sample_rate_socket.input_value = getattr(aud, self.sample_rate_selection)
+        #self.store_data()
+    def container_update(self):
+        self.store_data()
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "sample_rate_selection", text="Rate")
+        layout.prop(self, "container_selection", text="Container")
 
     def init(self, context):
         self.inputs.new('SoundSampleSocketType', "Sample")
         sample_rate = self.inputs.new("IntSocketType", "Sample Rate")
         self.outputs.new('SoundSocketType', "Sound")
-        sample_rate.input_value = 44100
+        sample_rate.input_value = 48000
         super().init(context)
 
     def store_data(self):
@@ -27,8 +66,8 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             if sound_sample is not None:
                 sample_rate = self.inputs[1].input_value
                 tmp_dir = tempfile.gettempdir()
-                tmp_path = os.path.join(tmp_dir, f"{self.name}.flac")
-                sound_sample.write(tmp_path)#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
+                tmp_path = os.path.join(tmp_dir, f"{self.name}")
+                sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud, self.container_selection))#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
                 new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
                 self.outputs[0].input_value = new_data
                 #print("Soundblock erstellt:", self.outputs[0].input_value.name)
@@ -40,51 +79,24 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             #    sound.user_clear()
             #    bpy.data.sounds.remove(sound)
             self.outputs[0].input_value = None
+        for link in self.outputs[0].links:
+            link.to_socket.input_value = self.outputs[0].input_value
 
-    # Free function to clean up on removal.
     def free(self):
         super().free()
         sound = self.outputs[0].input_value
-        sound.user_clear()
-        bpy.data.sounds.remove(sound)
+        if sound:
+            sound.user_clear()
+            bpy.data.sounds.remove(sound)
 
     def refresh_outputs(self):
         super().refresh_outputs()
         self.store_data()
 
-    def draw_label(self):
-        return self.bl_label
-
-    def insert_link(self, link):
-        super().insert_link(link)
-        if link.is_valid:
-            if link.to_socket == self.inputs[0]:
-                self.inputs[0].input_value = link.from_socket.input_value
-                self.store_data()
-            if link.to_socket == self.inputs[1]:
-                if self.inputs[0].input_value is not None and self.inputs[0].input_value != "":
-                    self.store_data()
-        else:
-            pass
-            #print(link.is_valid)
-
-
     def socket_update(self, socket):
         # self.glob_prop.linked_object_name = self.inputs[0].name
         super().socket_update(socket)
         if socket == self.inputs[0] or socket == self.inputs[1]:
-            if self.inputs[0].is_linked:
-                self.store_data()
-                for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
+            self.store_data()
         else:
             print("no update")
-
-    def update(self):
-        super().update()
-
-    def update_obm(self):
-        super().update_obm()
-        self.store_data()
-        # for link in self.outputs[0].links:
-        #     link.to_node.update_obm()

@@ -53,7 +53,7 @@ class SampleMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
 
-        node_add_menu.add_node_type(layout, "SampleToSoundNodeType")
+        node_add_menu.add_node_type(layout, "SampleToSoundNode")
         node_add_menu.add_node_type(layout, "EditSampleNode")
         node_add_menu.add_node_type(layout, "NoteSequenceToSampleNodeType")
         node_add_menu.add_node_type(layout, "GeometryToSampleType")
