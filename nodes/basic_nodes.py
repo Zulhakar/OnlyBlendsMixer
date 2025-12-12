@@ -71,17 +71,18 @@ class ObmSoundNode:
                     if link.to_socket.is_multi_input:
                         pass
                     else:
-                        if link.to_socket.bl_idname == "FloatVectorFieldSocketType":
-                            input.input_value.clear()
-                            for item in link.from_socket.input_value:
-                                new_item = input.input_value.add()
-                                new_item.value = item.value
-                                print(str(new_item.value[0]))
-                            print("sock update")
-                            link.to_node.socket_update(link.to_socket)
-                        else:
+                        if link.to_socket.bl_idname != "FloatVectorFieldSocketType":
                             input.input_value = link.from_socket.input_value
-                            print(f"input_value: {input.input_value}")
+                            # input.input_value.clear()
+                            # for item in link.from_socket.input_value:
+                            #     new_item = input.input_value.add()
+                            #     new_item.value = item.value
+                            #     print(str(new_item.value[0]))
+                            # print("sock update")
+                            # link.to_node.socket_update(link.to_socket)
+                        # else:
+                        #     input.input_value = link.from_socket.input_value
+                        #     print(f"input_value: {input.input_value}")
         else:
             pass
 

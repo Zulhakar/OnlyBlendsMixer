@@ -107,7 +107,8 @@ class NoteSequenceToSampleNode(ObmSampleNode):
         return socket_enums
 
     def socket_selection_update(self, context):
-        pass
+        if self.frequency_socket and self.sample_output_socket:
+            self.__create_sample_sequence()
 
     def node_tree_update(self, context):
         self.log("node_tree_update")
@@ -176,17 +177,11 @@ class NoteSequenceToSampleNode(ObmSampleNode):
             else:
                 print("Not working")
 
-    def state_update(self):
-        super().state_update()
-        self.__create_sample_sequence()
 
-    # def insert_link(self, link):
-    #     self.log("insert_link")
-    #     if link.to_socket.bl_idname != link.from_socket.bl_idname:
-    #         # self.error_message_set("Falscher Socket-Typ!")
-    #         if IS_DEBUG:
-    #             print("Wrong Socket ", str(link.from_socket.bl_idname))
-    #         link.is_valid = False
-    #     else:
-    #         link.is_valid = True
-    #     if link.is_valid and not self.mute:
+    def socket_update(self, socket):
+        super().socket_update(socket)
+        if socket == self.inputs[0]:
+            self.__create_sample_sequence()
+        elif socket == self.outputs[0]:
+            for link in self.outputs[0].links:
+                link.to_socket.input_value = self.outputs[0].input_value
