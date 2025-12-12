@@ -21,7 +21,7 @@ class ConstantsMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "MathNode")
         layout.separator()
         node_add_menu.add_node_type(layout, "NoteToFrequencyNode")
-        node_add_menu.add_node_type(layout, "KeySequenceNodeType")
+        node_add_menu.add_node_type(layout, "NoteSequenceNode")
         layout.separator()
         node_add_menu.add_node_type(layout, "SpeakerNodeType")
         layout.separator()

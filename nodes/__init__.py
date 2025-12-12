@@ -15,7 +15,7 @@ from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
 from .constant_nodes.note_to_frequency_node import NoteToFrequencyNode
 from .constant_nodes.vector_node import VectorNode
 from .constant_nodes.combine_xyz_node import CombineXyzNode
-from .constant_nodes.note_sequence_node import KeySequenceNode
+from .constant_nodes.note_sequence_node import NoteSequenceNode
 
 from .constant_nodes.math_node import MathNode
 classes = [
@@ -29,7 +29,7 @@ classes = [
     SpeakerNode,
     SpeakerLinkNode,
     GroupNodeObm,
-    KeySequenceNode,
+    NoteSequenceNode,
     CombineXyzNode,
     MathNode,
     #SoundInfoNode,
