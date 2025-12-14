@@ -159,9 +159,13 @@ class SoundTree(bpy.types.NodeTree):
                             node_.inputs.clear()
                             for old_output in node.outputs:
                                 if old_output.bl_idname != "NodeSocketVirtual":
+                                    #old_output.group_node_tree_name = self.name
+                                    #old_output.group_node_name = node.name
                                     node_.inputs.new(old_output.bl_idname, old_output.name)
                         else:
                             node_.outputs.clear()
                             for old_input in node.inputs:
                                 if old_input.bl_idname != "NodeSocketVirtual":
+                                    old_input.group_node_tree_name = node_.parent_node_tree.name
+                                    old_input.group_node_name = node_.name
                                     node_.outputs.new(old_input.bl_idname, old_input.name)

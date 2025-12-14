@@ -34,13 +34,12 @@ class ObmBasicSocket(NodeSocket):
         # maybee pointer for socket group_output inputs with group_node output
         else:
             if self.node.bl_idname == "NodeGroupOutput":
-                #get tree -> get group_node -> boom
                 if self.group_node_tree_name != "":
                     node = self.node
                     #print("Trigger from Socket")
                     tree = bpy.data.node_groups[self.group_node_tree_name]
                     group_node = tree.nodes[self.group_node_name]
-                    #print(group_node.name)
+                    print(group_node.name)
                     sock_index = get_socket_index(node.inputs, self)
                     group_node.outputs[sock_index].input_value = self.input_value
         # ----------------------------------------------------------

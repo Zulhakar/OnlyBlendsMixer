@@ -11,11 +11,11 @@ Creating Sounds with Geometry Nodes
   - [ ] ~~rename it to instrument Zone~~
   - [x] selection for optional duration mapping to node group
 - [x] New vector nodes : Vector and Combine-XYZ
-- [ ] Group Node, switch tree etc
+- [x] Group Node, switch tree etc
   - [x] show only the possible trees in selection
-  - [ ] if socket is renamed in NodeGroupInput or Output change also name of the
+  - [x] if socket is renamed in NodeGroupInput or Output change also name of the
         GroupNode equivalent Socket
-  - [ ] rename Socket with click on Name Label in the custom interface panel
+  - [ ] optional: rename Socket with click on Name Label in the custom interface panel
         "Group Sockets"
   - [x] group node in node menu
   - [x] update group node sockets if socket added
@@ -46,3 +46,13 @@ Creating Sounds with Geometry Nodes
 - [ ] copy node, override default values
 - [ ] if speaker pitch is changed strip length also change
 - [ ] if scene fps change strip length should also change
+- [ ] instrument node: if selected node tree updates the instrument should also update
+# ALPHA Release
+- [ ] alpha release todo:
+  - [ ] optional: renaming stuff
+  - [ ] readme update: guide github / blender extension page
+  - [ ] update blender_manifest
+  - [ ] sound examples: techno 
+  - [x] geoemtry node example with waveform generator
+  - [ ] screen shots
+  - [ ] logo

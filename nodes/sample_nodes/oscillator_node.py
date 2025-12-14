@@ -66,5 +66,6 @@ class OscillatorSampleNode(ObmSampleNode):
         layout.prop(self, "waveform_selection", text="Waveform")
 
     def socket_update(self, socket):
+        super().socket_update(socket)
         if socket != self.outputs[0]:
             self.waveform_selection_update()
