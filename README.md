@@ -19,9 +19,9 @@ Creating Sounds with Geometry Nodes
         "Group Sockets"
   - [x] group node in node menu
   - [x] update group node sockets if socket added
-  - [ ] update group node sockets if removed
+  - [x] update group node sockets if removed
   - [x] update group node sockets if socket type changed
-  - [ ] update tree name changes the the sockets of group node
+  - [ ] changing the node tree changes also the sockets of group node
 - [x] menu make group (~~rebuild the entire menu~~)
 - [ ] Note Node
   - [ ] selectable octave
