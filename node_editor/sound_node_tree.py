@@ -4,11 +4,11 @@ class GroupStringCollectionItem(bpy.types.PropertyGroup):
     id: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
 
+
 class GroupSocketCollectionItem(bpy.types.PropertyGroup):
     id: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
     type_name: bpy.props.StringProperty()
-
 
 
 class SoundTree(bpy.types.NodeTree):
@@ -17,8 +17,8 @@ class SoundTree(bpy.types.NodeTree):
     bl_label = "OnlyBlends Sound Editor"
     bl_icon = 'SOUND'
     # disable internal group interface because i build it custom for more control
+
     bl_use_group_interface = False
-    #color_tag = 'COLOR'
     parent: bpy.props.PointerProperty(
         name="Node Tree",
         type=bpy.types.NodeTree
@@ -53,7 +53,6 @@ class SoundTree(bpy.types.NodeTree):
                     self.links.remove(link)
                     print(link.to_socket.bl_idname, link.from_socket.bl_idname)
                     print(link.to_node.name, link.from_node.name)
-
         for node in self.nodes:
             if node.bl_idname == "GroupNodeObm":
                 node.parent_node_tree = self
@@ -68,7 +67,6 @@ class SoundTree(bpy.types.NodeTree):
                     new_group_node_item.name = node.name
                     new_group_node_item.id = node.name
                     print(str(len(self.group_node_list)))
-
             elif node.bl_idname == "NodeGroupInput":
                 ids_collection = set()
                 sockets_collection = []
@@ -88,11 +86,11 @@ class SoundTree(bpy.types.NodeTree):
                     for i, value in enumerate(sockets_collection):
                         if sockets_collection[i].type_name != sockets[i].bl_idname:
                             is_socket_type_change = True
-                            self.synck_sockets(node)
+                            self.sync_sockets(node)
                             sockets_collection[i].type_name = sockets[i].bl_idname
                         if sockets_collection[i].name != sockets[i].name:
                             sockets_collection[i].name = sockets[i].name
-                            self.synck_sockets(node)
+                            self.sync_sockets(node)
                 if len(removed_ids) > 0:
                     remove_sockets = []
                     for i, value in enumerate(sockets):
@@ -100,7 +98,7 @@ class SoundTree(bpy.types.NodeTree):
                             remove_sockets.append(i)
                     for remove_socket in remove_sockets:
                         self.group_node_input_list.remove(remove_socket)
-                    self.synck_sockets(node)
+                    self.sync_sockets(node)
 
                 if len(added_ids) > 0:
                     for i, value in enumerate(sockets):
@@ -109,9 +107,7 @@ class SoundTree(bpy.types.NodeTree):
                             new_item.id = sockets[i].identifier
                             new_item.name = sockets[i].name
                             new_item.type_name = sockets[i].bl_idname
-                    self.synck_sockets(node)
-
-
+                    self.sync_sockets(node)
             elif node.bl_idname == "NodeGroupOutput":
                 #print(node.name)
                 ids_collection = set()
@@ -132,11 +128,11 @@ class SoundTree(bpy.types.NodeTree):
                     for i, value in enumerate(sockets_collection):
                         if sockets_collection[i].type_name != sockets[i].bl_idname:
                             is_socket_type_change = True
-                            self.synck_sockets(node, False)
+                            self.sync_sockets(node, False)
                             sockets_collection[i].type_name = sockets[i].bl_idname
                         if sockets_collection[i].name != sockets[i].name:
                             sockets_collection[i].name = sockets[i].name
-                            self.synck_sockets(node, False)
+                            self.sync_sockets(node, False)
                 if len(removed_ids) > 0:
                     remove_sockets = []
                     for i, value in enumerate(sockets):
@@ -144,8 +140,7 @@ class SoundTree(bpy.types.NodeTree):
                             remove_sockets.append(i)
                     for remove_socket in remove_sockets:
                         self.group_node_output_list.remove(remove_socket)
-                    self.synck_sockets(node, False)
-
+                    self.sync_sockets(node, False)
                 if len(added_ids) > 0:
                     for i, value in enumerate(sockets):
                         if sockets[i].identifier in added_ids:
@@ -153,11 +148,9 @@ class SoundTree(bpy.types.NodeTree):
                             new_item.id = sockets[i].identifier
                             new_item.name = sockets[i].name
                             new_item.type_name = sockets[i].bl_idname
-                    self.synck_sockets(node, False)
+                    self.sync_sockets(node, False)
 
-
-
-    def synck_sockets(self, node, is_input=True):
+    def sync_sockets(self, node, is_input=True):
         for key, value in bpy.data.node_groups.items():
             for node_ in value.nodes:
                 if node_.bl_idname == "GroupNodeObm":
@@ -172,4 +165,3 @@ class SoundTree(bpy.types.NodeTree):
                             for old_input in node.inputs:
                                 if old_input.bl_idname != "NodeSocketVirtual":
                                     node_.outputs.new(old_input.bl_idname, old_input.name)
-
