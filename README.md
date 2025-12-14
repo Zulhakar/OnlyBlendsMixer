@@ -11,7 +11,18 @@ Creating Sounds with Geometry Nodes
   - [ ] ~~rename it to instrument Zone~~
   - [x] selection for optional duration mapping to node group
 - [x] New vector nodes : Vector and Combine-XYZ
-- [x] Note Sequence Node (maybee rename it)
+- [ ] Group Node, switch tree etc
+  - [x] show only the possible trees in selection
+  - [ ] if socket is renamed in NodeGroupInput or Output change also name of the
+        GroupNode equivalent Socket
+  - [ ] rename Socket with click on Name Label in the custom interface panel
+        "Group Sockets"
+  - [x] group node in node menu
+  - [x] update group node sockets if socket added
+  - [ ] update group node sockets if removed
+  - [x] update group node sockets if socket type changed
+  - [ ] update tree name changes the the sockets of group node
+- [x] menu make group (~~rebuild the entire menu~~)
 - [ ] Note Node
   - [ ] selectable octave
   - [ ] duration as 1/4 1/8 etc
@@ -21,23 +32,17 @@ Creating Sounds with Geometry Nodes
     - [x]  selectable note
     - [ ] optional: string input as alternative
     - [ ] optional: selection of octave
-- [ ] simplify node_tree update
+- [ ] refactor and simplify node_tree update
 - [ ] simplify graph updates, make performance improvements
-- [ ] group node, switch tree etc
-  - [x] show only the possible trees in selection
-  - [ ] if socket is renamed in NodeGroupInput or Output change also name of the
-        GroupNode equivalent Socket
-  - [ ] rename Socket with click on Name Label in the custom interface panel
-        "Group Sockets"
-  - [ ] ...
-- [ ] add group input / output and node group menu
+- [x] add group input / output and node group menu
 - [ ] hide sockets and "store" previous input value for Edit Sample Node
-- [ ] add / remove socket -> add missing stuff
 - [ ] sample to mesh node 
 - [ ] mesh to sample node
   - [x] geometry to sample with frequency input
   - [x] socket selectable via ui list
   - [ ] reload from blend file no graph update
   - [ ] optional: make a operator ui list combo like enumproperty or enumproperty
-- [ ] menu make group (rebuild the entire menu)
 - [ ] load and save blend file tests
+- [ ] copy node, override default values
+- [ ] if speaker pitch is changed strip length also change
+- [ ] if scene fps change strip length should also change

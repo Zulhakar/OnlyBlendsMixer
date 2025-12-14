@@ -1,6 +1,6 @@
 import bpy
 from .operators import operator_classes
-from .sound_node_tree import SoundTree, GroupStringCollectionItem
+from .sound_node_tree import SoundTree, GroupStringCollectionItem, GroupSocketCollectionItem
 from .menus import ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
 from .operators import NODE_OT_my_group_tab
 addon_keymaps = []
@@ -45,6 +45,7 @@ def register():
     bpy.utils.register_class(SoundMenu)
 
     bpy.utils.register_class(GroupStringCollectionItem)
+    bpy.utils.register_class(GroupSocketCollectionItem)
     bpy.utils.register_class(SoundTree)
 
 
@@ -62,6 +63,7 @@ def unregister():
     bpy.utils.unregister_class(SoundMenu)
 
     bpy.utils.unregister_class(GroupStringCollectionItem)
+    bpy.utils.unregister_class(GroupSocketCollectionItem)
     bpy.utils.unregister_class(SoundTree)
 
 

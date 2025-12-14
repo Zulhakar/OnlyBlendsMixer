@@ -1,11 +1,10 @@
 import bpy
+
 from ...core.constants import SOUND_TREE_TYPE
 from ...nodes.basic_nodes import ObmConstantNode
 from ...core.helper import get_socket_index, _checker
-
-
 class GroupNodeObm(ObmConstantNode):
-    #bl_idname = "GroupNodeObm"
+
     bl_label = "Sound Group"
     bl_icon = 'NODETREE'
 
@@ -28,8 +27,12 @@ class GroupNodeObm(ObmConstantNode):
     group_input_node : bpy.props.StringProperty()
     group_output_node :  bpy.props.StringProperty()
 
+    def init(self, context):
+        super().init(context)
+
     def node_group_tree_update(self, context):
         self.log("node_group_tree_update")
+
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "all_trees", text="")
@@ -53,6 +56,3 @@ class GroupNodeObm(ObmConstantNode):
                 for link in input_group.outputs[index].links:
                     link.to_socket.input_value = socket.input_value
                 print("CASSCADE END")
-
-                #for i, output_sockets in enumerate(self.outputs):
-                #    self.outputs[i].input_value = output_group.inputs[i].input_value

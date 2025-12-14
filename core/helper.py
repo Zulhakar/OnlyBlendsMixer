@@ -151,7 +151,6 @@ def point_cloud_from_mesh_gn_node_group(name):
     point_cloud_from_mesh_gn.links.new(group_input.outputs[0], domain_size.inputs[0])
     return point_cloud_from_mesh_gn
 
-
 def point_cloud(ob_name, coords):
     """Create point cloud object based on given coordinates and name."""
     me = bpy.data.meshes.new(ob_name + "Mesh")
@@ -170,7 +169,7 @@ def get_socket_index(sockets, socket):
 def _checker(self, tree):
     parent = self.parent_node_tree
     while parent:
-        if tree.name == parent.name:
+        if tree == parent:
             return False
         parent = parent.parent
     return True

@@ -27,7 +27,7 @@ class ConstantsMenu(bpy.types.Menu):
         layout.separator()
         node_add_menu.add_node_type(layout, "NodeGroupInput")
         node_add_menu.add_node_type(layout, "NodeGroupOutput")
-
+        node_add_menu.add_node_type(layout, "GroupNodeObm")
         # example to set default size of Value Node
         # props = node_add_menu.add_node_type(layout, "ObmFloatNodeType")
         # ops = props.settings.add()
