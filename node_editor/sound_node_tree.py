@@ -1,3 +1,5 @@
+from typing import Any
+
 import bpy
 
 class GroupStringCollectionItem(bpy.types.PropertyGroup):
@@ -23,7 +25,6 @@ class SoundTree(bpy.types.NodeTree):
         name="Node Tree",
         type=bpy.types.NodeTree
     )
-
     group_node_list: bpy.props.CollectionProperty(type=GroupStringCollectionItem)
     group_node_input_list: bpy.props.CollectionProperty(type=GroupSocketCollectionItem)
     group_node_output_list: bpy.props.CollectionProperty(type=GroupSocketCollectionItem)
@@ -53,6 +54,7 @@ class SoundTree(bpy.types.NodeTree):
                     self.links.remove(link)
                     print(link.to_socket.bl_idname, link.from_socket.bl_idname)
                     print(link.to_node.name, link.from_node.name)
+
         for node in self.nodes:
             if node.bl_idname == "GroupNodeObm":
                 node.parent_node_tree = self
@@ -67,105 +69,90 @@ class SoundTree(bpy.types.NodeTree):
                     new_group_node_item.name = node.name
                     new_group_node_item.id = node.name
                     print(str(len(self.group_node_list)))
-            elif node.bl_idname == "NodeGroupInput":
-                ids_collection = set()
-                sockets_collection = []
-                for item in self.group_node_input_list:
-                    ids_collection.add(item.id)
-                    sockets_collection.append(item)
-                ids = set()
-                sockets = []
-                for item in node.outputs:
-                    if item.bl_idname != "NodeSocketVirtual":
-                        ids.add(item.identifier)
-                        sockets.append(item)
-                removed_ids = ids_collection - ids
-                added_ids = ids - ids_collection
-                is_socket_type_change = False
-                if len(removed_ids) == 0 and len(added_ids) == 0:
-                    for i, value in enumerate(sockets_collection):
-                        if sockets_collection[i].type_name != sockets[i].bl_idname:
-                            is_socket_type_change = True
-                            self.sync_sockets(node)
-                            sockets_collection[i].type_name = sockets[i].bl_idname
-                        if sockets_collection[i].name != sockets[i].name:
-                            sockets_collection[i].name = sockets[i].name
-                            self.sync_sockets(node)
-                if len(removed_ids) > 0:
-                    remove_sockets = []
-                    for i, value in enumerate(sockets):
-                        if sockets_collection[i].id in removed_ids:
-                            remove_sockets.append(i)
-                    for remove_socket in remove_sockets:
-                        self.group_node_input_list.remove(remove_socket)
-                    self.sync_sockets(node)
 
-                if len(added_ids) > 0:
-                    for i, value in enumerate(sockets):
-                        if sockets[i].identifier in added_ids:
-                            new_item = self.group_node_input_list.add()
-                            new_item.id = sockets[i].identifier
-                            new_item.name = sockets[i].name
-                            new_item.type_name = sockets[i].bl_idname
-                    self.sync_sockets(node)
-            elif node.bl_idname == "NodeGroupOutput":
-                #print(node.name)
-                ids_collection = set()
-                sockets_collection = []
-                for item in self.group_node_output_list:
-                    ids_collection.add(item.id)
-                    sockets_collection.append(item)
-                ids = set()
-                sockets = []
-                for item in node.inputs:
-                    if item.bl_idname != "NodeSocketVirtual":
-                        ids.add(item.identifier)
-                        sockets.append(item)
-                removed_ids = ids_collection - ids
-                added_ids = ids - ids_collection
-                is_socket_type_change = False
-                if len(removed_ids) == 0 and len(added_ids) == 0:
-                    for i, value in enumerate(sockets_collection):
-                        if sockets_collection[i].type_name != sockets[i].bl_idname:
-                            is_socket_type_change = True
-                            self.sync_sockets(node, False)
-                            sockets_collection[i].type_name = sockets[i].bl_idname
-                        if sockets_collection[i].name != sockets[i].name:
-                            sockets_collection[i].name = sockets[i].name
-                            self.sync_sockets(node, False)
-                if len(removed_ids) > 0:
-                    remove_sockets = []
-                    for i, value in enumerate(sockets):
-                        if sockets_collection[i].id in removed_ids:
-                            remove_sockets.append(i)
-                    for remove_socket in remove_sockets:
-                        self.group_node_output_list.remove(remove_socket)
-                    self.sync_sockets(node, False)
-                if len(added_ids) > 0:
-                    for i, value in enumerate(sockets):
-                        if sockets[i].identifier in added_ids:
-                            new_item = self.group_node_output_list.add()
-                            new_item.id = sockets[i].identifier
-                            new_item.name = sockets[i].name
-                            new_item.type_name = sockets[i].bl_idname
-                    self.sync_sockets(node, False)
+        inputs = []
+        outputs = []
+        for interface in self.interface.items_tree:
+            if hasattr(interface, "in_out"):
+                if interface.in_out == 'INPUT':
+                    inputs.append(interface)
+                elif interface.in_out == 'OUTPUT':
+                    outputs.append(interface)
+        
 
-    def sync_sockets(self, node, is_input=True):
+        self.handle_socks(inputs, True)
+        self.handle_socks(outputs, False)
+
+    
+    def handle_socks(self, sockets: list[Any], are_inputs=True):
+
+
+        ids_collection = set()
+        sockets_collection = []
+        if are_inputs:
+            group_node_in_out_list = self.group_node_input_list
+        else:
+            group_node_in_out_list = self.group_node_output_list
+        if len(sockets) == 0:
+            #group_node_in_out_list.clear()
+            self.sync_sockets(sockets, are_inputs)
+        else:
+            for item in group_node_in_out_list:
+                ids_collection.add(item.id)
+                sockets_collection.append(item)
+            ids = set()
+            sockets_tmp = []
+            for item in sockets:
+                if item.bl_socket_idname != "NodeSocketVirtual":
+                    ids.add(item.identifier)
+                    sockets_tmp.append(item)
+            removed_ids = ids_collection - ids
+            added_ids = ids - ids_collection
+            if len(removed_ids) == 0 and len(added_ids) == 0:
+                for i, value in enumerate(sockets_collection):
+                    if sockets_collection[i].type_name != sockets_tmp[i].bl_socket_idname:
+                        self.sync_sockets(sockets, are_inputs)
+                        sockets_collection[i].type_name = sockets_tmp[i].bl_socket_idname
+                    if sockets_collection[i].name != sockets_tmp[i].name:
+                        sockets_collection[i].name = sockets_tmp[i].name
+                        self.sync_sockets(sockets, are_inputs)
+
+            if len(removed_ids) > 0:
+                remove_sockets = []
+                for i, value in enumerate(sockets_tmp):
+                    if sockets_collection[i].id in removed_ids:
+                        remove_sockets.append(i)
+                for remove_socket in remove_sockets:
+                    group_node_in_out_list.remove(remove_socket)
+                self.sync_sockets(sockets, are_inputs)
+
+            if len(added_ids) > 0:
+                for i, value in enumerate(sockets_tmp):
+                    if sockets_tmp[i].identifier in added_ids:
+                        new_item = group_node_in_out_list.add()
+                        new_item.id = sockets_tmp[i].identifier
+                        new_item.name = sockets_tmp[i].name
+                        new_item.type_name = sockets_tmp[i].bl_socket_idname
+                self.sync_sockets(sockets, are_inputs)
+
+
+    def sync_sockets(self, sockets, is_input=True):
         for key, value in bpy.data.node_groups.items():
             for node_ in value.nodes:
                 if node_.bl_idname == "GroupNodeObm":
                     if node_.all_trees == self:
                         if is_input:
                             node_.inputs.clear()
-                            for old_output in node.outputs:
-                                if old_output.bl_idname != "NodeSocketVirtual":
-                                    #old_output.group_node_tree_name = self.name
-                                    #old_output.group_node_name = node.name
-                                    node_.inputs.new(old_output.bl_idname, old_output.name)
+                            for old_output in sockets:
+                                if old_output.bl_socket_idname != "NodeSocketVirtual":
+                                    old_output.group_node_tree_name = node_.parent_node_tree.name
+                                    old_output.group_node_name = node_.name
+                                    node_.inputs.new(old_output.bl_socket_idname, old_output.name)
                         else:
                             node_.outputs.clear()
-                            for old_input in node.inputs:
-                                if old_input.bl_idname != "NodeSocketVirtual":
+                            for old_input in sockets:
+                                if old_input.bl_socket_idname != "NodeSocketVirtual":
                                     old_input.group_node_tree_name = node_.parent_node_tree.name
                                     old_input.group_node_name = node_.name
-                                    node_.outputs.new(old_input.bl_idname, old_input.name)
+                                    node_.outputs.new(old_input.bl_socket_idname, old_input.name)
+

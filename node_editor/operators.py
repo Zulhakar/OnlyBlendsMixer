@@ -155,14 +155,12 @@ class NODE_OT_my_group_tab(bpy.types.Operator):
         tree = context.space_data.node_tree
         if not tree:
             return False
-
         return tree.bl_idname == SOUND_TREE_TYPE
 
 
     def execute(self, context):
             space = context.space_data
             tree = space.node_tree
-
             #go into selected
             group_nodes = [
                 n for n in tree.nodes
@@ -210,7 +208,6 @@ class MY_OT_AddSocket(bpy.types.Operator):
 
     def execute(self, context):
         tree = context.space_data.node_tree
-
         tree.interface.new_socket(
             name="Socket",
             socket_type="SpeakerSocketType",
@@ -298,7 +295,6 @@ class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         tree = context.space_data.node_tree
-
         # --- Row: List + Buttons ---
         row = layout.row()
         row.template_list(
@@ -326,11 +322,8 @@ class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
             if item.item_type == 'SOCKET':
                 #box = layout.box()
                 layout.prop(item, "name", text="Name")
-
-
                 #row = box.row()
                 layout.prop(item, "socket_type", text="Type")
-
                 #layout.prop(context.scene.mysettings, "socket_style", text="Custom")
 
 class PLAY_OT(bpy.types.Operator):

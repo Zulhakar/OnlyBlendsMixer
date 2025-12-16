@@ -5,8 +5,8 @@ from bpy.utils import (register_class,
 from ..core.constants import (COLOR_OBJECT_SOCKET, COLOR_BLACK, COLOR_STRING_SOCKET, COLOR_INT_SOCKET, COLOR_FLOAT_SOCKET,
                             COLOR_FLOAT_VECTOR_SOCKET,
                             COLOR_EMPTY_SOCKET, COLOR_SPEAKER_SOCKET, COLOR_BOOL_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, IS_DEBUG)
-
 from ..core.helper import get_socket_index
+
 
 class ObmBasicSocket(NodeSocket):
     is_constant: bpy.props.BoolProperty()
@@ -98,10 +98,6 @@ class SoundSampleSocket(ObmBasicSocket):
     def draw_color(self, context, node):
         # cls.display_shape = "SQUARE"
         return COLOR_SOUND_SAMPLE_SOCKET
-
-
-
-
 
 class NodeTreeInterfaceSocketSound(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'SoundSocketType'
@@ -218,7 +214,6 @@ class ObmFloatVectorFieldSocket(ObmBasicSocket):
 
 class NodeTreeInterfaceSocketObmFloatVectorField(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'FloatVectorFieldSocketType'
-
     def draw_color(self, context, node):
         return COLOR_FLOAT_VECTOR_SOCKET
 
@@ -228,13 +223,11 @@ class ObmIntSocket(ObmBasicSocket):
     bl_idname = 'IntSocketType'
     bl_label = "Integer"
     sock_col = COLOR_INT_SOCKET
-
     input_value: bpy.props.IntProperty(update=lambda self, context: self.update_prop(), name="Integer")
 
 
 class NodeTreeInterfaceSocketObmInt(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'IntSocketType'
-
     def draw_color(self, context, node):
         return COLOR_INT_SOCKET
 
@@ -249,7 +242,6 @@ class ObmStringSocket(ObmBasicSocket):
 
 class NodeTreeInterfaceSocketObmString(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'StringSocketType'
-
     def draw_color(self, context, node):
         return COLOR_STRING_SOCKET
 
@@ -259,9 +251,7 @@ class ObmBoolSocket(ObmBasicSocket):
     bl_idname = 'BoolSocketType'
     bl_label = 'Bool'
     sock_col = COLOR_BOOL_SOCKET
-
     input_value: bpy.props.BoolProperty(update=lambda self, context: self.update_prop(), name="Bool")
-
     def draw(self, context, layout, node, text):
         layout.alignment = 'LEFT'
         layout.prop(self, "input_value", text=text)
@@ -269,14 +259,12 @@ class ObmBoolSocket(ObmBasicSocket):
 
 class NodeTreeInterfaceSocketObmBool(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'BoolSocketType'
-
     def draw_color(self, context, node):
         return COLOR_BOOL_SOCKET
 
 
 class NodeTreeInterfaceSocketObmEmpty(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'EmptySocketType'
-
 
 class ObmEmptySocket(NodeSocket):
     """Connect a link to create a new socket"""
