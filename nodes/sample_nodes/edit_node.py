@@ -6,7 +6,6 @@ import aud
 from ..basic_nodes import ObmSampleNode
 from ...core.constants import SOUND_SOCKET_SHAPE, IS_DEBUG
 from ...core.global_data import Data
-import inspect
 
 class EditSampleNode(ObmSampleNode):
     '''Different functions to edit Samples. For example to limit the endless sample of an oscillator.'''
@@ -74,7 +73,7 @@ class EditSampleNode(ObmSampleNode):
         self.inputs.new("FloatSocketType", "sustain")
         self.inputs.new("FloatSocketType", "factor")
         self.inputs.new("IntSocketType", "count")
-        s_r_s= self.inputs.new("IntSocketType", "sample rate")
+        s_r_s = self.inputs.new("IntSocketType", "sample rate")
         self.inputs.new("IntSocketType", "quality")
         self.inputs.new('BoolSocketType', "additive")
         self.inputs.new('SoundSampleSocketType', "Sample")
@@ -83,36 +82,37 @@ class EditSampleNode(ObmSampleNode):
         super().init(context)
         q.input_value = 0.5
         s_r_s.input_value = 48000
+
     def toggle_sockets(self, sockets, hide):
         for socket in sockets:
             socket.hide = hide
             socket.hide_value = hide
 
-    def execute_sound_functions(self, parent_sample, function_name, sockets):
+    def execute_sound_functions(self, function_name, sockets):
         self.toggle_sockets(sockets, False)
+        if self.inputs[0].input_value != "":
+            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        else:
+            parent_sample = None
         if parent_sample:
             values = []
             sample_function = getattr(parent_sample, function_name)
             for socket in sockets:
-                values.append(socket.input_value)
-            if function_name in  ('modulate', 'mix', 'join'):
-                if not sockets[0].is_linked:
-                    return None
-                if not values[0] or values[0] == "":
-                    return None
-                if values[0]:
-                    if values[0] not in Data.uuid_data_storage:
-                        return None
+                if socket.bl_idname != "SoundSampleSocketType":
+                    values.append(socket.input_value)
+                else:
+                    values.append(Data.uuid_data_storage[socket.input_value])
 
+            if function_name in ('modulate', 'mix', 'join'):
+                if not self.inputs[0].is_linked:
+                    return None
+                if self.inputs[0].is_linked and not sockets[0].is_linked:
+                    return None
             return sample_function(*values).cache()
         else:
             return None
 
     def operation_update(self):
-        if self.inputs[0].input_value != "":
-            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-        else:
-            parent_sample = None
         sample_s = self.inputs[0]
         float1_start_s = self.inputs[1]
         float2_end_s = self.inputs[2]
@@ -132,7 +132,6 @@ class EditSampleNode(ObmSampleNode):
         int3_quality_s = self.inputs[16]
         bool_additive_s = self.inputs[17]
         sample2_s = self.inputs[18]
-
         self.toggle_sockets(self.inputs[1:], True)
         sockets = []
         if self.operation == 'accumulate':
@@ -152,8 +151,8 @@ class EditSampleNode(ObmSampleNode):
         elif self.operation == 'loop':
             sockets = [int1_count_s]
         elif self.operation in ('highpass', 'lowpass'):
-            #recursion
-            #float2_s.input_value = 0.5
+            # recursion
+            # float2_s.input_value = 0.5
             sockets = [float3_frequency_s, float4_q_s]
         elif self.operation in ('pitch', 'volume', 'threshold', 'delay'):
             sockets = [float13_factor_s]
@@ -162,13 +161,9 @@ class EditSampleNode(ObmSampleNode):
         elif self.operation == 'resample':
             sockets = [int2_sample_rate_s, int3_quality_s]
 
-        new_sample = self.execute_sound_functions(parent_sample, self.operation, sockets)
+        new_sample = self.execute_sound_functions( self.operation, sockets)
 
-        if new_sample is None:
-            Data.uuid_data_storage[self.node_uuid] = parent_sample
-        else:
-            Data.uuid_data_storage[self.node_uuid] = new_sample
-
+        Data.uuid_data_storage[self.node_uuid] = new_sample
         self.outputs[0].input_value = self.node_uuid
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value
@@ -185,8 +180,13 @@ class EditSampleNode(ObmSampleNode):
     def copy(self, node):
         super().copy(node)
         print("Copy")
-        self.inputs[0].input_value = ""
+        # self.inputs[0].input_value = ""
 
     def socket_update(self, socket):
         if socket != self.outputs[0]:
             self.operation_update()
+
+    def update(self):
+        if not self.inputs[0].is_linked:
+            if Data.uuid_data_storage[self.node_uuid] is not None:
+                self.inputs[0].input_value = ""

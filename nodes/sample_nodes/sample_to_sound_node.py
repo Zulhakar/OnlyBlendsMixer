@@ -60,24 +60,21 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         super().init(context)
 
     def store_data(self):
-        sample_socket = self.inputs[0]
-        if sample_socket.input_value != "":
+        if (self.inputs[0] and self.inputs[0].input_value and self.inputs[0].input_value != "" and
+                self.inputs[0].input_value in Data.uuid_data_storage and Data.uuid_data_storage[self.inputs[0].input_value]):
             sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
-            if sound_sample is not None:
-                sample_rate = self.inputs[1].input_value
-                tmp_dir = tempfile.gettempdir()
-                tmp_path = os.path.join(tmp_dir, f"{self.name}")
-                sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud, self.container_selection))#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
-                new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
-                self.outputs[0].input_value = new_data
-                #print("Soundblock erstellt:", self.outputs[0].input_value.name)
-            else:
-                self.outputs[0].input_value = None
+            sample_rate = self.inputs[1].input_value
+            tmp_dir = tempfile.gettempdir()
+            tmp_path = os.path.join(tmp_dir, f"{self.name}")
+            sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud, self.container_selection))#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
+            new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
+            self.outputs[0].input_value = new_data
+
         else:
             print("no sample")
-            #if sound is not None:
-            #    sound.user_clear()
-            #    bpy.data.sounds.remove(sound)
+            if  self.outputs[0].input_value is not None:
+                self.outputs[0].input_value.user_clear()
+                bpy.data.sounds.remove( self.outputs[0].input_value)
             self.outputs[0].input_value = None
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value

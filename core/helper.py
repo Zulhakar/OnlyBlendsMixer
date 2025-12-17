@@ -164,7 +164,7 @@ def get_socket_index(sockets, socket):
     for i , value in enumerate(sockets):
         if socket == value:
             return i
-
+    return None
 
 def _checker(self, tree):
     parent = self.parent_node_tree

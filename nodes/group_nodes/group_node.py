@@ -48,17 +48,20 @@ class GroupNodeObm(ObmConstantNode):
 
     def socket_update(self, socket):
         super().socket_update(socket)
-        if socket.name in self.inputs:
-            input_group = None
-            output_group = None
-            if self.node_tree:
-                if self.group_input_node:
-                    input_group = self.node_tree.nodes[self.group_input_node]
-                if self.group_output_node:
-                    output_group = self.node_tree.nodes[self.group_output_node]
-            if input_group:
-                index = get_socket_index(self.inputs, socket)
-                input_group.outputs[index].input_value = socket.input_value
-                for link in input_group.outputs[index].links:
-                    link.to_socket.input_value = socket.input_value
+
+        if socket.identifier in self.inputs:
+            print("in inputs")
+
+            index = get_socket_index(self.inputs, socket)
+            for node in self.all_trees.nodes:
+                if node.bl_idname == 'NodeGroupInput':
+                    node.outputs[index].input_value = socket.input_value
+                    for link in node.outputs[index].links:
+                        link.to_socket.input_value = socket.input_value
                 print("CASSCADE END")
+            for node in self.all_trees.nodes:
+                if node.bl_idname == 'NodeGroupOutput':
+                    for i, out_sock in enumerate(node.inputs[:-1]):
+                        self.outputs[i].input_value = out_sock.input_value
+        else:
+            print("not in inputs")
