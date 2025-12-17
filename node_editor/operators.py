@@ -210,7 +210,7 @@ class MY_OT_AddSocket(bpy.types.Operator):
         tree = context.space_data.node_tree
         tree.interface.new_socket(
             name="Socket",
-            socket_type="SpeakerSocketType",
+            socket_type="FloatSocketType",
             in_out=self.in_out,
         )
         if tree.parent:
@@ -314,17 +314,21 @@ class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
 
         # --- Details for selected item ---
         idx = tree.interface.active_index
-        items = tree.interface.items_tree
+        interface_sockets = tree.interface.items_tree
 
-        if 0 <= idx < len(items):
-            item = items[idx]
+        if 0 <= idx < len(interface_sockets):
+            interface_socket = interface_sockets[idx]
 
-            if item.item_type == 'SOCKET':
-                #box = layout.box()
-                layout.prop(item, "name", text="Name")
-                #row = box.row()
-                layout.prop(item, "socket_type", text="Type")
-                #layout.prop(context.scene.mysettings, "socket_style", text="Custom")
+            if interface_socket.item_type == 'SOCKET':
+                split = layout.split(factor=0.9)
+                split.prop(interface_socket, "name", text="Name")
+                split.label(text="")
+                col = interface_socket.draw_color(context, None)
+                split2 = layout.split(factor=0.9)
+                if hasattr(interface_socket, "obm_socket_type"):
+                    split2.prop(interface_socket, "obm_socket_type", text="Type")
+                    split2.template_node_socket(color=col)
+
 
 class PLAY_OT(bpy.types.Operator):
     bl_label = PLAY_OT_label

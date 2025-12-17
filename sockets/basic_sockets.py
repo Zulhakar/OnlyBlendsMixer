@@ -53,7 +53,30 @@ class ObmBasicSocket(NodeSocket):
 
 
 class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
+    obm_sockets = [
+        ("SoundSampleSocketType", "Sample", "Sample"),
+        ("SoundSocketType", "Sound", "Sound"),
+        ("SpeakerSocketType", "Speaker", "Speaker"),
+        ("FloatVectorFieldSocketType", "Float Vector Field", "Float Vector Field"),
+        ("FloatVectorSocketType", "Float Vector", "Float Vector"),
+        ("FloatSocketType", "Float", "Float"),
+        ("StringSocketType", "String", "String"),
+        ("IntSocketType", "Integer", "Integer"),
+        ("BoolSocketType", "Boolean", "Boolean"),
+        ("ObjectSocketType", "Object", "Object")
+    ]
+    obm_socket_type: bpy.props.EnumProperty(  # type: ignore
+        name="Obm Socket Type"
+        , items=obm_sockets
+        , default='FloatSocketType',
+        update=lambda self, context: self.obm_socket_type_update()
+    )
     default_value: bpy.props.StringProperty()
+    def obm_socket_type_update(self):
+        print(self.socket_type)
+        self.socket_type = self.obm_socket_type
+        print(self.socket_type)
+
     def draw(self, context, layout):
         layout.prop(self, "default_value")
 
@@ -71,7 +94,7 @@ class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
 class NodeTreeInterfaceSocketSoundSample(ObmNodeTreeInterfaceSocket):
     # The type of socket that is generated.
     bl_socket_idname = 'SoundSampleSocketType'
-
+    obm_socket_type = bl_socket_idname
     def draw_color(self, context, node):
         # cls.display_shape = "SQUARE"
         return COLOR_SOUND_SAMPLE_SOCKET
@@ -101,7 +124,7 @@ class SoundSampleSocket(ObmBasicSocket):
 
 class NodeTreeInterfaceSocketSound(ObmNodeTreeInterfaceSocket):
     bl_socket_idname = 'SoundSocketType'
-
+    obm_socket_type = bl_socket_idname
 
 class SoundSocket(ObmBasicSocket):
     """Sound Socket to play"""
