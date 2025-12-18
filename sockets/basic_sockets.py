@@ -43,6 +43,10 @@ class ObmBasicSocket(NodeSocket):
                         if node_.all_trees == tree2:
                             sock_index = get_socket_index(node.inputs, self)
                             node_.outputs[sock_index].input_value = self.input_value
+                    # recursion...node_group update <--> instrument
+                    #elif node_.bl_idname == "NoteSequenceToSampleNodeType":
+                    #    if node_.node_tree == tree2:
+                    #        node_.inputs[0].input_value = node_.inputs[0].input_value
 
 
         # ----------------------------------------------------------

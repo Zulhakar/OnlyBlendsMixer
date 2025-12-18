@@ -57,3 +57,6 @@ Creating Sounds with Geometry Nodes
   - [x] geoemtry node example with waveform generator
   - [ ] screen shots
   - [ ] logo
+# Bugs
+- plug note sequence output into group output -> no 
+- group node gets 2x sockets

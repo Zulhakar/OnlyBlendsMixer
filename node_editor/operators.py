@@ -4,7 +4,7 @@ import aud
 
 from ..core.constants import (SOUND_TREE_TYPE, PLAY_OT_ID, PLAY_OT_label, FILE_REC_OT_ID, FILE_REC_OT_label,
                               FILE_IMPORT_OT_ID, FILE_IMPORT_OT_label)
-from ..core.helper import play_selection
+from ..core.helper import play_selection, change_socket_shape
 
 def create_child_node_tree(old_tree, selected):
     new_tree = bpy.data.node_groups.new(
@@ -98,18 +98,14 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         for link in old_tree.links:
             if link.from_node not in selected and link.to_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname)
-                new_sock.display_shape = 'LINE'
                 new_sock2 = group_node.inputs.new(link.to_socket.bl_idname, link.from_socket.bl_label)
-                new_sock2.display_shape = 'LINE'
                 new_link_list.append((new_sock2, link.from_socket))
                 new_tree.links.new(new_input_node.outputs[group_input_socket_index],
                                    get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
                 group_input_socket_index += 1
             elif link.to_node not in selected and link.from_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname, in_out="OUTPUT")
-                new_sock.display_shape = 'LINE'
                 new_sock2 = group_node.outputs.new(link.to_socket.bl_idname, link.to_socket.bl_label)
-                new_sock2.display_shape = 'LINE'
                 #new_link = old_tree.links.new(new_sock2, link.from_socket)
                 new_link_list.append(( link.to_socket, new_sock2))
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
@@ -123,11 +119,11 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         for link_tupel in new_link_list:
             old_tree.links.new(link_tupel[0], link_tupel[1]).is_valid = True
 
+        change_socket_shape(new_input_node)
+        change_socket_shape(new_output_node)
+        change_socket_shape(group_node)
 
-        for output in new_input_node.outputs[:-1]:
-            output.display_shape = "LINE"
         for input in new_output_node.inputs[:-1]:
-            input.display_shape = "LINE"
             # -----------------------------
             # inject
             input.group_node_tree_name = old_tree.name
@@ -214,6 +210,10 @@ class MY_OT_AddSocket(bpy.types.Operator):
             socket_type="FloatSocketType",
             in_out=self.in_out,
         )
+        for node in tree.nodes:
+            if node.bl_idname == "NodeGroupOutput" or node.bl_idname == "NodeGroupInput":
+                change_socket_shape(node)
+
         if tree.parent:
             for node in tree.parent.nodes:
                 print(node.name)

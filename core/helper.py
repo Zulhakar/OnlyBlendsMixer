@@ -4,7 +4,7 @@ import wave
 import bpy
 import aud
 import numpy as np
-from .constants import NOTE_NAMES_1, NOTE_NAMES_2
+from .constants import NOTE_NAMES_1, NOTE_NAMES_2, VERSATILE_SOCKET_SHAPE, SINGLE_VALUES_SOCKET_SHAPE, FIELDS_SOCKET_SHAPE
 
 
 def play_selection(obj_, option="point_cloud", attr="position", axis=1, sampling_rate=44100):
@@ -239,3 +239,21 @@ def get_length_and_specs_from_sound(sound):
     specs = copy.deepcopy(sound_aud.specs)
     del sound_aud
     return length, specs
+
+def change_socket_shape(node):
+    for socket in node.inputs:
+        if socket.bl_idname != "NodeSocketVirtual":
+            if bpy.app.version < (5, 0, 1):
+                socket.display_shape = VERSATILE_SOCKET_SHAPE
+            else:
+                socket.display_shape = SINGLE_VALUES_SOCKET_SHAPE
+        if socket.bl_idname == "FloatVectorFieldSocketType":
+            socket.display_shape = FIELDS_SOCKET_SHAPE
+    for socket in node.outputs:
+        if socket.bl_idname != "NodeSocketVirtual":
+            if bpy.app.version < (5, 0, 1):
+                socket.display_shape = VERSATILE_SOCKET_SHAPE
+            else:
+                socket.display_shape = SINGLE_VALUES_SOCKET_SHAPE
+        if socket.bl_idname == "FloatVectorFieldSocketType":
+            socket.display_shape = FIELDS_SOCKET_SHAPE

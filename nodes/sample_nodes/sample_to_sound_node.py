@@ -11,7 +11,7 @@ def get_sample_rates():
     all_members = aud.__dict__
     for member in all_members:
         if member.startswith("RATE_") and not member.startswith("RATE_INVALID"):
-            sample_rates.append((member, member, ""))
+            sample_rates.append((member, member.split("_")[1], ""))
     return sample_rates
 
 def get_container_types():
@@ -19,7 +19,7 @@ def get_container_types():
     all_members = aud.__dict__
     for member in all_members:
         if member.startswith("CONTAINER_") and not member.startswith("CONTAINER_INVALID"):
-            container_types.append((member, member, ""))
+            container_types.append((member, member.split("_")[1], ""))
     return container_types
 
 class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
