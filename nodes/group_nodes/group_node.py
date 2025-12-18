@@ -6,7 +6,7 @@ from ...core.helper import get_socket_index, _checker
 
 
 class GroupNodeObm(ObmConstantNode):
-    bl_label = "Sound Group"
+    bl_label = "Group"
     bl_icon = 'NODETREE'
     node_tree: bpy.props.PointerProperty(
         name="Group Tree",

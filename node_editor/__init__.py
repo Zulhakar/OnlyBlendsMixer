@@ -1,8 +1,11 @@
 import bpy
 from .operators import operator_classes
 from .sound_node_tree import SoundTree, GroupStringCollectionItem, GroupSocketCollectionItem
-from .menus import ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, menu_draw, draw_add_menu
+from .menus import (ConstantsMenu, DeviceMenu, SampleMenu, SpeakerMenu, SoundMenu, InputMenu, GroupMenu, NoteMenu,
+                    menu_draw,
+                    draw_add_menu)
 from .operators import NODE_OT_my_group_tab
+
 addon_keymaps = []
 
 
@@ -18,16 +21,14 @@ def register_keymap():
         )
         addon_keymaps.append((km, kmi))
 
+
 def unregister_keymap():
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
 
 
-
-
 def register():
-
     for o_class in operator_classes:
         print(o_class)
         bpy.utils.register_class(o_class)
@@ -43,6 +44,9 @@ def register():
     bpy.utils.register_class(SampleMenu)
     bpy.utils.register_class(SpeakerMenu)
     bpy.utils.register_class(SoundMenu)
+    bpy.utils.register_class(InputMenu)
+    bpy.utils.register_class(GroupMenu)
+    bpy.utils.register_class(NoteMenu)
 
     bpy.utils.register_class(GroupStringCollectionItem)
     bpy.utils.register_class(GroupSocketCollectionItem)
@@ -61,10 +65,10 @@ def unregister():
     bpy.utils.unregister_class(SampleMenu)
     bpy.utils.unregister_class(SpeakerMenu)
     bpy.utils.unregister_class(SoundMenu)
+    bpy.utils.unregister_class(InputMenu)
+    bpy.utils.unregister_class(GroupMenu)
+    bpy.utils.unregister_class(NoteMenu)
 
     bpy.utils.unregister_class(GroupStringCollectionItem)
     bpy.utils.unregister_class(GroupSocketCollectionItem)
     bpy.utils.unregister_class(SoundTree)
-
-
-

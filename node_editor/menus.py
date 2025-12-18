@@ -9,25 +9,17 @@ class ConstantsMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
 
-        node_add_menu.add_node_type(layout, "ObmObjectNodeType")
+        #node_add_menu.add_node_type(layout, "ObmObjectNodeType")
         node_add_menu.add_node_type(layout, "ObmFloatNodeType")
-        # node_add_menu.add_node_type(layout, "NodeSocketFloat")
         node_add_menu.add_node_type(layout, "ObmIntNodeType")
         node_add_menu.add_node_type(layout, "ObmStringNodeType")
         node_add_menu.add_node_type(layout, "ObmBooleanNodeType")
         layout.separator()
         node_add_menu.add_node_type(layout, "ObmVectorNodeType")
         node_add_menu.add_node_type(layout, "ObmCombineXyzNodeType")
-        node_add_menu.add_node_type(layout, "MathNode")
         layout.separator()
         node_add_menu.add_node_type(layout, "NoteToFrequencyNode")
-        node_add_menu.add_node_type(layout, "NoteSequenceNode")
-        layout.separator()
-        node_add_menu.add_node_type(layout, "SpeakerNodeType")
-        layout.separator()
-        node_add_menu.add_node_type(layout, "NodeGroupInput")
-        node_add_menu.add_node_type(layout, "NodeGroupOutput")
-        node_add_menu.add_node_type(layout, "GroupNodeObm")
+
         # example to set default size of Value Node
         # props = node_add_menu.add_node_type(layout, "ObmFloatNodeType")
         # ops = props.settings.add()
@@ -52,19 +44,17 @@ class SampleMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-
-        node_add_menu.add_node_type(layout, "SampleToSoundNode")
-        node_add_menu.add_node_type(layout, "EditSampleNode")
-        node_add_menu.add_node_type(layout, "NoteSequenceToSampleNodeType")
-        node_add_menu.add_node_type(layout, "GeometryToSampleType")
-        # node_add_menu.add_node_type(layout, "SampleInfoNodeType")
-
-        layout.separator()
         node_add_menu.add_node_type(layout, "OscillatorSampleNode")
+        layout.separator()
+        node_add_menu.add_node_type(layout, "EditSampleNode")
+        node_add_menu.add_node_type(layout, "SampleToSoundNode")
+        layout.separator()
+        node_add_menu.add_node_type(layout, "NoteSequenceToSampleNodeType")
+        # node_add_menu.add_node_type(layout, "SampleInfoNodeType")
         layout.separator()
         #node_add_menu.add_node_type(layout, "SampleToGeometryType")
         node_add_menu.add_node_type(layout, "SampleToMeshType")
-
+        node_add_menu.add_node_type(layout, "GeometryToSampleType")
 
 
 class SpeakerMenu(bpy.types.Menu):
@@ -74,6 +64,7 @@ class SpeakerMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         node_add_menu.add_node_type(layout, "SpeakerLinkNode")
+        node_add_menu.add_node_type(layout, "SpeakerNodeType")
 
 
 class SoundMenu(bpy.types.Menu):
@@ -85,6 +76,42 @@ class SoundMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SoundInfoNodeType")
         node_add_menu.add_node_type(layout, "SoundToSampleNodeType")
 
+class InputMenu(bpy.types.Menu):
+    bl_label = 'Input'
+    bl_idname = 'NODE_MT_Obm_Input'
+    def draw(self, context):
+        layout = self.layout
+        layout.menu(ConstantsMenu.bl_idname)
+        node_add_menu.add_node_type(layout, "NodeGroupInput")
+        node_add_menu.add_node_type(layout, "GeometryToSampleType")
+
+class OutputMenu(bpy.types.Menu):
+    bl_label = 'Output'
+    bl_idname = 'NODE_MT_Obm_Output'
+    def draw(self, context):
+        layout = self.layout
+        layout.menu(ConstantsMenu.bl_idname)
+        node_add_menu.add_node_type(layout, "NodeGroupOutput")
+
+class GroupMenu(bpy.types.Menu):
+    bl_label = 'Group'
+    bl_idname = 'NODE_MT_Obm_Group'
+    def draw(self, context):
+        layout = self.layout
+        #layout.menu(ConstantsMenu.bl_idname)
+        node_add_menu.add_node_type(layout, "NodeGroupInput")
+        node_add_menu.add_node_type(layout, "NodeGroupOutput")
+        node_add_menu.add_node_type(layout, "GroupNodeObm")
+        #self.layout.operator("node.my_make_group",text='Group', icon='ADD')
+
+class NoteMenu(bpy.types.Menu):
+    bl_label = 'Note'
+    bl_idname = 'NODE_MT_Obm_Note'
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "NoteToFrequencyNode")
+        node_add_menu.add_node_type(layout, "NoteSequenceNode")
+        node_add_menu.add_node_type(layout, "NoteSequenceToSampleNodeType")
 
 def draw_add_menu(self, context):
     layout = self.layout
@@ -95,14 +122,16 @@ def draw_add_menu(self, context):
 
     # Device, Sample, Sound, ToObject/Geometry, Helper
 
-    layout.menu(ConstantsMenu.bl_idname)
+    layout.menu(InputMenu.bl_idname)
+    layout.menu(NoteMenu.bl_idname)
     layout.menu(SpeakerMenu.bl_idname)
     # layout.menu(DeviceMenu.bl_idname)
     layout.menu(SampleMenu.bl_idname)
-
+    layout.menu(GroupMenu.bl_idname)
+    node_add_menu.add_node_type(layout, "MathNode")
     # layout.menu(SoundMenu.bl_idname)
 
-    # node_add_menu.add_node_type(layout, "ImportWavNodeType")
+    #node_add_menu.add_node_type(layout, "ImportWavNodeType")
     #layout.separator()
 
 
