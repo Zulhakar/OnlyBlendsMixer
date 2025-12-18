@@ -74,7 +74,10 @@ class SoundTree(bpy.types.NodeTree):
                 #add reference to socket for group output update
                 for inp_sock in node.inputs:
                     if inp_sock.bl_idname != "NodeSocketVirtual":
-                        inp_sock.group_node_tree_name = self.parent.name
+                        if self.parent:
+                            inp_sock.group_node_tree_name = self.parent.name
+                        # else:
+                        #     inp_sock.group_node_tree_name = None
                         inp_sock.group_node_name = self.name
 
         inputs = []

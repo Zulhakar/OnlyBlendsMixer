@@ -35,7 +35,7 @@ Creating Sounds with Geometry Nodes
 - [ ] refactor and simplify node_tree update
 - [ ] simplify graph updates, make performance improvements
 - [x] add group input / output and node group menu
-- [ ] hide sockets and "store" previous input value for Edit Sample Node
+- [x] hide sockets and "store" previous input value for Edit Sample Node
 - [ ] sample to mesh node 
 - [ ] mesh to sample node
   - [x] geometry to sample with frequency input
@@ -47,6 +47,7 @@ Creating Sounds with Geometry Nodes
 - [ ] if speaker pitch is changed strip length also change
 - [ ] if scene fps change strip length should also change
 - [ ] instrument node: if selected node tree updates the instrument should also update
+- [ ] join / merge vector field
 # ALPHA Release
 - [ ] alpha release todo:
   - [ ] optional: renaming stuff

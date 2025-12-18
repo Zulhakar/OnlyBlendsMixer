@@ -159,6 +159,7 @@ class NODE_OT_my_group_tab(bpy.types.Operator):
 
 
     def execute(self, context):
+            print("pressed")
             space = context.space_data
             tree = space.node_tree
             #go into selected
@@ -169,7 +170,7 @@ class NODE_OT_my_group_tab(bpy.types.Operator):
 
             if group_nodes:
                 node = group_nodes[0]
-                inner = node.node_tree
+                inner = node.all_trees
                 if inner:
                     space.node_tree = inner
                     return {'FINISHED'}

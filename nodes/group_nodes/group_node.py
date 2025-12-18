@@ -37,7 +37,7 @@ class GroupNodeObm(ObmConstantNode):
         self.all_trees.group_node_input_list.clear()
         self.all_trees.group_node_output_list.clear()
         self.all_trees.update()
-
+        self.all_trees.parent = self.parent_node_tree
         #self.parent_node_tree.update()
         #self.parent_node_tree.update()
     def draw_buttons(self, context, layout):
