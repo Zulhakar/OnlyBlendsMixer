@@ -32,16 +32,27 @@ class ObmBasicSocket(NodeSocket):
         # ----------------------------------------------------------
         # inject update for build in nodes (Group Input/Output Node)
         # maybee pointer for socket group_output inputs with group_node output
-        else:
-            if self.node.bl_idname == "NodeGroupOutput":
-                if self.group_node_tree_name != "":
-                    node = self.node
-                    #print("Trigger from Socket")
-                    tree = bpy.data.node_groups[self.group_node_tree_name]
-                    group_node = tree.nodes[self.group_node_name]
-                    print(group_node.name)
-                    sock_index = get_socket_index(node.inputs, self)
-                    group_node.outputs[sock_index].input_value = self.input_value
+
+        if self.node.bl_idname == "NodeGroupOutput":
+            print("Trigger from Socket")
+            print(self.group_node_tree_name)
+            print(self.group_node_name)
+            if self.group_node_tree_name != "":
+                node = self.node
+                print("Trigger from Socket")
+                tree = bpy.data.node_groups[self.group_node_tree_name]
+                tree2 = bpy.data.node_groups[self.group_node_name]
+                for node_ in tree.nodes:
+                    print(node_.bl_idname)
+                    if node_.bl_idname == "GroupNodeObm":
+                        if node_.all_trees == tree2:
+                            sock_index = get_socket_index(node.inputs, self)
+                            node_.outputs[sock_index].input_value = self.input_value
+
+                #group_node = tree.nodes[self.group_node_name]
+                #print(group_node.name)
+                #sock_index = get_socket_index(node.inputs, self)
+                #group_node.outputs[sock_index].input_value = self.input_value
         # ----------------------------------------------------------
 
     # Socket color
@@ -72,6 +83,8 @@ class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
         update=lambda self, context: self.obm_socket_type_update()
     )
     default_value: bpy.props.StringProperty()
+    group_node_tree_name: bpy.props.StringProperty()
+    group_node_name: bpy.props.StringProperty()
     def obm_socket_type_update(self):
         print(self.socket_type)
         self.socket_type = self.obm_socket_type
@@ -85,8 +98,6 @@ class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
 
     def from_socket(self, node, socket):
         print("from socket")
-        # self.default_value = socket.input_value
-
     def draw_color(self, context, node):
         return COLOR_BLACK
 

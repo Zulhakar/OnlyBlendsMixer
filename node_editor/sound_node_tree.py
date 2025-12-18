@@ -30,6 +30,7 @@ class SoundTree(bpy.types.NodeTree):
     group_node_output_list: bpy.props.CollectionProperty(type=GroupSocketCollectionItem)
 
     def get_parent_group_nodes(self):
+        #error if there are more than one TODO
         parent_group_nodes = []
         if self.parent:
             for node in self.parent.nodes:
@@ -69,6 +70,12 @@ class SoundTree(bpy.types.NodeTree):
                     new_group_node_item.name = node.name
                     new_group_node_item.id = node.name
                     print(str(len(self.group_node_list)))
+            elif node.bl_idname == "NodeGroupOutput":
+                #add reference to socket for group output update
+                for inp_sock in node.inputs:
+                    if inp_sock.bl_idname != "NodeSocketVirtual":
+                        inp_sock.group_node_tree_name = self.parent.name
+                        inp_sock.group_node_name = self.name
 
         inputs = []
         outputs = []
