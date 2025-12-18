@@ -26,7 +26,14 @@ class NoteSequenceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                 if insert_index == len(self.inputs[0].links):
                     new_item = self.outputs[0].input_value.add()
                     new_item.value = link.from_socket.input_value
-                link.to_node.socket_update(link.to_socket)
+                for l in self.outputs[0].links:
+                    l.to_socket.input_value.clear()
+                    for item in self.outputs[0].input_value:
+                        new_item = l.to_socket.input_value.add()
+                        new_item.value = item.value
+                    #    print("#####:", str(new_item.value[0]))
+                    # print("sock update2")
+                    l.to_node.socket_update(l.to_socket)
             #for item in self.outputs[0].input_value:
             #    print(str(item.value[0]), str(item.value[1]), str(item.value[2]))
 
