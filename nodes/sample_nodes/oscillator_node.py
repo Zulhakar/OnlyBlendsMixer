@@ -27,6 +27,8 @@ class OscillatorSampleNode(ObmSampleNode):
 
     def waveform_selection_update(self):
         new_sample = None
+        if self.inputs[0].input_value > 192000:
+            self.inputs[0].input_value = 192000
         if self.waveform_selection == "SILENCE":
             self.inputs[1].hide = True
             self.inputs[1].hide_value = True

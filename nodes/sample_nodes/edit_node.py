@@ -147,8 +147,16 @@ class EditSampleNode(ObmSampleNode):
         elif self.operation in ('fadein', 'fadeout', 'limit'):
             sockets = [float1_start_s, float5_length_s]
             if self.operation == "limit":
+                if float1_start_s.input_value < 0:
+                    float1_start_s.input_value = 0
+                if float2_end_s.input_value < 0:
+                    float2_end_s.input_value = 0
+                if float2_end_s.input_value > 3600:
+                    float2_end_s.input_value = 3600
                 sockets = [float1_start_s, float2_end_s]
         elif self.operation == 'loop':
+            if int1_count_s.input_value < 0:
+                int1_count_s.input_value = 0
             sockets = [int1_count_s]
         elif self.operation in ('highpass', 'lowpass'):
             # recursion
@@ -162,7 +170,6 @@ class EditSampleNode(ObmSampleNode):
             sockets = [int2_sample_rate_s, int3_quality_s]
 
         new_sample = self.execute_sound_functions( self.operation, sockets)
-
         Data.uuid_data_storage[self.node_uuid] = new_sample
         self.outputs[0].input_value = self.node_uuid
         for link in self.outputs[0].links:
@@ -179,9 +186,8 @@ class EditSampleNode(ObmSampleNode):
 
     def copy(self, node):
         super().copy(node)
-        print("Copy")
-        # self.inputs[0].input_value = ""
-
+        self.inputs[0].input_value = ""
+        self.inputs[18].input_value = ""
     def socket_update(self, socket):
         if socket != self.outputs[0]:
             self.operation_update()

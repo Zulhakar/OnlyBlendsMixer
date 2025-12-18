@@ -1,4 +1,4 @@
-from .obm_nodes import SoundToSampleNode, PlayDeviceNode, SampleToMeshNode
+from .obm_nodes import SoundToSampleNode, PlayDeviceNode
 
 from .constant_nodes.speaker_node import SpeakerNode
 
@@ -8,6 +8,7 @@ from .sample_nodes.edit_node import EditSampleNode
 from .sample_nodes.sample_sequencer import NoteSequenceToSampleNode, NodeSocketCollectionItem
 from .sample_nodes.geometry_to_sample_node import (GeometryToSampleNode, GeometryGroupInputCollectionItem,
                                                          CUSTOM_UL_geometry_group_input_items)
+from .geometry_nodes.sample_to_mesh_node import SampleToMeshNode
 from .group_nodes.group_node import GroupNodeObm
 
 from .speaker_nodes.speaker_link_node import SpeakerLinkNode

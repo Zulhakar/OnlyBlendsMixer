@@ -23,11 +23,7 @@ Creating Sounds with Geometry Nodes
   - [x] update group node sockets if socket type changed
   - [x] changing the node tree changes also the sockets of group node
 - [x] menu make group (~~rebuild the entire menu~~)
-- [ ] Note Node
-  - [ ] selectable octave
-  - [ ] duration as 1/4 1/8 etc
-  - [ ] input for dpm
-  - [ ] new sockets: note string 
+
 - [x] Note To Frequency
     - [x]  selectable note
     - [ ] optional: string input as alternative
@@ -36,7 +32,7 @@ Creating Sounds with Geometry Nodes
 - [ ] simplify graph updates, make performance improvements
 - [x] add group input / output and node group menu
 - [x] hide sockets and "store" previous input value for Edit Sample Node
-- [ ] sample to mesh node 
+- [x] sample to mesh node 
 - [ ] mesh to sample node
   - [x] geometry to sample with frequency input
   - [x] socket selectable via ui list
@@ -46,7 +42,7 @@ Creating Sounds with Geometry Nodes
 - [ ] copy node, override default values
 - [ ] if speaker pitch is changed strip length also change
 - [ ] if scene fps change strip length should also change
-- [ ] instrument node: if selected node tree updates the instrument should also update
+- [x] instrument node: if selected node tree updates the instrument should also update
 - [ ] join / merge vector field
 # ALPHA Release
 - [ ] alpha release todo:
@@ -57,6 +53,14 @@ Creating Sounds with Geometry Nodes
   - [x] geoemtry node example with waveform generator
   - [ ] screen shots
   - [ ] logo
+
 # Bugs
 - plug note sequence output into group output -> no 
 - group node gets 2x sockets
+
+# 0.2
+- [ ] Note Node
+  - [ ] selectable octave
+  - [ ] duration as 1/4 1/8 etc
+  - [ ] input for dpm
+  - [ ] new sockets: note string 

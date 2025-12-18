@@ -106,8 +106,9 @@ class ObmSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     def socket_update(self, socket):
         super().socket_update(socket)
-        for link in self.outputs[0].links:
-            link.to_socket.input_value = self.outputs[0].input_value
+        if len(self.outputs) > 0:
+            for link in self.outputs[0].links:
+                link.to_socket.input_value = self.outputs[0].input_value
 
 
 
