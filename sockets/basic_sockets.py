@@ -10,8 +10,8 @@ from ..core.helper import get_socket_index
 
 class ObmBasicSocket(NodeSocket):
     is_constant: bpy.props.BoolProperty()
-    group_node_tree_name: bpy.props.StringProperty()
-    group_node_name: bpy.props.StringProperty()
+    selected_node_group_name: bpy.props.StringProperty()
+    node_group_name: bpy.props.StringProperty()
     def draw(self, context, layout, node, text):
         if self.is_constant:
             layout.alignment = 'EXPAND'
@@ -34,25 +34,17 @@ class ObmBasicSocket(NodeSocket):
         # maybee pointer for socket group_output inputs with group_node output
 
         if self.node.bl_idname == "NodeGroupOutput":
-            print("Trigger from Socket")
-            print(self.group_node_tree_name)
-            print(self.group_node_name)
-            if self.group_node_tree_name != "":
+            if self.selected_node_group_name != "":
                 node = self.node
-                print("Trigger from Socket")
-                tree = bpy.data.node_groups[self.group_node_tree_name]
-                tree2 = bpy.data.node_groups[self.group_node_name]
+                tree = bpy.data.node_groups[self.selected_node_group_name]
+                tree2 = bpy.data.node_groups[self.node_group_name]
                 for node_ in tree.nodes:
-                    print(node_.bl_idname)
                     if node_.bl_idname == "GroupNodeObm":
                         if node_.all_trees == tree2:
                             sock_index = get_socket_index(node.inputs, self)
                             node_.outputs[sock_index].input_value = self.input_value
 
-                #group_node = tree.nodes[self.group_node_name]
-                #print(group_node.name)
-                #sock_index = get_socket_index(node.inputs, self)
-                #group_node.outputs[sock_index].input_value = self.input_value
+
         # ----------------------------------------------------------
 
     # Socket color
@@ -83,8 +75,8 @@ class ObmNodeTreeInterfaceSocket(bpy.types.NodeTreeInterfaceSocket):
         update=lambda self, context: self.obm_socket_type_update()
     )
     default_value: bpy.props.StringProperty()
-    group_node_tree_name: bpy.props.StringProperty()
-    group_node_name: bpy.props.StringProperty()
+    selected_node_group_name: bpy.props.StringProperty()
+    node_group_name: bpy.props.StringProperty()
     def obm_socket_type_update(self):
         print(self.socket_type)
         self.socket_type = self.obm_socket_type
