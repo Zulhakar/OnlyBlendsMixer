@@ -1,5 +1,4 @@
 schema_version = "1.0.0"
-
 id = "only_blends_mixer"
 version = "0.1.0"
 name = "OnlyBlends.Mixer"
@@ -7,7 +6,7 @@ tagline = "An extension to turn Blender into a Mixer... of Sounds"
 maintainer = "Zulhakar (ChangeGamer) <Ilineiros@proton.me>"
 type = "add-on"
 website = "https://github.com/Zulhakar/OnlyBlendsMixer"
-tags = ["Game Engine", "Geometry Nodes"]
+tags = ["Node", "Sequencer", "Geometry Nodes", "Import-Export", "Pipeline"]
 blender_version_min = "4.2.0"
 license = [
     "SPDX:GPL-3.0-or-later",
@@ -15,8 +14,8 @@ license = [
 
 [build]
 paths_exclude_pattern = [
-   "__pycache__/",
-   "/.git/",
-   "/*.zip",
-    "/.idea/"
+  "__pycache__/",
+  ".*",
+  "*.zip",
+    ".idea"
 ]

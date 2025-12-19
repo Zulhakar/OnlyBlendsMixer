@@ -1,5 +1,8 @@
 # OnlyBlendsMixer
-Creating Sounds with Geometry Nodes
+"An extension to turn Blender into a Mixer... of Sounds.
+It's a new Sound Node Editor to build Synthesizer and design Audio."
+
+# Features
 
 
 # TODO
