@@ -28,8 +28,8 @@ Creating Sounds with Geometry Nodes
     - [x]  selectable note
     - [ ] optional: string input as alternative
     - [ ] optional: selection of octave
-- [ ] refactor and simplify node_tree update
-- [ ] simplify graph updates, make performance improvements
+- [x] refactor and simplify node_tree update
+- [x] simplify graph updates, make performance improvements
 - [x] add group input / output and node group menu
 - [x] hide sockets and "store" previous input value for Edit Sample Node
 - [x] sample to mesh node 
@@ -44,6 +44,7 @@ Creating Sounds with Geometry Nodes
 - [ ] if scene fps change strip length should also change
 - [x] instrument node: if selected node tree updates the instrument should also update
 - [ ] join / merge vector field
+- [ ] integer sockets accept float and int float
 # ALPHA Release
 - [ ] alpha release todo:
   - [ ] optional: renaming stuff
@@ -52,7 +53,7 @@ Creating Sounds with Geometry Nodes
   - [ ] sound examples: techno 
   - [x] geoemtry node example with waveform generator
   - [ ] screen shots
-  - [ ] logo
+  - [ ] optional: logo
 
 # Bugs
 - plug note sequence output into group output -> no 

@@ -2,6 +2,7 @@ from typing import Any
 
 import bpy
 from ..core.helper import change_socket_shape
+from ..core.constants import IS_DEBUG
 class GroupStringCollectionItem(bpy.types.PropertyGroup):
     id: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
@@ -52,37 +53,39 @@ class SoundTree(bpy.types.NodeTree):
         return parent_group_nodes
 
     def interface_update(self, context):
-        print(context)
-        print("interface update")
+        if IS_DEBUG:
+            print("interface update")
 
     def update(self):
-        print("update Node Tree:", self.name)
-        print(str(len(self.group_node_list)))
+        if IS_DEBUG:
+            print("update Node Tree:", self.name)
         for link in list(self.links):
-            if not link.to_node.bl_idname == "GroupNodeObm" and not link.from_node.bl_idname == "GroupNodeObm":
-                #if link.to_socket.bl_idname == "GroupNodeSocket":
-                if link.to_socket.bl_idname == link.from_socket.bl_idname:
-                    link.is_valid = True
-                if not link.is_valid:
+            #if not link.to_node.bl_idname == "GroupNodeObm" and not link.from_node.bl_idname == "GroupNodeObm":
+            #    #if link.to_socket.bl_idname == "GroupNodeSocket":
+            if link.to_socket.bl_idname == link.from_socket.bl_idname:
+                link.is_valid = True
+            elif link.to_socket.bl_idname == "FloatSocketType" and link.from_socket.bl_idname == "IntSocketType":
+                link.is_valid = True
+            elif link.to_socket.bl_idname == "IntSocketType" and link.from_socket.bl_idname == "FloatSocketType":
+                link.is_valid = True
+            if not link.is_valid:
+                if IS_DEBUG:
                     print("invalid link removed:", link)
-                    self.links.remove(link)
                     print(link.to_socket.bl_idname, link.from_socket.bl_idname)
                     print(link.to_node.name, link.from_node.name)
+                self.links.remove(link)
 
         for node in self.nodes:
             if node.bl_idname == "GroupNodeObm":
                 node.parent_node_tree = self
-                print(node.name)
                 is_in_list = False
                 for key, value in self.group_node_list.items():
                     if value.name == node.name:
                         is_in_list = True
                 if not is_in_list:
-                    print("add new group node")
                     new_group_node_item = self.group_node_list.add()
                     new_group_node_item.name = node.name
                     new_group_node_item.id = node.name
-                    print(str(len(self.group_node_list)))
             elif node.bl_idname == "NodeGroupOutput":
                 #add reference to socket for group output update
                 for inp_sock in node.inputs:
