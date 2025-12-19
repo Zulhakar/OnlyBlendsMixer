@@ -6,6 +6,7 @@ from ..core.constants import (SOUND_TREE_TYPE, PLAY_OT_ID, PLAY_OT_label, FILE_R
                               FILE_IMPORT_OT_ID, FILE_IMPORT_OT_label)
 from ..core.helper import play_selection, change_socket_shape
 
+
 def create_child_node_tree(old_tree, selected):
     new_tree = bpy.data.node_groups.new(
         "Sound Tree",
@@ -14,7 +15,7 @@ def create_child_node_tree(old_tree, selected):
     # Input / Output Nodes
     input_node = new_tree.nodes.new("NodeGroupInput")
     output_node = new_tree.nodes.new("NodeGroupOutput")
-    #t = new_tree.nodes.new("TextureNodeGroup")
+    # t = new_tree.nodes.new("TextureNodeGroup")
     # new_tree.interface.new_socket("SocketInput")
 
     min_x = 10000000000
@@ -39,6 +40,7 @@ def create_child_node_tree(old_tree, selected):
 
     return new_tree, new_names, input_node, output_node
 
+
 def get_index_of_socket(node, socket):
     index = 0
     for input in node.inputs:
@@ -50,6 +52,7 @@ def get_index_of_socket(node, socket):
         if output == socket:
             return index, "output"
         index += 1
+
 
 def get_node_by_name(tree, name):
     for node in tree.nodes:
@@ -87,8 +90,8 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         group_node.location = selected[0].location
 
         new_output_node.parent = group_node
-        #new_output_node["parent_group_node"] = bpy.props.PointerProperty(type=bpy.types.Node)
-        #new_output_node.parent_group_node = group_node
+        # new_output_node["parent_group_node"] = bpy.props.PointerProperty(type=bpy.types.Node)
+        # new_output_node.parent_group_node = group_node
         new_tree.parent = old_tree
         group_node.group_input_node = new_input_node.name
         group_node.group_output_node = new_output_node.name
@@ -101,21 +104,25 @@ class NODE_OT_my_make_group(bpy.types.Operator):
                 new_sock2 = group_node.inputs.new(link.to_socket.bl_idname, link.from_socket.bl_label)
                 new_link_list.append((new_sock2, link.from_socket))
                 new_tree.links.new(new_input_node.outputs[group_input_socket_index],
-                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[
+                                       get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
                 group_input_socket_index += 1
             elif link.to_node not in selected and link.from_node in selected:
-                new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname, in_out="OUTPUT")
+                new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname,
+                                                         in_out="OUTPUT")
                 new_sock2 = group_node.outputs.new(link.to_socket.bl_idname, link.to_socket.bl_label)
-                #new_link = old_tree.links.new(new_sock2, link.from_socket)
-                new_link_list.append(( link.to_socket, new_sock2))
+                # new_link = old_tree.links.new(new_sock2, link.from_socket)
+                new_link_list.append((link.to_socket, new_sock2))
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
-                new_output_node.inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+                                   new_output_node.inputs[
+                                       get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
 
             elif link.to_node in selected and link.from_node in selected:
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
-                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+                                   get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[
+                                       get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
         for link_tupel in new_link_list:
             old_tree.links.new(link_tupel[0], link_tupel[1]).is_valid = True
 
@@ -153,32 +160,28 @@ class NODE_OT_my_group_tab(bpy.types.Operator):
             return False
         return tree.bl_idname == SOUND_TREE_TYPE
 
-
     def execute(self, context):
-            print("pressed")
-            space = context.space_data
-            tree = space.node_tree
-            #go into selected
-            group_nodes = [
-                n for n in tree.nodes
-                if n.select and n.bl_idname == "GroupNodeObm"
-            ]
+        space = context.space_data
+        tree = space.node_tree
+        # go into selected
+        group_nodes = [
+            n for n in tree.nodes
+            if n.select and n.bl_idname == "GroupNodeObm"
+        ]
 
-            if group_nodes:
-                node = group_nodes[0]
-                inner = node.all_trees
-                if inner:
-                    space.node_tree = inner
-                    return {'FINISHED'}
-
-            #go out to parent if nothing is selected
-            if hasattr(tree, "parent") and tree.parent:
-                space.node_tree = tree.parent
+        if group_nodes:
+            node = group_nodes[0]
+            inner = node.all_trees
+            if inner:
+                space.node_tree = inner
                 return {'FINISHED'}
 
-            return {'CANCELLED'}
+        # go out to parent if nothing is selected
+        if hasattr(tree, "parent") and tree.parent:
+            space.node_tree = tree.parent
+            return {'FINISHED'}
 
-# "ObmSoundTreeType"
+        return {'CANCELLED'}
 
 
 class MY_MT_add_interface(bpy.types.Menu):
@@ -189,7 +192,6 @@ class MY_MT_add_interface(bpy.types.Menu):
         layout = self.layout
         layout.operator("my_interface.add_socket", text="Input").in_out = 'INPUT'
         layout.operator("my_interface.add_socket", text="Output").in_out = 'OUTPUT'
-
 
 
 class MY_OT_AddSocket(bpy.types.Operator):
@@ -244,6 +246,7 @@ class MY_OT_RemoveSelected(bpy.types.Operator):
                     node.outputs.remove(node.outputs[idx])
         return {'FINISHED'}
 
+
 def get_group_input(node_tree):
     inputs = []
     for node in node_tree.nodes:
@@ -251,10 +254,12 @@ def get_group_input(node_tree):
             inputs.append(node)
     return inputs
 
+
 class CUSTOM_UL_items(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        #layout.prop(item, "name", text="")
+        # layout.prop(item, "name", text="")
         layout.template_node_view(active_data.node_tree, data, item)
+
 
 class CUSTOM_UL_items2(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
@@ -266,31 +271,32 @@ class CUSTOM_UL_items2(bpy.types.UIList):
             split2 = split.split(factor=0.5)
             split2.label(text=item.name)
             split2.label(text="")
-            #split2.template_node_socket(color=(0.0, 0.0, 0.0, 0.0))
+            # split2.template_node_socket(color=(0.0, 0.0, 0.0, 0.0))
         else:
             split = layout.split(factor=0.2)
             col = item.draw_color(context, None)
-            #split.template_node_socket(color=(0.0, 0.0, 0.0, 0.0))
+            # split.template_node_socket(color=(0.0, 0.0, 0.0, 0.0))
             split.label(text="")
             split2 = split.split(factor=0.5)
             split2.label(text=item.name)
             split2.template_node_socket(color=col)
+
 
 class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
     bl_label = "Group Sockets"
     bl_category = "Group"
-    #bl_idname = "NODE_PT_Sound_Group_Sockets"
 
+    # bl_idname = "NODE_PT_Sound_Group_Sockets"
 
     @classmethod
     def poll(cls, context):
         return (
-            context.space_data is not None and
-            context.space_data.tree_type == SOUND_TREE_TYPE and
-            context.space_data.node_tree is not None and
-            context.space_data.edit_tree is not None
+                context.space_data is not None and
+                context.space_data.tree_type == SOUND_TREE_TYPE and
+                context.space_data.node_tree is not None and
+                context.space_data.edit_tree is not None
         )
 
     def draw(self, context):
@@ -299,8 +305,8 @@ class NODE_PT_Sound_Group_Sockets(bpy.types.Panel):
         # --- Row: List + Buttons ---
         row = layout.row()
         row.template_list(
-            "CUSTOM_UL_items2",              # Blender’s builtin UIList
-            "interface",                      # unique ID
+            "CUSTOM_UL_items2",  # Blender’s builtin UIList
+            "interface",  # unique ID
             tree.interface,
             "items_tree",
             tree.interface,
@@ -371,7 +377,7 @@ class FILE_SELECT_OT_import_wav(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         context.scene.mixer_props.import_wav_file_path = self.filepath
         print("Import WAV:", self.filepath)
-        #import_wav(self.filepath)
+        # import_wav(self.filepath)
         print(self)
         print(context)
         args = {"filepath": self.filepath}
@@ -384,13 +390,14 @@ class FILE_SELECT_OT_import_wav(bpy.types.Operator, ImportHelper):
             print(s)
             last = s
         sound = bpy.types.BlendDataSounds(last)
-        #sound = aud.Sound.file(file_name)
+        # sound = aud.Sound.file(file_name)
         print(sound)
         device = aud.Device()
         handle2 = device.play(sound)
 
         return {'FINISHED'}
 
+
 operator_classes = (NODE_OT_my_group_tab, NODE_OT_my_make_group, MY_OT_AddSocket, NODE_PT_Sound_Group_Sockets,
-                        MY_MT_add_interface, MY_OT_RemoveSelected, CUSTOM_UL_items2, CUSTOM_UL_items,
-                        PLAY_OT, FILE_SELECT_OT_rec, FILE_SELECT_OT_import_wav)
+                    MY_MT_add_interface, MY_OT_RemoveSelected, CUSTOM_UL_items2, CUSTOM_UL_items,
+                    PLAY_OT, FILE_SELECT_OT_rec, FILE_SELECT_OT_import_wav)

@@ -54,11 +54,11 @@ Creating Sounds with Geometry Nodes
   - [x] geoemtry node example with waveform generator
   - [ ] screen shots
   - [ ] optional: logo
-
+  - [ ] limit oscillator output, or return only one period
 # Bugs
 - plug note sequence output into group output -> no 
 - group node gets 2x sockets
-
+- copied sample to sound not working
 # 0.2
 - [ ] Note Node
   - [ ] selectable octave

@@ -25,25 +25,10 @@ def on_depsgraph_update(scene):
 
 @persistent
 def load_blend_file_job(file_name):
-    # print(bpy.data.node_groups)
     for group in bpy.data.node_groups:
-        # print(group.name)
         for node in group.nodes:
-            # print(node.name)
             if hasattr(node, "refresh_outputs"):
-                print(node.name)
-                try:
-                    node.refresh_outputs()
-                except Exception as e:
-                    print(e)
-        for node in group.nodes:
-            # print(node.name)
-            if hasattr(node, "refresh_outputs"):
-                print(node.name)
-                try:
-                    node.refresh_outputs()
-                except Exception as e:
-                    print(e)
+                node.refresh_outputs()
 
 def create_dynamic_import_wav_op(parent, node_uuid):
     class_name = FILE_IMPORT_OT_ID + "_" + node_uuid

@@ -185,14 +185,28 @@ class EditSampleNode(ObmSampleNode):
         layout.prop(self, "operation", text="Operation")
 
     def copy(self, node):
+        self.socket_update_disabled = True
         super().copy(node)
         self.inputs[0].input_value = ""
         self.inputs[18].input_value = ""
+        self.operation = node.operation
+        for i , old_sock in enumerate(node.inputs):
+            self.inputs[i].input_value = node.inputs[i].input_value
+        self.socket_update_disabled = False
+
     def socket_update(self, socket):
-        if socket != self.outputs[0]:
-            self.operation_update()
+        if IS_DEBUG:
+            super().log("socket_update")
+            if self.socket_update_disabled:
+                print("socket_update_disabled")
+        if not self.socket_update_disabled:
+            if socket != self.outputs[0]:
+                self.operation_update()
 
     def update(self):
-        if not self.inputs[0].is_linked:
-            if Data.uuid_data_storage[self.node_uuid] is not None:
+        super().update()
+        if len(self.inputs) > 0:
+            if not self.inputs[0].is_linked:
                 self.inputs[0].input_value = ""
+
+    #def refresh_outputs(self):

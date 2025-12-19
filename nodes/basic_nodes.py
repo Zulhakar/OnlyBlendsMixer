@@ -7,7 +7,7 @@ from ..core.global_data import Data
 
 
 class ObmSoundNode:
-
+    socket_update_disabled : bpy.props.BoolProperty(default=False)
     def log(self, func_name):
         if IS_DEBUG:
             log_string = f"{self.bl_idname}-> {self.name}: {func_name} was called"
@@ -91,7 +91,9 @@ class ObmSoundNode:
 
     def socket_update(self, socket):
         self.log("socket_update")
-
+        if IS_DEBUG:
+            if self.socket_update_disabled:
+                print("socket_update_disabled")
     def socket_value_update(self, context):
         self.log("socket_value_update")
 
@@ -106,9 +108,10 @@ class ObmSampleNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     def socket_update(self, socket):
         super().socket_update(socket)
-        if len(self.outputs) > 0:
-            for link in self.outputs[0].links:
-                link.to_socket.input_value = self.outputs[0].input_value
+        if not self.socket_update_disabled:
+            if len(self.outputs) > 0:
+                for link in self.outputs[0].links:
+                    link.to_socket.input_value = self.outputs[0].input_value
 
 
 

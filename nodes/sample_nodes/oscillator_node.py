@@ -54,9 +54,9 @@ class OscillatorSampleNode(ObmSampleNode):
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
         # self.inputs.new("NodeSocketFloat", "Frequency")
+        super().init(context)
         self.inputs[0].input_value = 48000
         self.inputs[1].input_value = 110.0
-        super().init(context)
         self.waveform_selection_update()
 
     def draw_buttons(self, context, layout):
@@ -69,5 +69,14 @@ class OscillatorSampleNode(ObmSampleNode):
 
     def socket_update(self, socket):
         super().socket_update(socket)
-        if socket != self.outputs[0]:
-            self.waveform_selection_update()
+        if not self.socket_update_disabled:
+            if socket != self.outputs[0]:
+                self.waveform_selection_update()
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        for i, input_sock in enumerate(node.inputs):
+            self.inputs[i].input_value = input_sock.input_value
+        self.waveform_selection = node.waveform_selection
+        super().copy(node)
+        self.socket_update_disabled = False
