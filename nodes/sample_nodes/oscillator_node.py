@@ -44,6 +44,14 @@ class OscillatorSampleNode(ObmSampleNode):
             new_sample = aud.Sound.triangle(self.inputs[1].input_value, self.inputs[0].input_value)
         elif self.waveform_selection == "SAWTOOTH":
             new_sample = aud.Sound.sawtooth(self.inputs[1].input_value, self.inputs[0].input_value)
+
+        self.socket_update_disabled = True
+        if self.inputs[2].input_value > 3600:
+            self.inputs[2].input_value = 3600
+        if self.inputs[2].input_value < 0:
+            self.inputs[2].input_value = 0
+        self.socket_update_disabled = False
+        new_sample = new_sample.limit(0.0, self.inputs[2].input_value)
         Data.uuid_data_storage[self.node_uuid] = new_sample
         self.outputs[0].input_value = self.node_uuid
         for link in self.outputs[0].links:
@@ -53,10 +61,11 @@ class OscillatorSampleNode(ObmSampleNode):
         self.outputs.new('SoundSampleSocketType', "Sample")
         self.inputs.new("IntSocketType", "rate")
         self.inputs.new("FloatSocketType", "frequency")
-        # self.inputs.new("NodeSocketFloat", "Frequency")
+        self.inputs.new("FloatSocketType", "length")
         super().init(context)
         self.inputs[0].input_value = 48000
         self.inputs[1].input_value = 110.0
+        self.inputs[2].input_value = 1.0
         self.waveform_selection_update()
 
     def draw_buttons(self, context, layout):
