@@ -29,6 +29,8 @@ class GroupNodeObm(ObmConstantNode):
     group_input_node : bpy.props.StringProperty()
     group_output_node :  bpy.props.StringProperty()
 
+    was_fired : bpy.props.BoolProperty(default=False)
+
     def init(self, context):
         super().init(context)
 
@@ -48,10 +50,9 @@ class GroupNodeObm(ObmConstantNode):
 
     def socket_update(self, socket):
         super().socket_update(socket)
-
         if socket.identifier in self.inputs:
             print("in inputs")
-
+            self.was_fired = True
             index = get_socket_index(self.inputs, socket)
             for node in self.all_trees.nodes:
                 if node.bl_idname == 'NodeGroupInput':

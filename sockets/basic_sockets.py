@@ -41,8 +41,10 @@ class ObmBasicSocket(NodeSocket):
                 for node_ in tree.nodes:
                     if node_.bl_idname == "GroupNodeObm":
                         if node_.all_trees == tree2:
-                            sock_index = get_socket_index(node.inputs, self)
-                            node_.outputs[sock_index].input_value = self.input_value
+                            if node_.was_fired:
+                                sock_index = get_socket_index(node.inputs, self)
+                                node_.outputs[sock_index].input_value = self.input_value
+                                node_.was_fired = False
                     # recursion...node_group update <--> instrument
                     #elif node_.bl_idname == "NoteSequenceToSampleNodeType":
                     #    if node_.node_tree == tree2:
