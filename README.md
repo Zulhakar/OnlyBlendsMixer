@@ -32,6 +32,12 @@ It's a new Sound Node Editor to build Synthesizer and design Audio."
 
 - you can play sound's via space bar and render the audio via Render -> Render Audio...
 
+- create Sounds with Geometry Nodes
+- here is an example file https://ilineiros.gumroad.com/l/customwaveforms
+
+# Support Me
+
+https://ilineiros.gumroad.com/l/customwaveforms
 
 
 # TODO
