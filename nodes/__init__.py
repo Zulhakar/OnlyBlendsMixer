@@ -6,8 +6,7 @@ from .sample_nodes.sample_to_sound_node import SampleToSoundNode
 from .sample_nodes.oscillator_node import OscillatorSampleNode
 from .sample_nodes.edit_node import EditSampleNode
 from .sample_nodes.sample_sequencer import NoteSequenceToSampleNode, NodeSocketCollectionItem
-from .sample_nodes.geometry_to_sample_node import (GeometryToSampleNode, GeometryGroupInputCollectionItem,
-                                                         CUSTOM_UL_geometry_group_input_items)
+from .sample_nodes.geometry_to_sample_node import GeometryToSampleNode, GeometryGroupInputCollectionItem
 from .geometry_nodes.sample_to_mesh_node import SampleToMeshNode
 from .group_nodes.group_node import GroupNodeObm
 
@@ -48,7 +47,7 @@ classes = [
     #CreateDeviceNode, DeviceSocket, NodeTreeInterfaceSocketDevice,
 
 
-    GeometryGroupInputCollectionItem, CUSTOM_UL_geometry_group_input_items, GeometryToSampleNode,
+    GeometryGroupInputCollectionItem, GeometryToSampleNode,
 
     SampleToSoundNode,
 
