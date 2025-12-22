@@ -1,4 +1,6 @@
 import bpy
+
+from ...core.global_data import Data
 from ...nodes.basic_nodes import ObmSoundNode
 from ...core.helper import get_length_and_specs_from_sound
 from ...core.constants import IS_DEBUG
@@ -14,6 +16,7 @@ def bad_calculation_of_length(sound):
     return strip_frame_length
 
 
+
 class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Speaker Link Node to assign a Sound to a Speaker'''
     bl_label = "Speaker Link"
@@ -23,7 +26,6 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         self.inputs.new('SoundSocketType', "Sound")
         self.inputs.new('FloatSocketType', "Volume")
         super().init(context)
-
     def free(self):
         #unlink sound, maybe not necessary or 'problematic'
         super().free()
@@ -49,6 +51,7 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
             speaker.animation_data.action = action
             strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
+            #strip.color_tag = "COLOR_02"
             strip_frame_length = bad_calculation_of_length(sound)
             strip.name = f"{speaker.name}_Strip"
             strip.frame_end = strip.frame_start + strip_frame_length

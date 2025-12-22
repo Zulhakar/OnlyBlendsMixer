@@ -64,6 +64,7 @@ class SpeakerMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         node_add_menu.add_node_type(layout, "SpeakerLinkNode")
+        node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SpeakerNodeType")
 
 

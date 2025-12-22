@@ -1,17 +1,17 @@
 from typing import Any
 
+
 import bpy
 from ..core.helper import change_socket_shape
 from ..core.constants import IS_DEBUG
 class GroupStringCollectionItem(bpy.types.PropertyGroup):
     id: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
-
-
 class GroupSocketCollectionItem(bpy.types.PropertyGroup):
     id: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
     type_name: bpy.props.StringProperty()
+
 
 def get_group_input_output_nodes(tree):
     all_nodes = []
@@ -60,8 +60,6 @@ class SoundTree(bpy.types.NodeTree):
         if IS_DEBUG:
             print("update Node Tree:", self.name)
         for link in list(self.links):
-            #if not link.to_node.bl_idname == "GroupNodeObm" and not link.from_node.bl_idname == "GroupNodeObm":
-            #    #if link.to_socket.bl_idname == "GroupNodeSocket":
             if link.to_socket.bl_idname == link.from_socket.bl_idname:
                 link.is_valid = True
             elif link.to_socket.bl_idname == "FloatSocketType" and link.from_socket.bl_idname == "IntSocketType":
@@ -109,8 +107,6 @@ class SoundTree(bpy.types.NodeTree):
 
     
     def handle_socks(self, sockets: list[Any], are_inputs=True):
-
-
         ids_collection = set()
         sockets_collection = []
         if are_inputs:
@@ -152,7 +148,6 @@ class SoundTree(bpy.types.NodeTree):
                     group_node_in_out_list.remove(remove_socket)
                 self.sync_sockets(sockets, are_inputs)
                 change_all_socket_shapes(self)
-
             if len(added_ids) > 0:
                 for i, value in enumerate(sockets_tmp):
                     if sockets_tmp[i].identifier in added_ids:
@@ -176,7 +171,6 @@ class SoundTree(bpy.types.NodeTree):
                                     old_output.node_group_name = node_.name
                                     node_.inputs.new(old_output.bl_socket_idname, old_output.name)
                                     change_socket_shape(node_)
-
                         else:
                             node_.outputs.clear()
                             for old_input in sockets:

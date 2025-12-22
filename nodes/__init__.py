@@ -11,6 +11,7 @@ from .geometry_nodes.sample_to_mesh_node import SampleToMeshNode
 from .group_nodes.group_node import GroupNodeObm
 
 from .speaker_nodes.speaker_link_node import SpeakerLinkNode
+from .speaker_nodes.speaker_data_node import SpeakerDataNode
 from .basic_nodes import IntNode, FloatNode, StringNode, ObjectNode, BooleanNode
 from .constant_nodes.note_to_frequency_node import NoteToFrequencyNode
 from .constant_nodes.vector_node import VectorNode
@@ -34,6 +35,8 @@ classes = [
     MathNode,
     #SoundInfoNode,
     #ImportWavNode, WavImportSocket, NodeTreeInterfaceSocketWavImport,
+    SpeakerDataNode,
+
 
     SoundToSampleNode,
     EditSampleNode,
