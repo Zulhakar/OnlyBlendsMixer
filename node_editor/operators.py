@@ -101,8 +101,8 @@ class NODE_OT_my_make_group(bpy.types.Operator):
         for link in old_tree.links:
             if link.from_node not in selected and link.to_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname)
-                new_sock2 = group_node.inputs.new(link.to_socket.bl_idname, link.from_socket.bl_label)
-                new_link_list.append((new_sock2, link.from_socket))
+                #new_sock2 = group_node.inputs.new(link.to_socket.bl_idname, link.from_socket.bl_label)
+                #new_link_list.append((new_sock2, link.from_socket))
                 new_tree.links.new(new_input_node.outputs[group_input_socket_index],
                                    get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[
                                        get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
@@ -110,9 +110,9 @@ class NODE_OT_my_make_group(bpy.types.Operator):
             elif link.to_node not in selected and link.from_node in selected:
                 new_sock = new_tree.interface.new_socket(link.to_socket.bl_label, socket_type=link.to_socket.bl_idname,
                                                          in_out="OUTPUT")
-                new_sock2 = group_node.outputs.new(link.to_socket.bl_idname, link.to_socket.bl_label)
+                #new_sock2 = group_node.outputs.new(link.to_socket.bl_idname, link.to_socket.bl_label)
                 # new_link = old_tree.links.new(new_sock2, link.from_socket)
-                new_link_list.append((link.to_socket, new_sock2))
+                #new_link_list.append((link.to_socket, new_sock2))
                 new_tree.links.new(get_node_by_name(new_tree, new_names_dict[link.from_node.name]).outputs[
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
                                    new_output_node.inputs[
@@ -230,20 +230,24 @@ class MY_OT_RemoveSelected(bpy.types.Operator):
     def execute(self, context):
         tree = context.space_data.node_tree
         idx = tree.interface.active_index
-        in_out = tree.interface.items_tree[idx].in_out
-        print(in_out)
-        num_outputs = 0
-        for interface in tree.interface.items_tree:
-            if interface.in_out == "OUTPUT":
-                num_outputs += 1
-        if 0 <= idx < len(tree.interface.items_tree):
-            tree.interface.remove(tree.interface.items_tree[idx])
-            if in_out == "INPUT":
-                for node in tree.get_parent_group_nodes():
-                    node.inputs.remove(node.inputs[idx - num_outputs])
-            elif in_out == "OUTPUT":
-                for node in tree.get_parent_group_nodes():
-                    node.outputs.remove(node.outputs[idx])
+        if len(tree.interface.items_tree) > idx:
+            in_out = tree.interface.items_tree[idx].in_out
+            num_outputs = 0
+            for interface in tree.interface.items_tree:
+                if interface.in_out == "OUTPUT":
+                    num_outputs += 1
+            if 0 <= idx < len(tree.interface.items_tree):
+                tree.interface.remove(tree.interface.items_tree[idx])
+                if in_out == "INPUT":
+                    for node in tree.get_parent_group_nodes():
+                        i = idx - num_outputs
+                        if len(node.inputs) > i:
+                            node.inputs.remove(node.inputs[i])
+                elif in_out == "OUTPUT":
+                    for node in tree.get_parent_group_nodes():
+                        if len(node.outputs) > idx:
+                            node.outputs.remove(node.outputs[idx])
+                return {'FINISHED'}
         return {'FINISHED'}
 
 

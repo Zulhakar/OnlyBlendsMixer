@@ -56,9 +56,10 @@ class GroupNodeObm(ObmConstantNode):
             index = get_socket_index(self.inputs, socket)
             for node in self.all_trees.nodes:
                 if node.bl_idname == 'NodeGroupInput':
-                    node.outputs[index].input_value = socket.input_value
-                    for link in node.outputs[index].links:
-                        link.to_socket.input_value = socket.input_value
+                    if node.outputs[index].bl_idname != 'NodeSocketVirtual':
+                        node.outputs[index].input_value = socket.input_value
+                        for link in node.outputs[index].links:
+                            link.to_socket.input_value = socket.input_value
                     print("CASSCADE END")
             # for node in self.all_trees.nodes:
             #     if node.bl_idname == 'NodeGroupOutput':
