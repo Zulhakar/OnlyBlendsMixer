@@ -30,7 +30,6 @@ def unregister_keymap():
 
 def register():
     for o_class in operator_classes:
-        print(o_class)
         bpy.utils.register_class(o_class)
 
     register_keymap()

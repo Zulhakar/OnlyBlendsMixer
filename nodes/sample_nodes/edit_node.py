@@ -153,6 +153,8 @@ class EditSampleNode(ObmSampleNode):
                     float2_end_s.input_value = 0
                 if float2_end_s.input_value > 3600:
                     float2_end_s.input_value = 3600
+                if float2_end_s.input_value - float1_start_s.input_value <= 0:
+                    float2_end_s.input_value += 0.01
                 sockets = [float1_start_s, float2_end_s]
         elif self.operation == 'loop':
             if int1_count_s.input_value < 0:

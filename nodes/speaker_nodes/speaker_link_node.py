@@ -1,13 +1,9 @@
 import bpy
-
-from ...core.global_data import Data
 from ...nodes.basic_nodes import ObmSoundNode
 from ...core.helper import get_length_and_specs_from_sound
-from ...core.constants import IS_DEBUG
 
 
-def bad_calculation_of_length(sound):
-    # stupid and expensive...
+def calculation_of_length(sound):
     length, specs = get_length_and_specs_from_sound(sound)
     sample_rate, channels = specs
     sound_length_sec = length / sample_rate
@@ -16,18 +12,17 @@ def bad_calculation_of_length(sound):
     return strip_frame_length
 
 
-
 class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     '''Speaker Link Node to assign a Sound to a Speaker'''
     bl_label = "Speaker Link"
     bl_icon = 'OUTLINER_DATA_SPEAKER'
+
     def init(self, context):
         self.inputs.new('SpeakerSocketType', "Speaker")
         self.inputs.new('SoundSocketType', "Sound")
-        self.inputs.new('FloatSocketType', "Volume")
         super().init(context)
+
     def free(self):
-        #unlink sound, maybe not necessary or 'problematic'
         super().free()
         speaker = self.inputs[0].input_value
         sound = self.inputs[1].input_value
@@ -37,8 +32,6 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                     speaker.sound = None
 
     def link_sound_and_speaker(self):
-        #if len(self.inputs) > 2:
-        #    if hasattr(self.inputs[0], 'input_value') and hasattr(self.inputs[1], 'input_value'):
         speaker = self.inputs[0].input_value
         sound = self.inputs[1].input_value
         if speaker is not None and sound is not None and speaker.name in bpy.data.objects:
@@ -51,8 +44,7 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
             speaker.animation_data.action = action
             strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
-            #strip.color_tag = "COLOR_02"
-            strip_frame_length = bad_calculation_of_length(sound)
+            strip_frame_length = calculation_of_length(sound)
             strip.name = f"{speaker.name}_Strip"
             strip.frame_end = strip.frame_start + strip_frame_length
         else:
@@ -61,7 +53,4 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
     def socket_update(self, socket):
         super().socket_update(socket)
-        #if self.inputs[0].input_value and self.inputs[0].input_value.name in bpy.data.objects:
-        #    self.inputs[0].input_value = None
-        #else:
         self.link_sound_and_speaker()

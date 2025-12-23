@@ -4,7 +4,7 @@ import tempfile
 import os
 from ..basic_nodes import ObmSoundNode
 from ...core.global_data import Data
-import inspect
+
 
 def get_sample_rates():
     sample_rates = []
@@ -14,6 +14,7 @@ def get_sample_rates():
             sample_rates.append((member, member.split("_")[1], ""))
     return sample_rates
 
+
 def get_container_types():
     container_types = []
     all_members = aud.__dict__
@@ -22,8 +23,9 @@ def get_container_types():
             container_types.append((member, member.split("_")[1], ""))
     return container_types
 
+
 class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
-    '''Transform a Sample to Sound which can be used with Speaker'''
+    '''Transform a Sample to Sound which can be used with a Speaker Node'''
 
     bl_label = "Sample To Sound"
     bl_icon = 'FILE_SOUND'
@@ -37,14 +39,15 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
     container_selection: bpy.props.EnumProperty(  # type: ignore
         name="Container"
         , items=get_container_types()
-        #, default='RATE_48000'
+        # , default='RATE_48000'
         , update=lambda self, context: self.container_update()
     )
 
     def sample_rate_update(self):
         sample_rate_socket = self.inputs[1]
         sample_rate_socket.input_value = getattr(aud, self.sample_rate_selection)
-        #self.store_data()
+        # self.store_data()
+
     def container_update(self):
         self.store_data()
 
@@ -61,20 +64,21 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
     def store_data(self):
         if (self.inputs[0] and self.inputs[0].input_value and self.inputs[0].input_value != "" and
-                self.inputs[0].input_value in Data.uuid_data_storage and Data.uuid_data_storage[self.inputs[0].input_value]):
+                self.inputs[0].input_value in Data.uuid_data_storage and Data.uuid_data_storage[
+                    self.inputs[0].input_value]):
             sound_sample = Data.uuid_data_storage[self.inputs[0].input_value]
             sample_rate = self.inputs[1].input_value
             tmp_dir = tempfile.gettempdir()
             tmp_path = os.path.join(tmp_dir, f"{self.name}")
-            sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud, self.container_selection))#, aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
+            sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud,
+                                                                                                          self.container_selection))  # , aud.RATE_44100, aud.CHANNELS_MONO, aud.FORMAT_S32, aud.CONTAINER_MP3, aud.CODEC_MP3)
             new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
             self.outputs[0].input_value = new_data
 
         else:
-            print("no sample")
-            if  self.outputs[0].input_value is not None:
+            if self.outputs[0].input_value is not None:
                 self.outputs[0].input_value.user_clear()
-                bpy.data.sounds.remove( self.outputs[0].input_value)
+                bpy.data.sounds.remove(self.outputs[0].input_value)
             self.outputs[0].input_value = None
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value
@@ -91,9 +95,6 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         self.store_data()
 
     def socket_update(self, socket):
-        # self.glob_prop.linked_object_name = self.inputs[0].name
         super().socket_update(socket)
         if socket == self.inputs[0] or socket == self.inputs[1]:
             self.store_data()
-        else:
-            print("no update")
