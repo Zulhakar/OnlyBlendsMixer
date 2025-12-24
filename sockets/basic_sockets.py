@@ -41,11 +41,21 @@ class ObmBasicSocket(NodeSocket):
                 for node_ in tree.nodes:
                     if node_.bl_idname == "GroupNodeObm":
                         if node_.all_trees == tree2:
-                            if node_.was_fired:
-                                sock_index = get_socket_index(node.inputs, self)
+                            #if node_.was_fired:
+                            sock_index = get_socket_index(node.inputs, self)
+                            if node_.outputs[sock_index].bl_idname != "FloatVectorFieldSocketType":
                                 node_.outputs[sock_index].input_value = self.input_value
                                 node_.was_fired = False
+                            else:
+                                for link in node_.outputs[sock_index].links:
+                                    link.to_socket.input_value.clear()
+                                    for item in node.inputs[sock_index].input_value:
+                                        new_item = link.to_socket.input_value.add()
+                                        new_item.value = item.value
+                                    for link2 in node_.outputs[sock_index].links:
+                                        link2.to_node.socket_update(link2.to_socket)
                     # recursion...node_group update <--> instrument
+
                     #elif node_.bl_idname == "NoteSequenceToSampleNodeType":
                     #    if node_.node_tree == tree2:
                     #        node_.inputs[0].input_value = node_.inputs[0].input_value

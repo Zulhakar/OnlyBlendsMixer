@@ -25,6 +25,7 @@ def validate_node_tree(self, tree):
     else:
         return False
 
+
 def _get_group_nodes(tree):
     input = None
     output = None
@@ -40,7 +41,6 @@ class NodeSocketCollectionItem(bpy.types.PropertyGroup):
     # input_socket: bpy.props.StringProperty()
     name: bpy.props.StringProperty()
     # input_socket: bpy.types.NodeSocket
-
 
 
 class NoteSequenceToSampleNode(ObmSampleNode):
@@ -124,7 +124,6 @@ class NoteSequenceToSampleNode(ObmSampleNode):
         super().init(context)
         self.inputs[0].display_shape = "DIAMOND"
 
-
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
             layout.label(text="Debug Infos:")
@@ -143,27 +142,21 @@ class NoteSequenceToSampleNode(ObmSampleNode):
             input_notes_socket = self.inputs[0]
             sample = None
             if input_notes_socket.input_value and len(input_notes_socket.input_value) > 0:
-                print("Note Sequence To Sample: is valid")
                 input_group = self.node_tree.nodes[self.group_input_node]
                 output_group = self.node_tree.nodes[self.group_output_node]
                 if int(self.frequency_socket) + 1 <= len(input_group.outputs):
 
                     use_duration = self.duration_socket != "" and int(self.duration_socket) + 1 <= len(
                         input_group.outputs)
-                    if use_duration and isinstance(input_group.outputs[int(self.duration_socket)].input_value,
-                                                   float):
+                    if use_duration and isinstance(input_group.outputs[int(self.duration_socket)].input_value, float):
                         use_duration = True
                     for item in input_notes_socket.input_value:
                         frequency, duration, intensity = item.value
-                        print(str(frequency), str(duration), str(intensity))
-
-                        # input_group.outputs[0].input_value = frequency
                         for link in input_group.outputs[int(self.frequency_socket)].links:
                             link.to_socket.input_value = frequency
                         if use_duration:
                             for link in input_group.outputs[int(self.duration_socket)].links:
                                 link.to_socket.input_value = duration
-                        print("CASCADE_END")
                         new_sample = Data.uuid_data_storage[output_group.inputs[0].input_value]
                         new_sample = new_sample.limit(0.0, duration)
                         if sample is None:
@@ -174,9 +167,6 @@ class NoteSequenceToSampleNode(ObmSampleNode):
 
                     Data.uuid_data_storage[self.node_uuid] = sample
                     self.outputs[0].input_value = self.node_uuid
-            else:
-                print("Not working")
-
 
     def socket_update(self, socket):
         super().socket_update(socket)

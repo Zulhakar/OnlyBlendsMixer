@@ -51,12 +51,22 @@ class NoteSequenceNode(ObmSoundNode, bpy.types.NodeCustomGroup):
                 for item in self.outputs[0].input_value:
                     new_item = link.to_socket.input_value.add()
                     new_item.value = item.value
-                #    print("#####:", str(new_item.value[0]))
-                #print("sock update2")
-                link.to_node.socket_update(link.to_socket)
+
+                if link.to_node.bl_idname != 'NodeGroupOutput':
+                    link.to_node.socket_update(link.to_socket)
+                else:
+                    link.to_socket.update_prop()
         elif socket == self.outputs[0]:
             for link in self.outputs[0].links:
                 link.to_socket.input_value.clear()
                 for item in self.outputs[0].input_value:
                     new_item = link.to_socket.input_value.add()
                     new_item.value = item.value
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        for i , old_sock in enumerate(node.inputs):
+            self.inputs[i].input_value = node.inputs[i].input_value
+
+        self.socket_update_disabled = False

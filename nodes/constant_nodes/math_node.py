@@ -53,3 +53,11 @@ class MathNode(ObmConstantNode):
     def socket_update(self, socket):
         if socket != self.outputs[0]:
             self.operation_update()
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        self.operation = node.operation
+        for i , old_sock in enumerate(node.inputs):
+            self.inputs[i].input_value = node.inputs[i].input_value
+        self.socket_update_disabled = False

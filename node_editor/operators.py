@@ -123,6 +123,7 @@ class NODE_OT_my_make_group(bpy.types.Operator):
                                        get_index_of_socket(link.from_node, link.from_socket)[0]],
                                    get_node_by_name(new_tree, new_names_dict[link.to_node.name]).inputs[
                                        get_index_of_socket(link.to_node, link.to_socket)[0]]).is_valid = True
+
         for link_tupel in new_link_list:
             old_tree.links.new(link_tupel[0], link_tupel[1]).is_valid = True
 

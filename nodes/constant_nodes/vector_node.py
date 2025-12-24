@@ -11,3 +11,9 @@ class VectorNode(ObmConstantNode):
         out_sock = self.outputs.new('FloatVectorSocketType', "Float")
         out_sock.is_constant = True
         super().init(context)
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        #self.outputs[0].input_value = node.outputs[0].input_value
+        self.socket_update_disabled = False

@@ -20,3 +20,12 @@ class CombineXyzNode(ObmConstantNode):
                 if input == socket:
                     self.outputs[0].input_value[i] = socket.input_value
             super().socket_update(socket)
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        for i , old_sock in enumerate(node.inputs):
+            self.inputs[i].input_value = node.inputs[i].input_value
+        for i , old_sock in enumerate(node.outputs):
+            self.outputs[i].input_value = node.outputs[i].input_value
+        self.socket_update_disabled = False

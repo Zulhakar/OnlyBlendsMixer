@@ -135,6 +135,11 @@ class FloatNode(ObmConstantNode):
         float_socket = self.outputs.new('FloatSocketType', "Float")
         float_socket.is_constant = True
         super().init(context)
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        self.outputs[0].input_value = node.outputs[0].input_value
+        self.socket_update_disabled = False
 
 
 class IntNode(ObmConstantNode):
