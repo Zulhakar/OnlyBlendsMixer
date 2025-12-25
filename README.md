@@ -23,7 +23,8 @@ It's a new Sound Node Editor to build Synthesizer's and design Audio."
 - Geometry to Sample
 - Sample to Geometry
 - Create Note Sequences and use it with a group where an 'Instrument' is defined
-# How To Use It
+- a Note sequence is a list of 3D-Vectors with (frequency, duration, volume)
+# How To Use ItD
 
 https://github.com/user-attachments/assets/bdb6c43f-5aad-47e5-8b32-e78b9e9ca526
 
