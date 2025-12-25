@@ -1,4 +1,6 @@
 import bpy
+
+from ...core.constants import IS_DEBUG
 from ...nodes.basic_nodes import ObmSoundNode
 from ...core.helper import get_length_and_specs_from_sound
 
@@ -44,9 +46,13 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
 
             speaker.animation_data.action = action
             strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
-            strip_frame_length = calculation_of_length(sound)
-            strip.name = f"{speaker.name}_Strip"
-            strip.frame_end = strip.frame_start + strip_frame_length
+            try:
+                strip_frame_length = calculation_of_length(sound)
+                strip.name = f"{speaker.name}_Strip"
+                strip.frame_end = strip.frame_start + strip_frame_length
+            except Exception as e:
+                if IS_DEBUG:
+                    print(e)
         else:
             if speaker and speaker.name not in bpy.data.objects:
                 self.inputs[0].input_value = None

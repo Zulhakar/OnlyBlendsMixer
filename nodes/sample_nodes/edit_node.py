@@ -101,8 +101,10 @@ class EditSampleNode(ObmSampleNode):
                 if socket.bl_idname != "SoundSampleSocketType":
                     values.append(socket.input_value)
                 else:
-                    values.append(Data.uuid_data_storage[socket.input_value])
-
+                    if socket.input_value != "":
+                        values.append(Data.uuid_data_storage[socket.input_value])
+                    else:
+                        return parent_sample
             if function_name in ('modulate', 'mix', 'join'):
                 if not self.inputs[0].is_linked:
                     return None
