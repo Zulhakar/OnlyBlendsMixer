@@ -1,28 +1,28 @@
 # OnlyBlendsMixer
 "An extension to turn Blender into a Mixer... of Sounds.
-It's a new Sound Node Editor to build Synthesizer and design Audio."
+It's a new Sound Node Editor to build Synthesizer's and design Audio."
 
 <img width="1852" height="1012" alt="overview" src="https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315" />
 
 # Features
 
-- create samples from an oscillator node with basic waveform sine, sawtooth, square and triangle
-- edit a sample with a lot of functions:
-  - 'limit' to control the length 
-  - 'fade in / out'
-  - 'mix' and 'modulate' to combine 2 waveforms to a new one
+- Create samples from an oscillator node with basic waveform sine, sawtooth, square and triangle
+- Edit a sample with a lot of functions:
+  - 'Limit' to control the length 
+  - 'Fade in / out'
+  - 'Mix' and 'Modulate' to combine 2 waveforms into a new one
   - 'volume'
   - ... and many more
-  - the functions are mapped from the internal aud libary documented [here](https://docs.blender.org/api/current/aud.html)
+  - The functions are mapped from the internal aud libary documented [here](https://docs.blender.org/api/current/aud.html)
 
   <img width="282" height="382" alt="Bildschirmfoto vom 2025-12-20 01-40-08" src="https://github.com/user-attachments/assets/0c3faae2-f2f0-4e2d-8240-53774659b84d" />
 
-- the Sample to Sound Node creates a blender Sound Data block which can be used with Blender's Speaker Object
-- Sound's can be linked with the Speaker Link Node or you can select it in the allready exiting Speaker Property Panel
-- The Speaker Link node adjust the Strip length based on the sample / sound length
-- Geometry To Sample
-- Sample To Geometry
-- create Note Sequences and use it with a Group where an 'Instrument' is defined
+- The Sample to Sound Node creates a blender Sound Data block which can be used with Blender's Speaker Object
+- Sound's can be linked with the Speaker Link Node or you can select it in the already existing Speaker Property Panel
+- The Speaker Link Node adjust the Strip length based on the sample / sound length
+- Geometry to Sample
+- Sample to Geometry
+- Create Note Sequences and use it with a group where an 'Instrument' is defined
 # How To Use It
 
 https://github.com/user-attachments/assets/bdb6c43f-5aad-47e5-8b32-e78b9e9ca526
