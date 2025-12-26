@@ -90,6 +90,8 @@ class GeometryToSampleNode(ObmSampleNode):
         if bpy.context.scene.geometry_to_sample_nodes_num == 1:
             bpy.app.handlers.depsgraph_update_post.append(on_depsgraph_update)
         #self.selected_socket_index = 0
+        super().init(context)
+
 
     def get_frequency_socket(self, context):
         enums = []
@@ -171,7 +173,8 @@ class GeometryToSampleNode(ObmSampleNode):
         super().free()
         bpy.context.scene.geometry_to_sample_nodes_num -= 1
         if bpy.context.scene.geometry_to_sample_nodes_num == 0:
-            bpy.app.handlers.depsgraph_update_post.remove(on_depsgraph_update)
+            if on_depsgraph_update in bpy.app.handlers.depsgraph_update_post:
+                bpy.app.handlers.depsgraph_update_post.remove(on_depsgraph_update)
 
     def socket_update(self, socket):
         super().socket_update(socket)

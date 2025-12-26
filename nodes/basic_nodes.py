@@ -111,7 +111,10 @@ class ObmConstantNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         if not self.socket_update_disabled:
             if len(self.outputs) > 0:
                 for link in self.outputs[0].links:
-                    link.to_socket.input_value = self.outputs[0].input_value
+                    if link.to_socket.bl_idname == "IntSocketType" and link.from_socket.bl_idname == "FloatSocketType":
+                        link.to_socket.input_value = int(self.outputs[0].input_value)
+                    else:
+                        link.to_socket.input_value = self.outputs[0].input_value
 
 
 
