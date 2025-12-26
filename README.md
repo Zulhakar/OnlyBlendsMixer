@@ -1,107 +1,70 @@
 # OnlyBlendsMixer
 "An extension to turn Blender into a Mixer... of Sounds.
-It's a new Sound Node Editor to build Synthesizer and design Audio."
+It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
+## Prototype V0.1
 
 <img width="1852" height="1012" alt="overview" src="https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315" />
 
 # Features
 
-- create samples from an oscillator node with basic waveform sine, sawtooth, square and triangle
-- edit a sample with a lot of functions:
-  - 'limit' to control the length 
-  - 'fade in / out'
-  - 'mix' and 'modulate' to combine 2 waveforms to a new one
-  - 'volume'
+- Create samples from an 'Oscillator' node with basic waveforms: Sine, Sawtooth, Square and Triangle
+- Edit a sample with a lot of functions:
+  - 'Limit' to control the length 
+  - 'Fade in / out'
+  - 'Mix' and 'Modulate' to combine 2 waveforms into a new one
+  - 'Volume'
   - ... and many more
-  - the functions are mapped from the internal aud libary documented [here](https://docs.blender.org/api/current/aud.html)
+  - The functions are mapped from the internal aud libary documented [here](https://docs.blender.org/api/current/aud.html)
 
   <img width="282" height="382" alt="Bildschirmfoto vom 2025-12-20 01-40-08" src="https://github.com/user-attachments/assets/0c3faae2-f2f0-4e2d-8240-53774659b84d" />
 
-- the Sample to Sound Node creates a blender Sound Data block which can be used with Blender's Speaker Object
-- Sound's can be linked with the Speaker Link Node or you can select it in the allready exiting Speaker Property Panel
-- The Speaker Link node adjust the Strip length based on the sample / sound length
-- Geometry To Sample and Sample To Geometry
-
-<img width="1520" height="689" alt="Sound_Nodes" src="https://github.com/user-attachments/assets/95b925d3-56c4-44bd-baf2-4edb406a7f7b" />
-
+- The 'Sample to Sound' Node creates a blender Sound Data block which can be used with Blender's Speaker Object
+- Sound's can be linked with the 'Speaker Link' Node or you can select it in the already existing Speaker Property Panel
+- The Speaker Link Node adjusts the Strip length based on the sample / sound length
+- 'Geometry to Sample' Node
+- 'Sample to Mesh' Node
+- Create music note sequences and use it with a group where an 'Instrument' is defined
+- A Note sequence is a list of 3D-Vectors with (Frequency, Duration, Volume)
 # How To Use It
 
-- you can find a new editor
- 
-<img width="833" height="524" alt="sound_editor" src="https://github.com/user-attachments/assets/85ba3412-d1b4-4ed5-84ea-7facbeb1bb6e" />
+https://github.com/user-attachments/assets/bdb6c43f-5aad-47e5-8b32-e78b9e9ca526
 
-- you can play sound's via space bar and render the audio via Render -> Render Audio...
+- You can find a new editor as seen below
 
-- create Sounds with Geometry Nodes
-- here is an example file https://ilineiros.gumroad.com/l/customwaveforms
+<img width="865" height="401" alt="New_sound_editor" src="https://github.com/user-attachments/assets/ab0fbfe4-526a-4cf1-a04d-6a61ce8fd7df" />
+
+- You can play sound’s via space bar and render the audio via Render -> Render Audio...
+- Create Sounds with Geometry Nodes
+- <img width="1858" height="1003" alt="geometry_nodes_example" src="https://github.com/user-attachments/assets/a6e8a52e-9c6e-4a52-bde7-26c434989458" />
+
+- 'Geometry To Sample'
+  - Select the Geometry Node Group (Modifier) ->
+  - Select if you want to use the Domain 'Mesh' or 'Point Cloud' ->
+  - Tip in the Attribute name of the Geometry domain, from here on you can:
+  - Map the frequency from the 'Sound Editor' Node to a Geometry Node socket input
+  
+  - If you'd like, download an example .blend with a Geoemtry Node Setup to create waveforms [here](https://ilineiros.gumroad.com/l/customwaveforms) (Gumroad is work in progress)
 
 # Support Me
 
-https://ilineiros.gumroad.com/l/customwaveforms
+[here on PayPal](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G), other ways for support are work in progress.
+At the point of release, I've been working on and off on "OnlyBlends Mixer" for the better part of the last five months with it being only my second Blender Extension.
+These donations are purely for the purpose of showing appreciation for my work and aiding in further development.
 
+# Current ToDo's and Upcoming Features for 0.2
 
-# TODO
+- [ ] 'Mesh to Sample' Node 
+  - [ ] Reload from .blend doesn't perform a graph update
+- [ ] If 'Speaker pitch' is changed 'Strip length' also changes
+- [ ] If 'Scene FPS' changes 'Strip length' should also change
+- [ ] Join / Merge vector field
+- [ ] Copied 'Sample to Sound' not working
+- [ ] Also deletes Mesh if 'Sample To Mesh' Node is deleted
+- [ ] ...
 
-- [x] sequence Node (select group which need frequency socket input and sample output)
-  - [x] ~~implementation like simulation zone~~
-  - [x] one node with selection for existing group
-  - [x] selection for frequence socket and input for note field
-  - [ ] ~~rename it to instrument Zone~~
-  - [x] selection for optional duration mapping to node group
-- [x] New vector nodes : Vector and Combine-XYZ
-- [x] Group Node, switch tree etc
-  - [x] show only the possible trees in selection
-  - [x] if socket is renamed in NodeGroupInput or Output change also name of the
-        GroupNode equivalent Socket
-  - [ ] optional: rename Socket with click on Name Label in the custom interface panel
-        "Group Sockets"
-  - [x] group node in node menu
-  - [x] update group node sockets if socket added
-  - [x] update group node sockets if removed
-  - [x] update group node sockets if socket type changed
-  - [x] changing the node tree changes also the sockets of group node
-- [x] menu make group (~~rebuild the entire menu~~)
+- [ ] 'Note Node'
+  - [ ] Selectable Octave
+  - [ ] Duration as 1/4 , 1/8 etc.
+  - [ ] Input for BPM
+  - [ ] New sockets: 'Note string'
 
-- [x] Note To Frequency
-    - [x]  selectable note
-    - [ ] optional: string input as alternative
-    - [ ] optional: selection of octave
-- [x] refactor and simplify node_tree update
-- [x] simplify graph updates, make performance improvements
-- [x] add group input / output and node group menu
-- [x] hide sockets and "store" previous input value for Edit Sample Node
-- [x] sample to mesh node 
-- [ ] mesh to sample node
-  - [x] geometry to sample with frequency input
-  - [x] socket selectable via ui list
-  - [ ] reload from blend file no graph update
-  - [ ] optional: make a operator ui list combo like enumproperty or enumproperty
-- [ ] load and save blend file tests
-- [ ] copy node, override default values
-- [ ] if speaker pitch is changed strip length also change
-- [ ] if scene fps change strip length should also change
-- [x] instrument node: if selected node tree updates the instrument should also update
-- [ ] join / merge vector field
-- [ ] integer sockets accept float and int float
-# ALPHA Release
-- [ ] alpha release todo:
-  - [ ] optional: renaming stuff
-  - [ ] readme update: guide github / blender extension page
-  - [ ] update blender_manifest
-  - [ ] sound examples: techno 
-  - [x] geoemtry node example with waveform generator
-  - [ ] screen shots
-  - [ ] optional: logo
-  - [ ] limit oscillator output, or return only one period
-# Bugs
-- plug note sequence output into group output -> no 
-- group node gets 2x sockets
-- copied sample to sound not working
-- deleted mesh if Sample To Mesh node is deleted
-- limit oscillator or limit in Sample To Sound node etc or check for duration / length
-# 0.2
-- [ ] Note Node
-  - [ ] selectable octave
-  - [ ] duration as 1/4 1/8 etc
-  - [ ] input for dpm
-  - [ ] new sockets: note string 
