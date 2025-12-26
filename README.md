@@ -43,13 +43,20 @@ https://github.com/user-attachments/assets/bdb6c43f-5aad-47e5-8b32-e78b9e9ca526
   - Tip in the Attribute name of the Geometry domain, from here on you can:
   - Map the frequency from the 'Sound Editor' Node to a Geometry Node socket input
   
-  - If you'd like, download an example .blend with a Geoemtry Node Setup to create waveforms [here](https://ilineiros.gumroad.com/l/customwaveforms) (Gumroad is work in progress)
+  - If you'd like, download an example .blend with a Geoemtry Node Setup to create waveforms [here](https://github.com/Zulhakar/OnlyBlendsMixer/blob/main/geometry_node_example.blend)
+
+- 'Instrument' Node
+
+https://github.com/user-attachments/assets/5b97b3b0-9dc3-4ed0-8908-115beef1684b
+
 
 # Support Me
 
 [here on PayPal](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G), other ways for support are work in progress.
 At the point of release, I've been working on and off on "OnlyBlends Mixer" for the better part of the last five months with it being only my second Blender Extension.
 These donations are purely for the purpose of showing appreciation for my work and aiding in further development.
+
+[here](https://ilineiros.gumroad.com/l/customwaveforms) (Gumroad is work in progress)
 
 # Current ToDo's and Upcoming Features for 0.2
 
