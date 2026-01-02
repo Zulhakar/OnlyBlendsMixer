@@ -52,11 +52,17 @@ https://github.com/user-attachments/assets/5b97b3b0-9dc3-4ed0-8908-115beef1684b
 
 # Support Me
 
-[here on PayPal](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G), other ways for support are work in progress.
+[![pay_pal_icon](https://github.com/user-attachments/assets/4b007169-56f8-4f20-9015-cb138cc2e0ff)](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G)
+
+[Here on PayPal](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G), other ways for support are work in progress.
 At the point of release, I've been working on and off on "OnlyBlends Mixer" for the better part of the last five months with it being only my second Blender Extension.
 These donations are purely for the purpose of showing appreciation for my work and aiding in further development.
 
-[here](https://ilineiros.gumroad.com/l/customwaveforms) (Gumroad is work in progress)
+[Here on Gumroad](https://ilineiros.gumroad.com/l/customwaveforms) (Gumroad is work in progress)
+
+### If you wish to you could join my Discord server
+
+[![discord_icon_64x64](https://github.com/user-attachments/assets/77cbeca8-e9c1-4b2f-9fff-a3c11b3f8cae)](https://discord.gg/rxut2MfZTM)
 
 # Current ToDo's and Upcoming Features for 0.2
 
