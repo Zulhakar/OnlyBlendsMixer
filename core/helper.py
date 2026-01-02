@@ -238,7 +238,7 @@ def get_length_and_specs_from_sound(sound):
     length = copy.deepcopy(sound_aud.length)
     specs = copy.deepcopy(sound_aud.specs)
     del sound_aud
-    return length, specs
+    return length, specs  
 
 def change_socket_shape(node):
     for socket in node.inputs:
