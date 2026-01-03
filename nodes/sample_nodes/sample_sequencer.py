@@ -48,7 +48,6 @@ class NoteSequenceToSampleNode(ObmSampleNode):
 
     bl_idname = 'NoteSequenceToSampleNodeType'
     bl_label = "Instrument"
-    node_uuid: bpy.props.StringProperty()
 
     node_tree: bpy.props.PointerProperty(
         name="Group",
@@ -175,3 +174,8 @@ class NoteSequenceToSampleNode(ObmSampleNode):
         elif socket == self.outputs[0]:
             for link in self.outputs[0].links:
                 link.to_socket.input_value = self.outputs[0].input_value
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        self.socket_update_disabled = False

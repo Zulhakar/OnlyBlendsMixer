@@ -188,15 +188,6 @@ class EditSampleNode(ObmSampleNode):
             layout.label(text=self.outputs[0].input_value)
         layout.prop(self, "operation", text="Operation")
 
-    def copy(self, node):
-        self.socket_update_disabled = True
-        super().copy(node)
-        self.inputs[0].input_value = ""
-        self.inputs[18].input_value = ""
-        self.operation = node.operation
-        for i , old_sock in enumerate(node.inputs):
-            self.inputs[i].input_value = node.inputs[i].input_value
-        self.socket_update_disabled = False
 
     def socket_update(self, socket):
         if IS_DEBUG:
@@ -213,4 +204,8 @@ class EditSampleNode(ObmSampleNode):
             if not self.inputs[0].is_linked:
                 self.inputs[0].input_value = ""
 
-    #def refresh_outputs(self):
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        self.socket_update_disabled = False

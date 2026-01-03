@@ -64,6 +64,9 @@ These donations are purely for the purpose of showing appreciation for my work a
 
 [![discord_icon_64x64](https://github.com/user-attachments/assets/77cbeca8-e9c1-4b2f-9fff-a3c11b3f8cae)](https://discord.gg/rxut2MfZTM)
 
+# Changelog v0.1.2 Hotfix
+ - [x] fix copy function of nodes, "ctrl + V" of nodes causes blender crash
+
 # Current ToDo's and Upcoming Features for 0.2
 
 - [ ] 'Mesh to Sample' Node 

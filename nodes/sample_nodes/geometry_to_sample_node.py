@@ -187,3 +187,8 @@ class GeometryToSampleNode(ObmSampleNode):
                     #only to trigger change in geometry node
                     self.node_tree.interface.active.hide_in_modifier = True
                     self.node_tree.interface.active.hide_in_modifier = False
+
+    def copy(self, node):
+        self.socket_update_disabled = True
+        super().copy(node)
+        self.socket_update_disabled = False

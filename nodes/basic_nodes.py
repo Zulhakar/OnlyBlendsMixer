@@ -1,10 +1,9 @@
 import bpy
 import aud
-import uuid
 from ..core.constants import IS_DEBUG, SINGLE_VALUES_SOCKET_SHAPE, VERSATILE_SOCKET_SHAPE
 from ..core.constants import SOUND_TREE_TYPE
 from ..core.global_data import Data
-
+from ..core.helper import get_obm_node_id
 
 class ObmSoundNode:
     socket_update_disabled : bpy.props.BoolProperty(default=False)
@@ -30,10 +29,8 @@ class ObmSoundNode:
 
     def sound_data_init(self):
         if hasattr(self, "node_uuid"):
-            uuid_tmp = str(uuid.uuid4()).replace("-", "")
-            self.node_uuid = uuid_tmp
-            self.outputs[0].input_value = uuid_tmp
-            Data.uuid_data_storage[uuid_tmp] = None
+            self.node_uuid = get_obm_node_id(self)
+            Data.uuid_data_storage[self.node_uuid] = None
 
     @classmethod
     def poll(cls, ntree):

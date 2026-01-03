@@ -33,6 +33,4 @@ class NoteToFrequencyNode(ObmConstantNode):
         self.socket_update_disabled = True
         super().copy(node)
         self.note = node.note
-        for i , old_sock in enumerate(node.inputs):
-            self.inputs[i].input_value = node.inputs[i].input_value
         self.socket_update_disabled = False

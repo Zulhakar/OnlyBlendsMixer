@@ -88,8 +88,5 @@ class OscillatorSampleNode(ObmSampleNode):
 
     def copy(self, node):
         self.socket_update_disabled = True
-        for i, input_sock in enumerate(node.inputs):
-            self.inputs[i].input_value = input_sock.input_value
-        self.waveform_selection = node.waveform_selection
         super().copy(node)
         self.socket_update_disabled = False

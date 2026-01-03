@@ -257,3 +257,15 @@ def change_socket_shape(node):
                 socket.display_shape = SINGLE_VALUES_SOCKET_SHAPE
         if socket.bl_idname == "FloatVectorFieldSocketType":
             socket.display_shape = FIELDS_SOCKET_SHAPE
+
+def get_parent_node_group(in_node):
+    for key, value in bpy.data.node_groups.items():
+        for node in value.nodes:
+            if node == in_node:
+                return value
+    return None
+
+def get_obm_node_id(node):
+    parent = get_parent_node_group(node)
+    node_name = f"obm_{parent.name}_{node.name}"
+    return node_name

@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "only_blends_mixer"
-version = "0.1.1"
+version = "0.1.2"
 name = "OnlyBlends.Mixer"
 tagline = "An extension to turn Blender into a Mixer... of Sounds"
 maintainer = "Zulhakar (ChangeGamer) <Ilineiros@proton.me>"
@@ -18,5 +18,5 @@ paths_exclude_pattern = [
   ".*",
   "*.zip",
     ".idea",
-    ".blend"
+    "*.blend"
 ]
