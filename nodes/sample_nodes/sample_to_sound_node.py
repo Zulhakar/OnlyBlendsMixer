@@ -90,10 +90,6 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
             sound.user_clear()
             bpy.data.sounds.remove(sound)
 
-    def refresh_outputs(self):
-        super().refresh_outputs()
-        self.store_data()
-
     def socket_update(self, socket):
         super().socket_update(socket)
         if socket == self.inputs[0] or socket == self.inputs[1]:

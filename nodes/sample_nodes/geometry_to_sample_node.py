@@ -192,3 +192,7 @@ class GeometryToSampleNode(ObmSampleNode):
         self.socket_update_disabled = True
         super().copy(node)
         self.socket_update_disabled = False
+
+    def refresh_outputs(self):
+        self.log("refresh_outputs")
+        self.state_update(None)

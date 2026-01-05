@@ -48,9 +48,6 @@ class ObmSoundNode:
                 if IS_DEBUG:
                     print(f"{self.node_uuid} data deleted")
 
-    def refresh_outputs(self):
-        self.log("refresh")
-
     def draw_label(self):
         return self.bl_label
 
