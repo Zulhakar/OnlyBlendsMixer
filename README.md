@@ -64,9 +64,14 @@ These donations are purely for the purpose of showing appreciation for my work a
 
 [![discord_icon_64x64](https://github.com/user-attachments/assets/77cbeca8-e9c1-4b2f-9fff-a3c11b3f8cae)](https://discord.gg/rxut2MfZTM)
 
-# Changelog v0.1.2 Hotfix
- - [x] fix copy function of nodes, "ctrl + V" of nodes causes blender crash
-
+# Changelog
+## v0.1.2 Hotfix
+  - [x] Fixed copy function of Nodes, where "CTRL+V" of nodes caused Blender to crash
+## v0.1.3 Hotfix
+  - [x] Loading a .blend file containing Mixer nodes should now work better
+  - [x] Oscillator Nodes and 'Geometry to Sample' Nodes update the Node tree after loading the .blend file.
+  - [X] General fix for 'Geometry to Sample' Node
+  
 # Current ToDo's and Upcoming Features for 0.2
 
 - [ ] 'Mesh to Sample' Node 
@@ -74,7 +79,6 @@ These donations are purely for the purpose of showing appreciation for my work a
 - [ ] If 'Speaker pitch' is changed 'Strip length' also changes
 - [ ] If 'Scene FPS' changes 'Strip length' should also change
 - [ ] Join / Merge vector field
-- [ ] Copied 'Sample to Sound' not working
 - [ ] Also deletes Mesh if 'Sample To Mesh' Node is deleted
 - [ ] ...
 
