@@ -28,6 +28,8 @@ def on_depsgraph_update(scene):
 @persistent
 def load_blend_file_job(file_name):
     bpy.context.scene.geometry_to_sample_nodes_num = 0
+    if on_depsgraph_update in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.remove(on_depsgraph_update)
     for group in bpy.data.node_groups:
         for node in group.nodes:
             if hasattr(node, "refresh_outputs"):
