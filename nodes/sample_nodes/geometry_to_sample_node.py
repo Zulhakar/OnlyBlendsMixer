@@ -24,6 +24,7 @@ def find_objects_of_node_group(target_node_group_name):
                     break
     return found_objects[0]
 
+
 def get_group_input(node_tree):
     inputs = []
     for node in node_tree.nodes:
@@ -31,16 +32,17 @@ def get_group_input(node_tree):
             inputs.append(node)
     return inputs
 
+
 class GeometryGroupInputCollectionItem(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty()
     name_in_modifier: bpy.props.StringProperty()
     index: bpy.props.IntProperty()
 
+
 class GeometryToSampleNode(ObmSampleNode):
     bl_idname = 'GeometryToSampleType'
     bl_label = "Geometry To Sample"
 
-    node_uuid: bpy.props.StringProperty()
     domain_enums = [
         ('POINTCLOUD', "Point Cloud", "Use Pointcloud from geometry to create Sound Sample"),
         ('MESH', "Mesh", "Use Mesh from geometry to create Sound Sample"),
@@ -53,9 +55,9 @@ class GeometryToSampleNode(ObmSampleNode):
         , update=lambda self, context: self.state_update(context))
 
     frequency_socket: bpy.props.EnumProperty(
-       name="Frequency",
-       items=lambda self, context: self.get_frequency_socket(context),
-       update=lambda self, context: self.state_update(context)
+        name="Frequency",
+        items=lambda self, context: self.get_frequency_socket(context),
+        update=lambda self, context: self.state_update(context)
     )
     node_tree: bpy.props.PointerProperty(
         name="Group",
@@ -68,30 +70,24 @@ class GeometryToSampleNode(ObmSampleNode):
     )
     modifier_name: bpy.props.StringProperty()
 
-    #selected_socket_index: bpy.props.IntProperty()
     group_input_socket_collection: bpy.props.CollectionProperty(type=GeometryGroupInputCollectionItem)
 
     def init(self, context):
-        #self.inputs.new("ObjectSocketType", "Object")
         self.inputs.new("FloatSocketType", "Frequency")
         self.inputs.new("IntSocketType", "Sampling Rate")
         self.inputs.new("StringSocketType", "Attribute")
         self.inputs.new("IntSocketType", "Axis")
+        self.inputs.new("ObjectSocketType", "Object")
+        self.inputs[4].hide = True
         self.outputs.new("SoundSampleSocketType", "Sound Sample")
         self.inputs[3].input_value = 1
         self.inputs[1].input_value = 44100
         self.node_tree = None
-        uuid_tmp = str(uuid.uuid4()).replace("-", "")
-        self.node_uuid = uuid_tmp
         self.outputs[0].input_value = self.node_uuid
-        Data.uuid_data_storage[self.node_uuid] = aud.Sound.silence(44100).limit(0, 0.2)
-        Data.geometry_to_sample_nodes[self.node_uuid] = self
         bpy.context.scene.geometry_to_sample_nodes_num += 1
         if bpy.context.scene.geometry_to_sample_nodes_num == 1:
             bpy.app.handlers.depsgraph_update_post.append(on_depsgraph_update)
-        #self.selected_socket_index = 0
         super().init(context)
-
 
     def get_frequency_socket(self, context):
         enums = []
@@ -103,6 +99,7 @@ class GeometryToSampleNode(ObmSampleNode):
 
     def state_update(self, context):
         sound_sample = self.get_sound()
+        self.outputs[0].input_value = self.node_uuid
         Data.geometry_to_sample_nodes[self.node_uuid] = self
         Data.uuid_data_storage[self.node_uuid] = sound_sample
         for link in self.outputs[0].links:
@@ -112,12 +109,16 @@ class GeometryToSampleNode(ObmSampleNode):
         self.log("update_node_tree")
         if self.node_tree:
             self.obj, modifier_name = find_objects_of_node_group(self.node_tree.name)
+            self.socket_update_disabled = True
+            self.inputs[4].input_value = self.obj
+            self.socket_update_disabled = False
             self.modifier_name = modifier_name
             modifier = self.obj.modifiers[modifier_name]
             group_input = get_group_input(self.node_tree)[0]
             i = 0
+            self.group_input_socket_collection.clear()
             for key, value in modifier.items():
-                if len(group_input.outputs) >= i+1:
+                if len(group_input.outputs) >= i + 1:
                     if not "_use_attribute" in key and not "_attribute_name" in key:
                         socket = group_input.outputs[i]
                         new_col_item = self.group_input_socket_collection.add()
@@ -127,29 +128,36 @@ class GeometryToSampleNode(ObmSampleNode):
                         i += 1
 
     def __depsgraph_to_sound(self, attribute, axis, obj, sampling_rate, domain):
+        print(obj)
+        # bpy.context.view_layer.objects.active = obj
         depsgraph = bpy.context.view_layer.depsgraph
         track = []
-        obj_eval = depsgraph.id_eval_get(obj)
-        geometry = obj_eval.evaluated_geometry()
-        domain_data = None
-        if domain == "POINTCLOUD":
-            domain_data = geometry.pointcloud
-        elif domain == "MESH":
-            domain_data = geometry.mesh
-        if domain_data is None:
+        if depsgraph:
+            obj_eval = depsgraph.id_eval_get(obj)
+            # self.node_tree.interface.active.hide_in_modifier = True
+            # self.node_tree.interface.active.hide_in_modifier = False
+            geometry = obj_eval.evaluated_geometry()
+            domain_data = None
+            if domain == "POINTCLOUD":
+                domain_data = geometry.pointcloud
+            elif domain == "MESH":
+                domain_data = geometry.mesh
+            if domain_data is None:
+                return None
+            if attribute not in domain_data.attributes:
+                return None
+            attr_data = domain_data.attributes[attribute].data
+            length_of_data = len(attr_data)
+            duration = length_of_data / sampling_rate
+            for vert in attr_data:
+                v = vert.vector
+                v_tup = tuple(v)
+                track.append(v_tup[axis])
+            sound_array = np.asarray([track]).T.astype(np.float32)
+            sound_sample = aud.Sound.buffer(sound_array, sampling_rate)
+            return sound_sample
+        else:
             return None
-        if attribute not in domain_data.attributes:
-            return None
-        attr_data = domain_data.attributes[attribute].data
-        length_of_data = len(attr_data)
-        duration = length_of_data / sampling_rate
-        for vert in attr_data:
-            v = vert.vector
-            v_tup = tuple(v)
-            track.append(v_tup[axis])
-        sound_array = np.asarray([track]).T.astype(np.float32)
-        sound_sample = aud.Sound.buffer(sound_array, sampling_rate)
-        return sound_sample
 
     def get_sound(self):
         attribute = self.inputs[2].input_value
@@ -163,11 +171,12 @@ class GeometryToSampleNode(ObmSampleNode):
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
             layout.label(text="Debug Infos:")
+            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
+                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
         layout.prop(self, "node_tree")
         layout.prop(self, "domain", text="Domain")
         if self.node_tree:
             layout.prop(self, "frequency_socket", text="Frequency")
-
 
     def free(self):
         super().free()
@@ -184,7 +193,8 @@ class GeometryToSampleNode(ObmSampleNode):
                 if len(self.group_input_socket_collection) > int(self.frequency_socket):
                     key = self.group_input_socket_collection[int(self.frequency_socket)].name_in_modifier
                     modifier[key] = self.inputs[0].input_value
-                    #only to trigger change in geometry node
+                    # only to trigger change in geometry node
+                    self.state_update(None)
                     self.node_tree.interface.active.hide_in_modifier = True
                     self.node_tree.interface.active.hide_in_modifier = False
 
@@ -194,5 +204,10 @@ class GeometryToSampleNode(ObmSampleNode):
         self.socket_update_disabled = False
 
     def refresh_outputs(self):
-        self.log("refresh_outputs")
+        if IS_DEBUG:
+            self.log("refresh_outputs")
+        self.update_node_tree(None)
         self.state_update(None)
+        bpy.context.scene.geometry_to_sample_nodes_num += 1
+        if bpy.context.scene.geometry_to_sample_nodes_num == 1:
+            bpy.app.handlers.depsgraph_update_post.append(on_depsgraph_update)

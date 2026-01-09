@@ -24,22 +24,21 @@ def on_depsgraph_update(scene):
                 on_mesh_update(update.id, scene)
 
 
+
 @persistent
 def load_blend_file_job(file_name):
+    bpy.context.scene.geometry_to_sample_nodes_num = 0
     for group in bpy.data.node_groups:
         for node in group.nodes:
             if hasattr(node, "refresh_outputs"):
                 node.refresh_outputs()
 
-
 def create_dynamic_import_wav_op(parent, node_uuid):
     class_name = FILE_IMPORT_OT_ID + "_" + node_uuid
-
     def execute(self, context):
         if IS_DEBUG:
             print("Import WAV:", self.filepath)
         self.parent.import_path = self.filepath
-
         # print(self)
         # print(context)
         return {'FINISHED'}
