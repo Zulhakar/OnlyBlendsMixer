@@ -14,6 +14,7 @@ COLOR_SOUND_SAMPLE_SOCKET = (0.333, 0.333, 0.333, 1.0)
 COLOR_SPEAKER_SOCKET = COLOR_WHITE
 
 MIXER_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Mixer'
+MIDI_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Midi'
 
 
 class MixerSocketTypes:
@@ -21,6 +22,8 @@ class MixerSocketTypes:
     Sound = 'NodeSocketSound'
     Speaker = 'NodeSocketSpeaker'
 
+NOTE_NAMES_1 = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+NOTE_NAMES_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
 
 ########################################################################################################################
 # don't change this

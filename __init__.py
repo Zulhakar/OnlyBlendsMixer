@@ -16,7 +16,7 @@ from .nodes import unregister as unregister_mixer_nodes
 from .sockets import register as register_mixer_sockets
 from .sockets import unregister as unregister_mixer_sockets
 
-from .config import OB_TREE_TYPE, MixerSocketTypes, cnt_sockets_list, MIXER_MENU_IDNAME
+from .config import OB_TREE_TYPE, MixerSocketTypes, cnt_sockets_list, MIXER_MENU_IDNAME, MIDI_MENU_IDNAME
 
 from .base.global_data import load_blend_file_job
 
@@ -31,6 +31,7 @@ from bpy.utils import unregister_class
 class MixerMenu(bpy.types.Menu):
     bl_label = "OnlyBlends.Mixer Nodes"
     bl_idname = MIXER_MENU_IDNAME
+
     def draw(self, context):
         layout = self.layout
         node_add_menu.add_node_type(layout, "OscillatorSampleNode")
@@ -39,6 +40,23 @@ class MixerMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
 
+
+class MixerGeometryMenu(GeometryMenu):
+    bl_idname = f'NODE_MT_obm_GeometryMixer'
+
+    def draw(self, context):
+        super().draw(context)
+        layout = self.layout
+
+
+
+class MidiMenu(bpy.types.Menu):
+    bl_label = "Midi"
+    bl_idname = MIDI_MENU_IDNAME
+
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "NoteNode")
 
 
 def draw_add_menu(self, context):
@@ -49,8 +67,10 @@ def draw_add_menu(self, context):
     layout.menu(GroupMenu.bl_idname)
     layout.menu(UtilMenu.bl_idname)
     layout.menu(RealtimeMenu.bl_idname)
-    layout.menu(GeometryMenu.bl_idname)
-    layout.menu(MixerMenu.bl_idname)
+    # layout.menu(GeometryMenu.bl_idname)
+    layout.menu(MixerGeometryMenu.bl_idname)
+    layout.menu(MidiMenu.bl_idname)
+
 
 def register():
     register_basic_sockets()
@@ -59,14 +79,16 @@ def register():
     register_mixer_nodes()
     register_node_editor()
     bpy.types.NODE_MT_add.append(draw_add_menu)
-    register_class(MixerMenu)
+    register_class(MixerGeometryMenu)
+    register_class(MidiMenu)
     bpy.app.handlers.load_post.append(load_blend_file_job)
 
 
 def unregister():
     bpy.app.handlers.load_post.remove(load_blend_file_job)
     bpy.types.NODE_MT_add.remove(draw_add_menu)
-    unregister_class(MixerMenu)
+    unregister_class(MidiMenu)
+    unregister_class(MixerGeometryMenu)
     unregister_basic_sockets()
     unregister_nodes()
     unregister_mixer_sockets()

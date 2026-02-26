@@ -7,8 +7,9 @@ from .sample_nodes.sample_to_sound_node import SampleToSoundNode
 from .speaker_nodes.speaker_link_node import SpeakerLinkNode
 from .speaker_nodes.speaker_data_node import SpeakerDataNode
 from .geometry.sample_to_object import SampleToObjectNode
-
-nodes = [OscillatorSampleNode, SampleToSoundNode, SpeakerLinkNode, SpeakerDataNode, SampleToObjectNode]
+from .midi_nodes.note_node import NoteNode
+nodes = [OscillatorSampleNode, SampleToSoundNode, SpeakerLinkNode, SpeakerDataNode, SampleToObjectNode,
+         NoteNode]
 
 
 def register():
