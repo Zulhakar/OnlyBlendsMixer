@@ -2,8 +2,9 @@ import bpy
 import aud
 import tempfile
 import os
-from ..basic_nodes import ObmSoundNode
-from ...core.global_data import Data
+from ..mixer_node import ObmSampleNode
+from ...config import IS_DEBUG
+from ...base.global_data import Data
 
 
 def get_sample_rates():
@@ -24,7 +25,7 @@ def get_container_types():
     return container_types
 
 
-class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
     '''Transform a Sample to Sound which can be used with a Speaker Node'''
 
     bl_label = "Sample To Sound"
@@ -56,9 +57,9 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.NodeCustomGroup):
         layout.prop(self, "container_selection", text="Container")
 
     def init(self, context):
-        self.inputs.new('SoundSampleSocketType', "Sample")
-        sample_rate = self.inputs.new("IntSocketType", "Sample Rate")
-        self.outputs.new('SoundSocketType', "Sound")
+        self.inputs.new('NodeSocketSample', "Sample")
+        sample_rate = self.inputs.new("NodeSocketIntCnt", "Sample Rate")
+        self.outputs.new('NodeSocketSound', "Sound")
         sample_rate.input_value = 48000
         super().init(context)
 

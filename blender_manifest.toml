@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "only_blends_mixer"
-version = "0.1.4"
+version = "0.5.0"
 name = "OnlyBlends.Mixer"
 tagline = "An extension to turn Blender into a Mixer... of Sounds"
 maintainer = "Zulhakar (ChangeGamer) <Ilineiros@proton.me>"
@@ -14,9 +14,9 @@ license = [
 
 [build]
 paths_exclude_pattern = [
-  "__pycache__/",
-  ".*",
-  "*.zip",
+    "__pycache__/",
+    ".*",
+    "*.zip",
     ".idea",
     "*.blend"
 ]

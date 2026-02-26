@@ -1,9 +1,9 @@
 import aud
 import bpy
 
-from ..basic_nodes import ObmSampleNode
-from ...core.constants import IS_DEBUG
-from ...core.global_data import Data
+from ..mixer_node import ObmSampleNode
+from ...config import IS_DEBUG, OB_TREE_TYPE
+from ...base.global_data import Data
 import mathutils
 
 
@@ -23,7 +23,6 @@ class OscillatorSampleNode(ObmSampleNode):
         , items=waveform_enums
         , default='SINE'
         , update=lambda self, context: self.waveform_selection_update())
-
 
     def waveform_selection_update(self):
         new_sample = None
@@ -62,10 +61,10 @@ class OscillatorSampleNode(ObmSampleNode):
             link.to_socket.input_value = self.outputs[0].input_value
 
     def init(self, context):
-        self.outputs.new('SoundSampleSocketType', "Sample")
-        self.inputs.new("IntSocketType", "rate")
-        self.inputs.new("FloatSocketType", "frequency")
-        self.inputs.new("FloatSocketType", "length")
+        self.outputs.new('NodeSocketSample', "Sample")
+        self.inputs.new("NodeSocketIntCnt", "rate")
+        self.inputs.new("NodeSocketFloatCnt", "frequency")
+        self.inputs.new("NodeSocketFloatCnt", "length")
         super().init(context)
         self.inputs[0].input_value = 48000
         self.inputs[1].input_value = 110.0
@@ -94,3 +93,7 @@ class OscillatorSampleNode(ObmSampleNode):
     def refresh_outputs(self):
         self.log("refresh_outputs")
         self.waveform_selection_update()
+
+    @classmethod
+    def poll(cls, ntree):
+        return ntree.bl_idname == OB_TREE_TYPE or ntree.bl_idname == "GeometryNodeTree"

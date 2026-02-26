@@ -1,33 +1,78 @@
 import bpy
+from bl_ui import node_add_menu
+
+from .cnt.node_editor.menus import GeometryMenu
+from .cnt.node_editor import register as register_node_editor
+from .cnt.node_editor import unregister as unregister_node_editor
+from .cnt.sockets.basic_sockets import register as register_basic_sockets
+from .cnt.sockets.basic_sockets import unregister as unregister_basic_sockets
+from .cnt.nodes import register as register_nodes
+from .cnt.nodes import unregister as unregister_nodes
+from .cnt.node_editor.menus import InputMenu, GroupMenu, UtilMenu, RealtimeMenu
+
+from .nodes import register as register_mixer_nodes
+from .nodes import unregister as unregister_mixer_nodes
+
+from .sockets import register as register_mixer_sockets
+from .sockets import unregister as unregister_mixer_sockets
+
+from .config import OB_TREE_TYPE, MixerSocketTypes, cnt_sockets_list, MIXER_MENU_IDNAME
+
+from .base.global_data import load_blend_file_job
+
+cnt_sockets_list.append((MixerSocketTypes.Sample, "Sample", "Sample"))
+cnt_sockets_list.append((MixerSocketTypes.Sound, "Sound", "Sound"))
+cnt_sockets_list.append((MixerSocketTypes.Speaker, "Speaker", "Speaker"))
+
 from bpy.utils import register_class
 from bpy.utils import unregister_class
-from .sockets.basic_sockets import register as register_basic_sockets
-from .sockets.basic_sockets import unregister as unregister_basic_sockets
-from .node_editor import register as register_node_editor
-from .node_editor import unregister as unregister_node_editor
-from .core.global_data import load_blend_file_job, on_depsgraph_update
-from .nodes import classes as nodes_classes
+
+
+class MixerMenu(bpy.types.Menu):
+    bl_label = "OnlyBlends.Mixer Nodes"
+    bl_idname = MIXER_MENU_IDNAME
+    def draw(self, context):
+        layout = self.layout
+        node_add_menu.add_node_type(layout, "OscillatorSampleNode")
+        node_add_menu.add_node_type(layout, "SampleToSoundNode")
+        node_add_menu.add_node_type(layout, "SpeakerLinkNode")
+        node_add_menu.add_node_type(layout, "SpeakerDataNode")
+        node_add_menu.add_node_type(layout, "SampleToObjectNode")
+
+
+
+def draw_add_menu(self, context):
+    layout = self.layout
+    if context.space_data.tree_type != OB_TREE_TYPE:
+        return
+    layout.menu(InputMenu.bl_idname)
+    layout.menu(GroupMenu.bl_idname)
+    layout.menu(UtilMenu.bl_idname)
+    layout.menu(RealtimeMenu.bl_idname)
+    layout.menu(GeometryMenu.bl_idname)
+    layout.menu(MixerMenu.bl_idname)
 
 def register():
-    for node_class in nodes_classes:
-        register_class(node_class)
     register_basic_sockets()
+    register_nodes()
+    register_mixer_sockets()
+    register_mixer_nodes()
     register_node_editor()
-    bpy.types.Scene.geometry_to_sample_nodes_num = bpy.props.IntProperty(default=0)
+    bpy.types.NODE_MT_add.append(draw_add_menu)
+    register_class(MixerMenu)
     bpy.app.handlers.load_post.append(load_blend_file_job)
 
-def unregister():
-    for node_class in reversed(nodes_classes):
-        unregister_class(node_class)
 
+def unregister():
+    bpy.app.handlers.load_post.remove(load_blend_file_job)
+    bpy.types.NODE_MT_add.remove(draw_add_menu)
+    unregister_class(MixerMenu)
     unregister_basic_sockets()
+    unregister_nodes()
+    unregister_mixer_sockets()
+    unregister_mixer_nodes()
     unregister_node_editor()
 
-    del bpy.types.Scene.geometry_to_sample_nodes_num
-
-    bpy.app.handlers.load_post.remove(load_blend_file_job)
-    if on_depsgraph_update in bpy.app.handlers.depsgraph_update_post:
-        bpy.app.handlers.depsgraph_update_post.remove(on_depsgraph_update)
 
 if __name__ == "__main__":
     register()

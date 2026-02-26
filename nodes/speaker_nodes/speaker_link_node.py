@@ -1,8 +1,8 @@
 import bpy
 
-from ...core.constants import IS_DEBUG
-from ...nodes.basic_nodes import ObmSoundNode
-from ...core.helper import get_length_and_specs_from_sound
+from ...config import IS_DEBUG
+from ..mixer_node import ObmSoundNode
+from ...base.helper import get_length_and_specs_from_sound
 
 
 def calculation_of_length(sound):
@@ -14,14 +14,14 @@ def calculation_of_length(sound):
     return strip_frame_length
 
 
-class SpeakerLinkNode(ObmSoundNode, bpy.types.NodeCustomGroup):
+class SpeakerLinkNode(ObmSoundNode, bpy.types.Node):
     '''Speaker Link Node to assign a Sound to a Speaker'''
     bl_label = "Speaker Link"
     bl_icon = 'OUTLINER_DATA_SPEAKER'
 
     def init(self, context):
-        self.inputs.new('SpeakerSocketType', "Speaker")
-        self.inputs.new('SoundSocketType', "Sound")
+        self.inputs.new('NodeSocketSpeaker', "Speaker")
+        self.inputs.new('NodeSocketSound', "Sound")
         super().init(context)
 
     def free(self):
