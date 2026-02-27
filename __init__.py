@@ -35,11 +35,12 @@ class MixerMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         node_add_menu.add_node_type(layout, "OscillatorSampleNode")
+        node_add_menu.add_node_type(layout, "EditSampleNode")
         node_add_menu.add_node_type(layout, "SampleToSoundNode")
         node_add_menu.add_node_type(layout, "SpeakerLinkNode")
         node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
-
+        node_add_menu.add_node_type(layout, "ObjectTrackNode")
 
 class MixerGeometryMenu(GeometryMenu):
     bl_idname = f'NODE_MT_obm_GeometryMixer'
@@ -70,7 +71,7 @@ def draw_add_menu(self, context):
     # layout.menu(GeometryMenu.bl_idname)
     layout.menu(MixerGeometryMenu.bl_idname)
     layout.menu(MidiMenu.bl_idname)
-
+    layout.menu(MixerMenu.bl_idname)
 
 def register():
     register_basic_sockets()
@@ -81,12 +82,14 @@ def register():
     bpy.types.NODE_MT_add.append(draw_add_menu)
     register_class(MixerGeometryMenu)
     register_class(MidiMenu)
+    register_class(MixerMenu)
     bpy.app.handlers.load_post.append(load_blend_file_job)
 
 
 def unregister():
     bpy.app.handlers.load_post.remove(load_blend_file_job)
     bpy.types.NODE_MT_add.remove(draw_add_menu)
+    unregister_class(MixerMenu)
     unregister_class(MidiMenu)
     unregister_class(MixerGeometryMenu)
     unregister_basic_sockets()

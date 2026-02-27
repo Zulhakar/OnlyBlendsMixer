@@ -1,9 +1,9 @@
 import bpy
 import aud
 
-from ..basic_nodes import ObmSampleNode
-from ...core.constants import SOUND_SOCKET_SHAPE, IS_DEBUG
-from ...core.global_data import Data
+from ..mixer_node import ObmSampleNode
+from ...config import IS_DEBUG
+from ...base.global_data import Data
 
 class EditSampleNode(ObmSampleNode):
     '''Different functions to edit Samples. For example to limit the endless sample of an oscillator.'''
@@ -55,26 +55,26 @@ class EditSampleNode(ObmSampleNode):
         , update=lambda self, context: self.operation_update())
 
     def init(self, context):
-        self.outputs.new('SoundSampleSocketType', "Sample")
-        self.inputs.new('SoundSampleSocketType', "Sample")
-        float1_start_s = self.inputs.new("FloatSocketType", "start")
-        float2_end_s = self.inputs.new("FloatSocketType", "end")
-        self.inputs.new("FloatSocketType", "frequency")
-        q = self.inputs.new("FloatSocketType", "Q")
-        self.inputs.new("FloatSocketType", "length")
-        self.inputs.new("FloatSocketType", "time")
-        self.inputs.new("FloatSocketType", "attack")
-        self.inputs.new("FloatSocketType", "release")
-        self.inputs.new("FloatSocketType", "threshold")
-        self.inputs.new("FloatSocketType", "arthreshold")
-        self.inputs.new("FloatSocketType", "decay")
-        self.inputs.new("FloatSocketType", "sustain")
-        self.inputs.new("FloatSocketType", "factor")
-        self.inputs.new("IntSocketType", "count")
-        s_r_s = self.inputs.new("IntSocketType", "sample rate")
-        self.inputs.new("IntSocketType", "quality")
-        self.inputs.new('BoolSocketType', "additive")
-        self.inputs.new('SoundSampleSocketType', "Sample")
+        self.outputs.new('NodeSocketSample', "Sample")
+        self.inputs.new('NodeSocketSample', "Sample")
+        float1_start_s = self.inputs.new("NodeSocketFloatCnt", "start")
+        float2_end_s = self.inputs.new("NodeSocketFloatCnt", "end")
+        self.inputs.new("NodeSocketFloatCnt", "frequency")
+        q = self.inputs.new("NodeSocketFloatCnt", "Q")
+        self.inputs.new("NodeSocketFloatCnt", "length")
+        self.inputs.new("NodeSocketFloatCnt", "time")
+        self.inputs.new("NodeSocketFloatCnt", "attack")
+        self.inputs.new("NodeSocketFloatCnt", "release")
+        self.inputs.new("NodeSocketFloatCnt", "threshold")
+        self.inputs.new("NodeSocketFloatCnt", "arthreshold")
+        self.inputs.new("NodeSocketFloatCnt", "decay")
+        self.inputs.new("NodeSocketFloatCnt", "sustain")
+        self.inputs.new("NodeSocketFloatCnt", "factor")
+        self.inputs.new("NodeSocketIntCnt", "count")
+        s_r_s = self.inputs.new("NodeSocketIntCnt", "sample rate")
+        self.inputs.new("NodeSocketIntCnt", "quality")
+        self.inputs.new('NodeSocketBoolCnt', "additive")
+        self.inputs.new('NodeSocketSample', "Sample")
         self.toggle_sockets(self.inputs[1:], True)
         self.toggle_sockets([float1_start_s, float2_end_s], False)
         super().init(context)
@@ -96,7 +96,7 @@ class EditSampleNode(ObmSampleNode):
             values = []
             sample_function = getattr(parent_sample, function_name)
             for socket in sockets:
-                if socket.bl_idname != "SoundSampleSocketType":
+                if socket.bl_idname != "NodeSocketSample":
                     values.append(socket.input_value)
                 else:
                     if socket.input_value != "":
