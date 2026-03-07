@@ -81,8 +81,7 @@ class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
                 self.outputs[0].input_value.user_clear()
                 bpy.data.sounds.remove(self.outputs[0].input_value)
             self.outputs[0].input_value = None
-        for link in self.outputs[0].links:
-            link.to_socket.input_value = self.outputs[0].input_value
+
 
     def free(self):
         super().free()
@@ -95,3 +94,6 @@ class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
         super().socket_update(socket)
         if socket == self.inputs[0] or socket == self.inputs[1]:
             self.store_data()
+        else:
+            for link in self.outputs[0].links:
+                link.to_socket.input_value = self.outputs[0].input_value

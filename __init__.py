@@ -40,7 +40,7 @@ class MixerMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SpeakerLinkNode")
         node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
-        node_add_menu.add_node_type(layout, "ObjectTrackNode")
+        node_add_menu.add_node_type(layout, "TrackNode")
 
 class MixerGeometryMenu(GeometryMenu):
     bl_idname = f'NODE_MT_obm_GeometryMixer'
