@@ -1,6 +1,6 @@
 import bpy
 from ..cnt.sockets.basic_sockets import NodeTreeInterfaceSocketCnt, NodeSocketCnt
-from ..config import COLOR_SOUND_SAMPLE_SOCKET, COLOR_BLACK, COLOR_SPEAKER_SOCKET
+from ..config import COLOR_SOUND_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, COLOR_BLACK, COLOR_SPEAKER_SOCKET
 
 
 class NodeTreeInterfaceSocketSample(NodeTreeInterfaceSocketCnt):
@@ -27,12 +27,12 @@ class NodeTreeInterfaceSocketSound(NodeTreeInterfaceSocketCnt):
 
 class NodeSocketSound(NodeSocketCnt):
     bl_label = "Sound"
-    sock_col = COLOR_BLACK
+    sock_col = COLOR_SOUND_SOCKET
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Sound",
                                            type=bpy.types.Sound)  # poll=poll_domain)
 
     def draw_color(self, context, node):
-        return COLOR_BLACK
+        return COLOR_SOUND_SOCKET
 
 
 class NodeSocketSpeaker(NodeSocketCnt):
@@ -44,6 +44,7 @@ class NodeSocketSpeaker(NodeSocketCnt):
 
 class NodeTreeInterfaceSocketSpeaker(NodeTreeInterfaceSocketCnt):
     bl_socket_idname = 'NodeSocketSpeaker'
+    obm_socket_type = bl_socket_idname
 
     def draw_color(self, context, node):
         return COLOR_SPEAKER_SOCKET

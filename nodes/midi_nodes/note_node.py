@@ -7,6 +7,7 @@ from ..mixer_node import ObmSoundNode
 class NoteNode(ObmSoundNode, bpy.types.Node):
     '''Note Node'''
     bl_label = "Note"
+    bl_icon = 'EXTERNAL_DRIVE'
 
     notes_dict = create_note_dict()[0]
 

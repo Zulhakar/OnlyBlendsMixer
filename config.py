@@ -6,21 +6,29 @@ NEW_NODE_GROUP_NAME = "Mixer Nodes"
 NODE_EDITOR_NAME = "Onlyblends.Mixer Node Editor"
 
 TREE_ICON = 'SOUND'
+IMPORT_ICON = 'FILEBROWSER'
 
 COLOR_WHITE = (1.0, 1.0, 1.0, 1.0)
 COLOR_BLACK = (0.0, 0.0, 0.0, 1.0)
 
-COLOR_SOUND_SAMPLE_SOCKET = (0.333, 0.333, 0.333, 1.0)
-COLOR_SPEAKER_SOCKET = COLOR_WHITE
 
+COLOR_MIDI_SOCKET = COLOR_BLACK
+COLOR_SOUND_SAMPLE_SOCKET = (0.5, 0.5, 0.5, 1.0)
+COLOR_SOUND_SOCKET = COLOR_WHITE
+#COLOR_SPEAKER_SOCKET = COLOR_WHITE
+#COLOR_SPEAKER_SOCKET = (0.75, 0.5, 0.29113924, 1.0)
+COLOR_SPEAKER_SOCKET = (1, 0.725681, 0.5, 1.0)
 MIXER_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Mixer'
 MIDI_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Midi'
+
+MIDI_IMPORT_OT_ID = f'{APP_NAME_SHORT}_midi_import_ot_id'
 
 
 class MixerSocketTypes:
     Sample = 'NodeSocketSample'
     Sound = 'NodeSocketSound'
     Speaker = 'NodeSocketSpeaker'
+
 
 NOTE_NAMES_1 = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
 NOTE_NAMES_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
