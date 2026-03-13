@@ -42,6 +42,7 @@ class MixerMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
         node_add_menu.add_node_type(layout, "TrackNode")
         node_add_menu.add_node_type(layout, "ImportMidiNode")
+        node_add_menu.add_node_type(layout, "MidiTrackNode")
 
 class MixerGeometryMenu(GeometryMenu):
     bl_idname = f'NODE_MT_obm_GeometryMixer'

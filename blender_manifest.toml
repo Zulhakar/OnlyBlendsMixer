@@ -11,7 +11,10 @@ blender_version_min = "4.2.0"
 license = [
     "SPDX:GPL-3.0-or-later",
 ]
-
+wheels = [
+    "./wheels/mido-1.3.3-py3-none-any.whl",
+    "./wheels/packaging-26.0-py3-none-any.whl"
+]
 [build]
 paths_exclude_pattern = [
     "__pycache__/",

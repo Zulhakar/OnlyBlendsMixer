@@ -153,7 +153,7 @@ class TrackNode(ObmSampleNode):
     def socket_update(self, socket):
         super().socket_update(socket)
         if socket != self.outputs[0]:
-            self.get_attributes()
+            self.get_attributes("MESH")
         else:
             for link in self.outputs[0].links:
                 link.to_socket.input_value = self.outputs[0].input_value
