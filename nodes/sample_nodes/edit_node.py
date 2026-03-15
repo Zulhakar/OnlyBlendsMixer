@@ -44,6 +44,8 @@ class EditSampleNode(ObmSampleNode):
          "Plays a sound forward and then backward. This is like joining a sound with its reverse."),
         ('reverse', "Reverse", "Plays a sound reversed"),
         ('sum', "Sum", "Sums the samples of a sound."),
+        ('cache', "Cache", "Caches a sound into RAM."),
+
         (None),
         ('resample', "Resample", "Resamples the sound.")
 
