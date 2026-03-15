@@ -5,7 +5,8 @@ import aud
 
 
 def find_overlaps(events):
-    # ["start_time", "duration", "volume", "note"]
+    # x             y           z           volume
+    # start_time    duration    note        volume
     if not events:
         return []
     if len(events) <= 1:
@@ -29,7 +30,7 @@ def find_overlaps(events):
             active_group = [i]
             max_end = end
             g_i += 1
-    if g_i != final_stuff[-1][1]:
+    if len(final_stuff) > 0 and g_i != final_stuff[-1][1]:
         final_stuff.append([active_group, g_i, events[active_group[0]][0], max_end])
     return final_stuff
 
@@ -38,14 +39,14 @@ def pitch_sample_from_frequency(target_frequency, sample, base_frequency=None):
     if base_frequency is None:
         length = sample.length
         sample_rate, ch_ = sample.specs
-        base_frequency = 1 if length < 0 else sample_rate / (length + 1)
+        base_frequency = 1 if length <= 0 else sample_rate / length
+
     pitch_factor = target_frequency / base_frequency
     pitched_sample = sample.pitch(pitch_factor)
     return pitched_sample
 
 
 def mix_overlapping_group(group, parts, sample):
-    # ["start_time", "duration", "volume", "note"]
     resample_quality = 0
     sample_rate, ch_ = sample.specs
     start = group[2]
@@ -53,7 +54,7 @@ def mix_overlapping_group(group, parts, sample):
     final_sample = None
     for index in group[0]:
         part = parts[index]
-        start_time, duration, volume, frequency = part
+        start_time, duration, frequency, volume = part
         end_time = start_time + duration
         start_time_diff = start_time - start
         # if start_time_diff > 0:
@@ -77,6 +78,7 @@ def mix_overlapping_group(group, parts, sample):
         else:
             final_sample = final_sample.mix(s_m_e_sample)
             # middle_sample = start_sample.join()
+
     return final_sample
 
 
@@ -114,7 +116,8 @@ class TrackNode(ObmSampleNode):
             if domain_data is None:
                 return None
 
-            attr_list = ["start_time", "duration", "volume", "note"]
+            #attr_list = ["start_time", "duration", "volume", "note"]
+            attr_list = ["position", "volume"]
             st_attr = domain_data.attributes[attr_list[0]]
             n = len(st_attr.data)
             attr_dict = {}
@@ -125,7 +128,11 @@ class TrackNode(ObmSampleNode):
                 pack = []
                 for attr in attr_list:
                     value = attr_dict[attr][i]
-                    pack.append(value.value)
+                    if attr == "position":
+                        #start_time , note, volume = value.value
+                        pack.extend(tuple(value.vector))
+                    else:
+                        pack.append(value.value)
                 sequence.append(pack)
 
             sequence = sorted(sequence, key=lambda x: x[0])

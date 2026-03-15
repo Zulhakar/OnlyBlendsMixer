@@ -55,7 +55,7 @@ class OscillatorSampleNode(ObmSampleNode):
             new_sample = new_sample.limit(0.0, 0.01)
         else:
             new_sample = new_sample.limit(0.0, self.inputs[2].input_value)
-        Data.uuid_data_storage[self.node_uuid] = new_sample
+        Data.uuid_data_storage[self.node_uuid] = new_sample.cache()
         self.outputs[0].input_value = self.node_uuid
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value

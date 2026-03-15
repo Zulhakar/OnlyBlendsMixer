@@ -108,7 +108,7 @@ class EditSampleNode(ObmSampleNode):
                     return None
                 if self.inputs[0].is_linked and not sockets[0].is_linked:
                     return None
-            return sample_function(*values).cache()
+            return sample_function(*values)
         else:
             return None
 

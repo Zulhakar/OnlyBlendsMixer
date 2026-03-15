@@ -41,8 +41,7 @@ class MixerMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
         node_add_menu.add_node_type(layout, "TrackNode")
-        node_add_menu.add_node_type(layout, "ImportMidiNode")
-        node_add_menu.add_node_type(layout, "MidiTrackNode")
+
 
 class MixerGeometryMenu(GeometryMenu):
     bl_idname = f'NODE_MT_obm_GeometryMixer'
@@ -60,7 +59,8 @@ class MidiMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         node_add_menu.add_node_type(layout, "NoteNode")
-
+        node_add_menu.add_node_type(layout, "ImportMidiNode")
+        node_add_menu.add_node_type(layout, "MidiTrackNode")
 
 def draw_add_menu(self, context):
     layout = self.layout
