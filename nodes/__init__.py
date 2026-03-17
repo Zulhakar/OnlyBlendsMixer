@@ -5,15 +5,15 @@ from bpy.utils import unregister_class
 from .sample_nodes.edit_node import EditSampleNode
 from .sample_nodes.oscillator_node import OscillatorSampleNode
 from .sample_nodes.sample_to_sound_node import SampleToSoundNode
+from .sample_nodes.track_sample_node import TrackSampleNode
 from .speaker_nodes.speaker_link_node import SpeakerLinkNode
 from .speaker_nodes.speaker_data_node import SpeakerDataNode
 from .geometry.sample_to_object import SampleToObjectNode
-from .geometry.track_node import TrackNode
 from .midi_nodes.note_node import NoteNode
 from .midi_nodes.import_midi_node import ImportMidiNode
 from .midi_nodes.midi_track import MidiTrackNode
 nodes = [OscillatorSampleNode, SampleToSoundNode, SpeakerLinkNode, SpeakerDataNode, SampleToObjectNode, EditSampleNode,
-         NoteNode, TrackNode, ImportMidiNode, MidiTrackNode]
+         NoteNode, TrackSampleNode, ImportMidiNode, MidiTrackNode]
 
 
 def register():

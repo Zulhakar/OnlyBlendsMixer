@@ -82,17 +82,17 @@ def mix_overlapping_group(group, parts, sample):
     return final_sample
 
 
-class TrackNode(ObmSampleNode):
-    '''Create a Sample Melody from Geometry Attributes: "start_time", "duration", "volume" and "note"'''
-    bl_label = "Track"
+class TrackSampleNode(ObmSampleNode):
+    '''Create a Track Sample from a Sample and the Geometry Attributes of an Object.
+     You can get this Geometry from a Midi Track Node or create it via Geometry Nodes.
+     The Object need the attributes position and volume.
+     The position-xyz values are mapped as x->start_time, y->duration and z->frequency.
+    '''
+    bl_label = "Track Sample"
 
     def init(self, context):
         self.inputs.new("NodeSocketObjectCnt", "Object")
         self.inputs.new("NodeSocketSample", "Sample")
-        self.inputs.new("NodeSocketStringCnt", "Starttime Attribute")
-        self.inputs.new("NodeSocketStringCnt", "Duration Attribute")
-        self.inputs.new("NodeSocketStringCnt", "Volume Attribute")
-        self.inputs.new("NodeSocketStringCnt", "Note Attribute")
         self.outputs.new("NodeSocketSample", "Sample")
         super().init(context)
 
@@ -116,7 +116,6 @@ class TrackNode(ObmSampleNode):
             if domain_data is None:
                 return None
 
-            #attr_list = ["start_time", "duration", "volume", "note"]
             attr_list = ["position", "volume"]
             st_attr = domain_data.attributes[attr_list[0]]
             n = len(st_attr.data)

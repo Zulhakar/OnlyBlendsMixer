@@ -21,7 +21,7 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.Node):
 
     def init(self, context):
         self.inputs.new('NodeSocketSpeaker', "Speaker")
-        self.inputs.new('NodeSocketSound', "Sound")
+        self.inputs.new('NodeSocketSoundObm', "Sound")
         super().init(context)
 
     def free(self):

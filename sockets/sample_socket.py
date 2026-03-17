@@ -20,12 +20,12 @@ class NodeSocketSample(NodeSocketCnt):
         layout.label(text=text)
 
 
-class NodeTreeInterfaceSocketSound(NodeTreeInterfaceSocketCnt):
-    bl_socket_idname = 'NodeSocketSound'
+class NodeTreeInterfaceSocketSoundObm(NodeTreeInterfaceSocketCnt):
+    bl_socket_idname = 'NodeSocketSoundObm'
     obm_socket_type = bl_socket_idname
 
 
-class NodeSocketSound(NodeSocketCnt):
+class NodeSocketSoundObm(NodeSocketCnt):
     bl_label = "Sound"
     sock_col = COLOR_SOUND_SOCKET
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Sound",

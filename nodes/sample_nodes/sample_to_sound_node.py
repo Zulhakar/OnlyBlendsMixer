@@ -59,7 +59,7 @@ class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
     def init(self, context):
         self.inputs.new('NodeSocketSample', "Sample")
         sample_rate = self.inputs.new("NodeSocketIntCnt", "Sample Rate")
-        self.outputs.new('NodeSocketSound', "Sound")
+        self.outputs.new('NodeSocketSoundObm', "Sound")
         sample_rate.input_value = 48000
         super().init(context)
 

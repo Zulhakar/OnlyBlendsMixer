@@ -36,11 +36,11 @@ class MixerMenu(bpy.types.Menu):
         layout = self.layout
         node_add_menu.add_node_type(layout, "OscillatorSampleNode")
         node_add_menu.add_node_type(layout, "EditSampleNode")
+        node_add_menu.add_node_type(layout, "TrackSampleNode")
         node_add_menu.add_node_type(layout, "SampleToSoundNode")
         node_add_menu.add_node_type(layout, "SpeakerLinkNode")
         node_add_menu.add_node_type(layout, "SpeakerDataNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
-        node_add_menu.add_node_type(layout, "TrackNode")
 
 
 class MixerGeometryMenu(GeometryMenu):
