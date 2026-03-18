@@ -12,11 +12,11 @@ class OscillatorSampleNode(ObmSampleNode):
 
     bl_label = "Oscillator"
     waveform_enums = [
-        ('SAWTOOTH', "sawtooth", "Creates a sawtooth sound which plays a sawtooth wave."),
-        ('SILENCE', "silence", "Creates a silence sound which plays simple silence."),
-        ('SINE', "sine", "Creates a sine sound which plays a sine wave."),
-        ('SQUARE', "square", "Creates a square sound which plays a square wave."),
-        ('TRIANGLE', "triangle", "Creates a triangle sound which plays a triangle wave."),
+        ('SAWTOOTH', "Sawtooth", "Creates a sawtooth sound which plays a sawtooth wave."),
+        ('SILENCE', "Silence", "Creates a silence sound which plays simple silence."),
+        ('SINE', "Sine", "Creates a sine sound which plays a sine wave."),
+        ('SQUARE', "Square", "Creates a square sound which plays a square wave."),
+        ('TRIANGLE', "Triangle", "Creates a triangle sound which plays a triangle wave."),
     ]
     waveform_selection: bpy.props.EnumProperty(  # type: ignore
         name="Waveform"
@@ -62,9 +62,9 @@ class OscillatorSampleNode(ObmSampleNode):
 
     def init(self, context):
         self.outputs.new('NodeSocketSample', "Sample")
-        self.inputs.new("NodeSocketIntCnt", "rate")
-        self.inputs.new("NodeSocketFloatCnt", "frequency")
-        self.inputs.new("NodeSocketFloatCnt", "length")
+        self.inputs.new("NodeSocketIntCnt", "Rate")
+        self.inputs.new("NodeSocketFloatCnt", "Frequency")
+        self.inputs.new("NodeSocketFloatCnt", "Duration")
         super().init(context)
         self.inputs[0].input_value = 48000
         self.inputs[1].input_value = 110.0
@@ -74,9 +74,9 @@ class OscillatorSampleNode(ObmSampleNode):
     def draw_buttons(self, context, layout):
         if IS_DEBUG:
             layout.label(text="Debug Infos:")
-            if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
-                layout.label(text="Duration: " + str(Data.uuid_data_storage[self.node_uuid].length))
             layout.label(text=self.outputs[0].input_value)
+        if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
+            layout.label(text="Length: " + str(Data.uuid_data_storage[self.node_uuid].length))
         layout.prop(self, "waveform_selection", text="Waveform")
 
     def socket_update(self, socket):
