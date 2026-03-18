@@ -106,13 +106,14 @@ class EditSampleNode(ObmSampleNode):
                     else:
                         return parent_sample
             if function_name in ('modulate', 'mix', 'join'):
-                if not self.inputs[0].is_linked:
-                    return None
-                if self.inputs[0].is_linked and not sockets[0].is_linked:
-                    return None
+                if not sockets[0].is_linked:
+                    return parent_sample
             return sample_function(*values)
         else:
-            return None
+            if function_name in ('modulate', 'mix', 'join') and sockets[0].is_linked and sockets[0].input_value in Data.uuid_data_storage:
+                return Data.uuid_data_storage[sockets[0].input_value]
+            else:
+                return None
 
     def operation_update(self):
         sample_s = self.inputs[0]
