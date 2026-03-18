@@ -26,11 +26,19 @@ def find_overlaps(events):
             active_group.append(i)
             max_end = max(max_end, end)
         else:
+            if len(final_stuff) <=0:
+                final_stuff.append([-1, -1, 0.0, events[active_group[0]][0]])
+            else:
+                if final_stuff[-1][0] == -1 and final_stuff[-1][3] is None:
+                    final_stuff[-1][3] = events[active_group[0]][0]
             final_stuff.append([active_group, g_i, events[active_group[0]][0], max_end])
+            final_stuff.append([-1, -1, max_end, None])
             active_group = [i]
             max_end = end
             g_i += 1
     if len(final_stuff) > 0 and g_i != final_stuff[-1][1]:
+        if final_stuff[-1][0] == -1 and final_stuff[-1][3] is None:
+            final_stuff[-1][3] = events[active_group[0]][0]
         final_stuff.append([active_group, g_i, events[active_group[0]][0], max_end])
     return final_stuff
 
@@ -46,11 +54,12 @@ def pitch_sample_from_frequency(target_frequency, sample, base_frequency=None):
     return pitched_sample
 
 
-def mix_overlapping_group(group, parts, sample):
+def mix_overlapping_group(group, parts, sample, sample_rate):
     resample_quality = 0
-    sample_rate, ch_ = sample.specs
     start = group[2]
     end = group[3]
+    if group[0] == -1 and end is not None:
+        return aud.Sound.silence(sample_rate).limit(0, end - start)
     final_sample = None
     for index in group[0]:
         part = parts[index]
@@ -102,6 +111,7 @@ class TrackSampleNode(ObmSampleNode):
         if self.inputs[1].input_value and self.inputs[1].input_value != "":
             sample = Data.uuid_data_storage[self.inputs[1].input_value]
         if obj and sample:
+            sample_rate, _ = sample.specs
             depsgraph = bpy.context.evaluated_depsgraph_get()
 
             obj_eval = depsgraph.id_eval_get(obj)
@@ -142,7 +152,7 @@ class TrackSampleNode(ObmSampleNode):
                 #    end_time = item[0] + item[1]
                 final_sample = None
                 for item in d:
-                    mixed_sample = mix_overlapping_group(item, sequence, sample)
+                    mixed_sample = mix_overlapping_group(item, sequence, sample, sample_rate)
                     if final_sample is None:
                         final_sample = mixed_sample
                     else:
