@@ -107,48 +107,49 @@ class TrackSampleNode(ObmSampleNode):
             obj_eval = depsgraph.id_eval_get(obj)
             # self.node_tree.interface.active.hide_in_modifier = True
             # self.node_tree.interface.active.hide_in_modifier = False
-            geometry = obj_eval.evaluated_geometry()
-            domain_data = None
-            if domain == "POINTCLOUD":
-                domain_data = geometry.pointcloud
-            elif domain == "MESH":
-                domain_data = geometry.mesh
-            if domain_data is None:
-                return None
+            if obj_eval.is_evaluated:
+                geometry = obj_eval.evaluated_geometry()
+                domain_data = None
+                if domain == "POINTCLOUD":
+                    domain_data = geometry.pointcloud
+                elif domain == "MESH":
+                    domain_data = geometry.mesh
+                if domain_data is None:
+                    return None
 
-            attr_list = ["position", "volume"]
-            st_attr = domain_data.attributes[attr_list[0]]
-            n = len(st_attr.data)
-            attr_dict = {}
-            for attr in attr_list:
-                attr_dict[attr] = domain_data.attributes[attr].data.values()
-            sequence = []
-            for i in range(0, n):
-                pack = []
+                attr_list = ["position", "volume"]
+                st_attr = domain_data.attributes[attr_list[0]]
+                n = len(st_attr.data)
+                attr_dict = {}
                 for attr in attr_list:
-                    value = attr_dict[attr][i]
-                    if attr == "position":
-                        #start_time , note, volume = value.value
-                        pack.extend(tuple(value.vector))
+                    attr_dict[attr] = domain_data.attributes[attr].data.values()
+                sequence = []
+                for i in range(0, n):
+                    pack = []
+                    for attr in attr_list:
+                        value = attr_dict[attr][i]
+                        if attr == "position":
+                            #start_time , note, volume = value.value
+                            pack.extend(tuple(value.vector))
+                        else:
+                            pack.append(value.value)
+                    sequence.append(pack)
+
+                sequence = sorted(sequence, key=lambda x: x[0])
+
+                d = find_overlaps(sequence)
+                # for item in sequence:
+                #    end_time = item[0] + item[1]
+                final_sample = None
+                for item in d:
+                    mixed_sample = mix_overlapping_group(item, sequence, sample)
+                    if final_sample is None:
+                        final_sample = mixed_sample
                     else:
-                        pack.append(value.value)
-                sequence.append(pack)
+                        final_sample = final_sample.join(mixed_sample)
 
-            sequence = sorted(sequence, key=lambda x: x[0])
-
-            d = find_overlaps(sequence)
-            # for item in sequence:
-            #    end_time = item[0] + item[1]
-            final_sample = None
-            for item in d:
-                mixed_sample = mix_overlapping_group(item, sequence, sample)
-                if final_sample is None:
-                    final_sample = mixed_sample
-                else:
-                    final_sample = final_sample.join(mixed_sample)
-
-            Data.uuid_data_storage[self.node_uuid] = final_sample
-            self.outputs[0].input_value = self.node_uuid
+                Data.uuid_data_storage[self.node_uuid] = final_sample
+                self.outputs[0].input_value = self.node_uuid
 
         else:
             if self.outputs[0].input_value and self.outputs[0].input_value in Data.uuid_data_storage:
@@ -159,6 +160,9 @@ class TrackSampleNode(ObmSampleNode):
     def socket_update(self, socket):
         super().socket_update(socket)
         if socket != self.outputs[0]:
+            if socket == self.inputs[1]:
+                if self.inputs[1].input_value in Data.uuid_data_storage and Data.uuid_data_storage[self.inputs[1].input_value] :
+                    Data.uuid_data_storage[self.inputs[1].input_value] = Data.uuid_data_storage[self.inputs[1].input_value].cache()
             self.get_attributes("MESH")
         else:
             for link in self.outputs[0].links:

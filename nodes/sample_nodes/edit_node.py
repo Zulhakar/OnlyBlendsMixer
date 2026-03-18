@@ -101,7 +101,7 @@ class EditSampleNode(ObmSampleNode):
                 if socket.bl_idname != "NodeSocketSample":
                     values.append(socket.input_value)
                 else:
-                    if socket.input_value != "":
+                    if socket.input_value != "" and socket.input_value in Data.uuid_data_storage:
                         values.append(Data.uuid_data_storage[socket.input_value])
                     else:
                         return parent_sample

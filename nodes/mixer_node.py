@@ -2,7 +2,7 @@ import bpy
 from ..config import IS_DEBUG, VERSATILE_SOCKET_SHAPE, SINGLE_VALUES_SOCKET_SHAPE, OB_TREE_TYPE
 from ..base.helper import get_node_id_name
 from ..base.global_data import Data
-
+import uuid
 
 class ObmSoundNode:
     socket_update_disabled: bpy.props.BoolProperty(default=False)
@@ -29,7 +29,7 @@ class ObmSoundNode:
 
     def sound_data_init(self):
         if hasattr(self, "node_uuid"):
-            self.node_uuid = get_node_id_name(self)
+            self.node_uuid = str(uuid.uuid4()).replace("-", "")
             Data.uuid_data_storage[self.node_uuid] = None
 
     @classmethod
