@@ -11,9 +11,9 @@ from .speaker_nodes.speaker_data_node import SpeakerDataNode
 from .geometry.sample_to_object import SampleToObjectNode
 from .midi_nodes.note_node import NoteNode
 from .midi_nodes.import_midi_node import ImportMidiNode
-from .midi_nodes.midi_track import MidiTrackNode
+from .midi_nodes.midi_track import MidiToTrackObjectNode
 nodes = [OscillatorSampleNode, SampleToSoundNode, SpeakerLinkNode, SpeakerDataNode, SampleToObjectNode, EditSampleNode,
-         NoteNode, TrackSampleNode, ImportMidiNode, MidiTrackNode]
+         NoteNode, TrackSampleNode, ImportMidiNode, MidiToTrackObjectNode]
 
 
 def register():

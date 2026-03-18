@@ -60,7 +60,7 @@ class MidiMenu(bpy.types.Menu):
         layout = self.layout
         node_add_menu.add_node_type(layout, "NoteNode")
         node_add_menu.add_node_type(layout, "ImportMidiNode")
-        node_add_menu.add_node_type(layout, "MidiTrackNode")
+        node_add_menu.add_node_type(layout, "MidiToTrackObjectNode")
 
 def draw_add_menu(self, context):
     layout = self.layout
