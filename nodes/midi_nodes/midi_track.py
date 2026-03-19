@@ -83,7 +83,7 @@ class MidiToTrackObjectNode(ObmSoundNode, bpy.types.Node):
 
     def init(self, context):
         self.inputs.new("NodeSocketMidi", "MIDI")
-        self.inputs.new("NodeSocketIntCnt", "Track Number")
+        self.inputs.new("NodeSocketIntCnt", "Track ID")
         self.inputs.new("NodeSocketFloatCnt", "Start Time")
         self.inputs.new("NodeSocketFloatCnt", "End Time")
         self.outputs.new('NodeSocketObjectCnt', "Track Object")
