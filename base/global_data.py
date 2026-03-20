@@ -1,7 +1,6 @@
 import bpy
 from bpy.app.handlers import persistent
-from bpy_extras.io_utils import ImportHelper
-from ..config import IS_DEBUG, MIDI_IMPORT_OT_ID
+from ..config import IS_DEBUG
 
 
 def __on_mesh_update(obj, scene):
@@ -30,46 +29,5 @@ def __add_depsgraph_handler():
         bpy.app.handlers.depsgraph_update_post.remove(__on_depsgraph_update)
 
 
-class ImportMidi(bpy.types.Operator, ImportHelper):
-    """Import a MIDI file"""
-
-    bl_label = "Import MIDI"
-
-    # ImportHelper mix-in class uses this.
-    filename_ext = ".mid"
-
-    filter_glob: bpy.props.StringProperty(
-        default="*.midi;*.mid;*.smf",
-        options={'HIDDEN'},
-        maxlen=255,  # Max internal buffer length, longer would be clamped.
-    )
-
-    def execute(self, context):
-        if IS_DEBUG:
-            print("Import MIDI:", self.filepath)
-        self.parent.import_path = self.filepath
-        return {'FINISHED'}
-
-
-def create_dynamic_import_midi_op(parent, node_uuid):
-    class_name = MIDI_IMPORT_OT_ID + "." + node_uuid
-
-    DynamicImportMidiOperatorClass = type(class_name, (ImportMidi,), {
-        "bl_idname": class_name,
-        "node_uuid": node_uuid,
-        "parent": parent,
-
-    })
-
-    return DynamicImportMidiOperatorClass
-
-
 class Data:
     uuid_data_storage = {}
-    # for import midi node
-    uuid_operator_class_storage = {}
-    @classmethod
-    def create_midi_import_panel(cls, parent, node_uuid):
-        op_class = create_dynamic_import_midi_op(parent, node_uuid)
-        bpy.utils.register_class(op_class)
-        Data.uuid_operator_class_storage[node_uuid] = op_class

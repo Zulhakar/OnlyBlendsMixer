@@ -1,10 +1,13 @@
 import bpy
 from bl_ui import node_add_menu
+from bpy.utils import register_class
+from bpy.utils import unregister_class
+
 
 from .cnt.node_editor import register as register_node_editor
 from .cnt.node_editor import unregister as unregister_node_editor
-from .cnt.sockets.basic_sockets import register as register_basic_sockets
-from .cnt.sockets.basic_sockets import unregister as unregister_basic_sockets
+from .cnt.sockets import register as register_basic_sockets
+from .cnt.sockets import unregister as unregister_basic_sockets
 from .cnt.nodes import register as register_nodes
 from .cnt.nodes import unregister as unregister_nodes
 from .cnt.node_editor.menus import InputMenu, GroupMenu, UtilMenu, RealtimeMenu
@@ -21,9 +24,6 @@ from .config import OB_TREE_TYPE, MixerSocketTypes, cnt_sockets_list, MIXER_MENU
 cnt_sockets_list.append((MixerSocketTypes.Sample, "Sample", "Sample"))
 cnt_sockets_list.append((MixerSocketTypes.Sound, "Sound", "Sound"))
 cnt_sockets_list.append((MixerSocketTypes.Speaker, "Speaker", "Speaker"))
-
-from bpy.utils import register_class
-from bpy.utils import unregister_class
 
 
 

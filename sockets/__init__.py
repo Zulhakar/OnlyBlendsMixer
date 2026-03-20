@@ -4,13 +4,11 @@ from bpy.utils import register_class, unregister_class
 from .sample_socket import (NodeSocketSample, NodeTreeInterfaceSocketSample,
                             NodeSocketSoundObm, NodeTreeInterfaceSocketSoundObm, NodeSocketSpeaker,
                             NodeTreeInterfaceSocketSpeaker)
-from .import_midi_socket import NodeSocketImportMidi, NodeTreeInterfaceSocketImportMidi
 from .midi_socket import NodeSocketMidi, NodeTreeInterfaceSocketMidi
 
 sockets = [NodeSocketSample, NodeTreeInterfaceSocketSample, NodeSocketSoundObm, NodeTreeInterfaceSocketSoundObm,
            NodeSocketSpeaker, NodeTreeInterfaceSocketSpeaker,
-           NodeSocketImportMidi, NodeTreeInterfaceSocketImportMidi, NodeSocketMidi, NodeTreeInterfaceSocketMidi]
-
+           NodeSocketMidi, NodeTreeInterfaceSocketMidi]
 
 def register():
     for socket in sockets:
