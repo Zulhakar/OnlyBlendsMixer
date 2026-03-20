@@ -56,11 +56,11 @@ class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
     def draw_buttons(self, context, layout):
         #remove it
         #layout.prop(self, "sample_rate_selection", text="Rate")
-        layout.prop(self, "container_selection", text="Container")
+        layout.prop(self, "container_selection", text="")
 
     def init(self, context):
         self.inputs.new('NodeSocketSample', "Sample")
-        sample_rate = self.inputs.new("NodeSocketIntCnt", "Sample Rate")
+        sample_rate = self.inputs.new("NodeSocketIntCnt", "Rate")
         self.outputs.new('NodeSocketSoundObm', "Sound")
         self.socket_update_disabled = True
         sample_rate.input_value = 48000

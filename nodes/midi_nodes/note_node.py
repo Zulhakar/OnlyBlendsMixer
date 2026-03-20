@@ -24,7 +24,7 @@ class NoteNode(ObmSoundNode, bpy.types.Node):
         self.outputs[3].input_value = self.notes_dict[self.note][1]
 
     def draw_buttons(self, context, layout):
-        layout.prop(self, "note", text="Note")
+        layout.prop(self, "note", text="")
 
     def init(self, context):
         self.outputs.new('NodeSocketFloatCnt', "Frequency")

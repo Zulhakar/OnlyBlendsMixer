@@ -10,8 +10,8 @@ class ObjectToSampleNode(ObmSampleNode):
     bl_label = "Object To Sample"
 
     domain_enums = [
-        ('POINTCLOUD', "Point Cloud", "Use Pointcloud from geometry to create Sound Sample"),
-        ('MESH', "Mesh", "Use Mesh from geometry to create Sound Sample"),
+        ('POINTCLOUD', "Point Cloud", "Use Pointcloud Domain from Geometry data to create a Sample"),
+        ('MESH', "Mesh", "Use Mesh Domain from Geometry data to create a Sample"),
 
     ]
     domain: bpy.props.EnumProperty(  # type: ignore
@@ -22,8 +22,8 @@ class ObjectToSampleNode(ObmSampleNode):
 
     def init(self, context):
         self.inputs.new("NodeSocketObjectCnt", "Object")
-        self.inputs.new("NodeSocketIntCnt", "Rate")
         self.inputs.new("NodeSocketStringCnt", "Attribute")
+        self.inputs.new("NodeSocketIntCnt", "Rate")
         self.inputs.new("NodeSocketIntCnt", "Axis")
         self.outputs.new("NodeSocketSample", "Sample")
         self.inputs[3].input_value = 0
@@ -38,8 +38,8 @@ class ObjectToSampleNode(ObmSampleNode):
 
     def get_object_data(self):
         obj = self.inputs[0].input_value
-        sample_rate = self.inputs[1].input_value
-        attr_name = self.inputs[2].input_value
+        sample_rate = self.inputs[2].input_value
+        attr_name = self.inputs[1].input_value
         axis = self.inputs[3].input_value
         if obj and attr_name != "":
 

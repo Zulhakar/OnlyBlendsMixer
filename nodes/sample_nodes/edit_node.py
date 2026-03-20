@@ -187,7 +187,7 @@ class EditSampleNode(ObmSampleNode):
             layout.label(text=self.outputs[0].input_value)
         if self.node_uuid in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid] is not None:
             layout.label(text="Length: " + str(Data.uuid_data_storage[self.node_uuid].length))
-        layout.prop(self, "operation", text="Operation")
+        layout.prop(self, "operation", text="")
 
 
     def socket_update(self, socket):
