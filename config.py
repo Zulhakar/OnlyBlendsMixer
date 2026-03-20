@@ -1,4 +1,4 @@
-IS_DEBUG = False
+IS_DEBUG = True
 APP_NAME = "OnlyBlends.Mixer"
 APP_NAME_SHORT = "obm"
 OB_TREE_TYPE = 'OnlyBlendsMixerNodeTree'
@@ -25,7 +25,7 @@ MIDI_IMPORT_OT_ID = f'{APP_NAME_SHORT}_midi_import_ot_id'
 
 class MixerSocketTypes:
     Sample = 'NodeSocketSample'
-    Sound = 'NodeSocketSound'
+    Sound = 'NodeSocketSoundObm'
     Speaker = 'NodeSocketSpeaker'
 
 

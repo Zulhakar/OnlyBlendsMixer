@@ -1,5 +1,5 @@
 import bpy
-from ..config import IS_DEBUG, VERSATILE_SOCKET_SHAPE, SINGLE_VALUES_SOCKET_SHAPE, OB_TREE_TYPE
+from ..config import IS_DEBUG, VERSATILE_SOCKET_SHAPE, SINGLE_VALUES_SOCKET_SHAPE, VALID_TREES
 from ..base.helper import get_node_id_name
 from ..base.global_data import Data
 import uuid
@@ -34,7 +34,7 @@ class ObmSoundNode:
 
     @classmethod
     def poll(cls, ntree):
-        return ntree.bl_idname == OB_TREE_TYPE
+        return ntree.bl_idname in VALID_TREES
 
     def copy(self, node):
         self.log("copy")

@@ -37,8 +37,9 @@ class SpeakerDataNode(ObmSoundNode,  bpy.types.Node):
 
     def free(self):
         super().free()
-        bpy.msgbus.clear_by_owner(Data.uuid_message_bus[self.uuid_msg_bus])
-        del Data.uuid_message_bus[self.uuid_msg_bus]
+        if self.uuid_msg_bus in Data.uuid_message_bus.keys():
+            bpy.msgbus.clear_by_owner(Data.uuid_message_bus[self.uuid_msg_bus])
+            del Data.uuid_message_bus[self.uuid_msg_bus]
 
     def speaker_update(self):
         speaker = self.inputs[0].input_value
@@ -72,7 +73,7 @@ class SpeakerDataNode(ObmSoundNode,  bpy.types.Node):
             for link in self.outputs[0].links:
                 link.to_socket.input_value = self.outputs[0].input_value
 
-    def refresh_outputs(self):
+    def refresh(self):
         if IS_DEBUG:
             self.log("refresh")
         self.speaker_update()

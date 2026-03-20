@@ -34,12 +34,24 @@ class NodeSocketSoundObm(NodeSocketCnt):
     def draw_color(self, context, node):
         return COLOR_SOUND_SOCKET
 
+    def draw(self, context, layout, node, text):
+        if self.is_output or self.is_linked:
+            layout.label(text=text)
+        else:
+            layout.prop(self, "input_value", text="", placeholder=self.name)
+
 
 class NodeSocketSpeaker(NodeSocketCnt):
     bl_label = "Speaker"
     sock_col = COLOR_SPEAKER_SOCKET
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Speaker",
                                            type=bpy.types.Speaker)  # poll=poll_domain)
+
+    def draw(self, context, layout, node, text):
+        if self.is_output or self.is_linked:
+            layout.label(text=text)
+        else:
+            layout.prop(self, "input_value", text="", placeholder=self.name)
 
 
 class NodeTreeInterfaceSocketSpeaker(NodeTreeInterfaceSocketCnt):

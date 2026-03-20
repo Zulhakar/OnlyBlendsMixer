@@ -74,7 +74,3 @@ class SampleToObjectNode(ObmSampleNode, bpy.types.Node):
         super().socket_update(socket)
         self.__create_object()
 
-
-    @classmethod
-    def poll(cls, ntree):
-        return ntree.bl_idname == OB_TREE_TYPE or ntree.bl_idname == "GeometryNodeTree"
