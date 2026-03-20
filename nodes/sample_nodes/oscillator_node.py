@@ -90,8 +90,9 @@ class OscillatorSampleNode(ObmSampleNode):
         super().copy(node)
         self.socket_update_disabled = False
 
-    def refresh_outputs(self):
-        self.log("refresh_outputs")
+    def refresh(self):
+        if IS_DEBUG:
+            self.log("refresh")
         self.waveform_selection_update()
 
     @classmethod

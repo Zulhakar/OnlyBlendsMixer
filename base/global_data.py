@@ -30,19 +30,6 @@ def __add_depsgraph_handler():
         bpy.app.handlers.depsgraph_update_post.remove(__on_depsgraph_update)
 
 
-def __refresh_nodes():
-    for group in bpy.data.node_groups:
-        for node in group.nodes:
-            if hasattr(node, "refresh_outputs"):
-                node.refresh_outputs()
-
-
-@persistent
-def load_blend_file_job(file_name):
-    # add_depsgraph_handler()
-    __refresh_nodes()
-
-
 class ImportMidi(bpy.types.Operator, ImportHelper):
     """Import a MIDI file"""
 
@@ -81,7 +68,6 @@ class Data:
     uuid_data_storage = {}
     # for import midi node
     uuid_operator_class_storage = {}
-
     @classmethod
     def create_midi_import_panel(cls, parent, node_uuid):
         op_class = create_dynamic_import_midi_op(parent, node_uuid)

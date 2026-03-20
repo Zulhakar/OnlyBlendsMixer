@@ -1,7 +1,6 @@
 import bpy
 from bl_ui import node_add_menu
 
-from .cnt.node_editor.menus import GeometryMenu
 from .cnt.node_editor import register as register_node_editor
 from .cnt.node_editor import unregister as unregister_node_editor
 from .cnt.sockets.basic_sockets import register as register_basic_sockets
@@ -18,7 +17,6 @@ from .sockets import unregister as unregister_mixer_sockets
 
 from .config import OB_TREE_TYPE, MixerSocketTypes, cnt_sockets_list, MIXER_MENU_IDNAME, MIDI_MENU_IDNAME
 
-from .base.global_data import load_blend_file_job
 
 cnt_sockets_list.append((MixerSocketTypes.Sample, "Sample", "Sample"))
 cnt_sockets_list.append((MixerSocketTypes.Sound, "Sound", "Sound"))
@@ -67,7 +65,7 @@ def draw_add_menu(self, context):
     layout.menu(GroupMenu.bl_idname)
     layout.menu(UtilMenu.bl_idname)
     layout.menu(RealtimeMenu.bl_idname)
-    # layout.menu(GeometryMenu.bl_idname)
+    node_add_menu.add_node_type(layout, "ModifierNode")
     layout.menu(SampleMenu.bl_idname)
     layout.menu(SpeakerMenu.bl_idname)
     layout.menu(MidiMenu.bl_idname)
@@ -82,11 +80,10 @@ def register():
     register_class(SampleMenu)
     register_class(SpeakerMenu)
     register_class(MidiMenu)
-    bpy.app.handlers.load_post.append(load_blend_file_job)
 
 
 def unregister():
-    bpy.app.handlers.load_post.remove(load_blend_file_job)
+
     bpy.types.NODE_MT_add.remove(draw_add_menu)
     unregister_class(MidiMenu)
     unregister_class(SampleMenu)

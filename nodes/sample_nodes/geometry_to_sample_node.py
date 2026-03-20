@@ -203,9 +203,9 @@ class GeometryToSampleNode(ObmSampleNode):
         super().copy(node)
         self.socket_update_disabled = False
 
-    def refresh_outputs(self):
+    def refresh(self):
         if IS_DEBUG:
-            self.log("refresh_outputs")
+            self.log("refresh")
         self.update_node_tree(None)
         self.state_update(None)
         bpy.context.scene.geometry_to_sample_nodes_num += 1

@@ -1,7 +1,7 @@
 IS_DEBUG = False
 APP_NAME = "OnlyBlends.Mixer"
 APP_NAME_SHORT = "obm"
-OB_TREE_TYPE = 'MixerNodeTree'
+OB_TREE_TYPE = 'OnlyBlendsMixerNodeTree'
 NEW_NODE_GROUP_NAME = "Mixer Nodes"
 NODE_EDITOR_NAME = "Onlyblends.Mixer Node Editor"
 
@@ -11,12 +11,11 @@ IMPORT_ICON = 'FILEBROWSER'
 COLOR_WHITE = (1.0, 1.0, 1.0, 1.0)
 COLOR_BLACK = (0.0, 0.0, 0.0, 1.0)
 
-
 COLOR_MIDI_SOCKET = COLOR_BLACK
 COLOR_SOUND_SAMPLE_SOCKET = (0.5, 0.5, 0.5, 1.0)
 COLOR_SOUND_SOCKET = COLOR_WHITE
-#COLOR_SPEAKER_SOCKET = COLOR_WHITE
-#COLOR_SPEAKER_SOCKET = (0.75, 0.5, 0.29113924, 1.0)
+# COLOR_SPEAKER_SOCKET = COLOR_WHITE
+# COLOR_SPEAKER_SOCKET = (0.75, 0.5, 0.29113924, 1.0)
 COLOR_SPEAKER_SOCKET = (1, 0.725681, 0.5, 1.0)
 MIXER_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Mixer'
 MIDI_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Midi'
@@ -33,6 +32,7 @@ class MixerSocketTypes:
 NOTE_NAMES_1 = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
 NOTE_NAMES_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
 
+VALID_TREES = [OB_TREE_TYPE, 'OnlyBlendsGamepadNodeTree', 'OnlyBlendsCoreNodeTree']
 ########################################################################################################################
 # don't change this
 from .cnt.base.constants import *

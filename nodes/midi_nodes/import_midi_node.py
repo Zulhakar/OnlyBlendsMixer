@@ -3,8 +3,7 @@ import uuid
 from ..mixer_node import ObmSoundNode
 from ...base.helper import get_node_id_name
 from ...base.global_data import Data
-from ...config import MIDI_IMPORT_OT_ID
-
+from ...config import MIDI_IMPORT_OT_ID, IS_DEBUG
 
 class ImportMidiNode(ObmSoundNode, bpy.types.Node):
     bl_label = "Import MIDI"
@@ -29,8 +28,9 @@ class ImportMidiNode(ObmSoundNode, bpy.types.Node):
         self.inputs[0].input_value = self.import_path
         self.outputs[0].input_value = self.import_path
 
-    def refresh_outputs(self):
-        self.log("refresh_outputs")
+    def refresh(self):
+        if IS_DEBUG:
+            self.log("refresh")
         Data.create_midi_import_panel(self, self.node_uuid)
 
     def socket_update(self, socket):
