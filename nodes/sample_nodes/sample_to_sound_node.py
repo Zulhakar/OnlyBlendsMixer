@@ -2,7 +2,7 @@ import bpy
 import aud
 import tempfile
 import os
-from ..mixer_node import ObmSampleNode
+from ..mixer_node import ObmSoundNode
 from ...config import IS_DEBUG
 from ...base.global_data import Data
 
@@ -25,7 +25,7 @@ def get_container_types():
     return container_types
 
 
-class SampleToSoundNode(ObmSampleNode, bpy.types.Node):
+class SampleToSoundNode(ObmSoundNode, bpy.types.Node):
     '''Transform a Sample to Sound which can be used with a Speaker Node'''
 
     bl_label = "Sample To Sound"

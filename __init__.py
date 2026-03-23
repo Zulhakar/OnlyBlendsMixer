@@ -39,6 +39,7 @@ class SampleMenu(bpy.types.Menu):
         node_add_menu.add_node_type(layout, "ObjectToSampleNode")
         node_add_menu.add_node_type(layout, "SampleToObjectNode")
         node_add_menu.add_node_type(layout, "ImportSoundNodeObm")
+        node_add_menu.add_node_type(layout, "SoundToSampleNode")
 
 class SpeakerMenu(bpy.types.Menu):
     bl_label = "Speaker"

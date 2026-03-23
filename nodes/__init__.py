@@ -8,6 +8,7 @@ from .sample_nodes.sample_to_sound_node import SampleToSoundNode
 from .sample_nodes.track_sample_node import TrackSampleNode
 from .sample_nodes.object_to_sample_node import ObjectToSampleNode
 from .sample_nodes.import_sound_node import ImportSoundNodeObm
+from .sample_nodes.sound_to_sample_node import SoundToSampleNode
 from .speaker_nodes.speaker_link_node import SpeakerLinkNode
 from .speaker_nodes.speaker_data_node import SpeakerDataNode
 from .geometry.sample_to_object import SampleToObjectNode
@@ -15,7 +16,8 @@ from .midi_nodes.note_node import NoteNode
 from .midi_nodes.import_midi_node import ImportMidiNode
 from .midi_nodes.midi_track import MidiToTrackObjectNode
 nodes = [OscillatorSampleNode, SampleToSoundNode, SpeakerLinkNode, SpeakerDataNode, SampleToObjectNode, EditSampleNode,
-         NoteNode, TrackSampleNode, ImportMidiNode, MidiToTrackObjectNode, ObjectToSampleNode, ImportSoundNodeObm]
+         NoteNode, TrackSampleNode, ImportMidiNode, MidiToTrackObjectNode, ObjectToSampleNode, ImportSoundNodeObm,
+         SoundToSampleNode]
 
 
 def register():
