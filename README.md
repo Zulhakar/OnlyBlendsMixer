@@ -25,11 +25,11 @@ It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
 ## Geometry Node Link
 
 - The 'Geometry Modifier Object' Node can manipulate the Input of an Geometry Nodes Modifier
-- You can send Data from Mixer Nodes to Geometry Nodes to controll for example the frequency
+- You can send Data from Mixer Nodes to Geometry Nodes. As an example: To adjust a waves frequency
   
 ![GeometryModifierObject](https://github.com/user-attachments/assets/830d2b7a-520c-4863-8a00-99bdc1de1272)
 - The 'Object to Sample' Node gets Data from Geometry / Objects an creates a Sound Sample
-- You can play Blender Object
+- You could use Blender Objects to play/create sounds
 
 ![Object_to_Sample](https://github.com/user-attachments/assets/83ba9d88-8158-4f50-ad3f-58aa7ed1b55b)
 ## MIDI Import
@@ -38,7 +38,8 @@ It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
 - "MIDI to Track Object" Node to get Note_On, Note_Off events from MIDI files, (more events coming soon)
 - The resulting Object from the "MIDI to Track Object" can be converted to "Sample" with "Track Sample" Node
 - You can observe the Object from "MIDI to Track Object" to see how a Note Sequence are processed from "Track Sample" Node
-- So it is possible to create the Notes via Geometry Nodes and MIDI is only additonal Feature
+- It is possible to create the Notes via Geometry Nodes and MIDI is merely an additonal Feature
+- The Data needed for a "Track Sample" node should have the following attributes: Position.X -> Start_Time, Position.Y -> Duration, Position.Z -> Frequency and Volume
 
 ![Midi_data](https://github.com/user-attachments/assets/f3c59045-f382-40e0-ab8a-42131c37b530)
    
@@ -75,5 +76,5 @@ These donations are purely for the purpose of showing appreciation for my work a
   - Track Sample
   - Import Sound Node
   - Sound To Sample Node
-  - Removed Instrument Node -> Use "Track Sample" Node
+  - Removed "Instrument Node" -> Use "Track Sample" Node
   - Connection to Geometry Nodes via "Geometry Modifier Object" and "Object To Sample"
