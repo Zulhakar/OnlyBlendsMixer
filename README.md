@@ -3,8 +3,7 @@
 It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
 ## Prototype V2
 
-<img width="1852" height="1012" alt="overview" src="https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315" />
-
+![overview](https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315)
 # Features
 
 - Create samples from an 'Oscillator' node with basic waveforms: Sine, Sawtooth, Square and Triangle
@@ -16,40 +15,33 @@ It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
   - ... and many more
   - The functions are mapped from the internal aud libary documented [here](https://docs.blender.org/api/current/aud.html)
 
-  <img width="282" height="382" alt="Bildschirmfoto vom 2025-12-20 01-40-08" src="https://github.com/user-attachments/assets/0c3faae2-f2f0-4e2d-8240-53774659b84d" />
+
+![edit_sample](https://github.com/user-attachments/assets/bbf8efb9-b75d-41f2-a23d-bbaa0503e85e)
 
 - The 'Sample to Sound' Node creates a blender Sound Data block which can be used with Blender's Speaker Object
 - Sound's can be linked with the 'Speaker Link' Node or you can select it in the already existing Speaker Property Panel
 - The Speaker Link Node adjusts the Strip length based on the sample / sound length
-- 'Geometry to Sample' Node
-- 'Sample to Mesh' Node
-- Create music note sequences and use it with a group where an 'Instrument' is defined
-- A Note sequence is a list of 3D-Vectors with (Frequency, Duration, Volume)
-# How To Use It
 
-https://github.com/user-attachments/assets/bdb6c43f-5aad-47e5-8b32-e78b9e9ca526
+## Geometry Node Link
 
-- You can find a new editor as seen below
-
-<img width="865" height="401" alt="New_sound_editor" src="https://github.com/user-attachments/assets/ab0fbfe4-526a-4cf1-a04d-6a61ce8fd7df" />
-
-- You can play sound’s via space bar and render the audio via Render -> Render Audio...
-- Create Sounds with Geometry Nodes
-- <img width="1858" height="1003" alt="geometry_nodes_example" src="https://github.com/user-attachments/assets/a6e8a52e-9c6e-4a52-bde7-26c434989458" />
-
-- 'Geometry To Sample'
-  - Select the Geometry Node Group (Modifier) ->
-  - Select if you want to use the Domain 'Mesh' or 'Point Cloud' ->
-  - Tip in the Attribute name of the Geometry domain, from here on you can:
-  - Map the frequency from the 'Sound Editor' Node to a Geometry Node socket input
+- The 'Geometry Modifier Object' Node can manipulate the Input of an Geometry Nodes Modifier
+- You can send Data from Mixer Nodes to Geometry Nodes to controll for example the frequency
   
-  - If you'd like, download an example .blend with a Geoemtry Node Setup to create waveforms [here](https://github.com/Zulhakar/OnlyBlendsMixer/blob/main/geometry_node_example.blend)
+![GeometryModifierObject](https://github.com/user-attachments/assets/830d2b7a-520c-4863-8a00-99bdc1de1272)
+- The 'Object to Sample' Node gets Data from Geometry / Objects an creates a Sound Sample
+- You can play Blender Object
 
-- 'Instrument' Node
+![Object_to_Sample](https://github.com/user-attachments/assets/83ba9d88-8158-4f50-ad3f-58aa7ed1b55b)
+## MIDI Import
 
-https://github.com/user-attachments/assets/5b97b3b0-9dc3-4ed0-8908-115beef1684b
+- New experimental Feature "Import MIDI" Node
+- "MIDI to Track Object" Node to get Note_On, Note_Off events from MIDI files, (more events coming soon)
+- The resulting Object from the "MIDI to Track Object" can be converted to "Sample" with "Track Sample" Node
+- You can observe the Object from "MIDI to Track Object" to see how a Note Sequence are processed from "Track Sample" Node
+- So it is possible to create the Notes via Geometry Nodes and MIDI is only additonal Feature
 
-
+![Midi_data](https://github.com/user-attachments/assets/f3c59045-f382-40e0-ab8a-42131c37b530)
+   
 # Support Me
 
 [![pay_pal_icon](https://github.com/user-attachments/assets/4b007169-56f8-4f20-9015-cb138cc2e0ff)](https://www.paypal.com/donate/?hosted_button_id=FGQJQHK9ZXG8G)
@@ -63,6 +55,9 @@ These donations are purely for the purpose of showing appreciation for my work a
 ### If you wish to you could join my Discord server
 
 [![discord_icon_64x64](https://github.com/user-attachments/assets/77cbeca8-e9c1-4b2f-9fff-a3c11b3f8cae)](https://discord.gg/rxut2MfZTM)
+# Upcoming Features
+
+- Support for more Midi Events
 
 # Changelog
 ## v0.1.2 Hotfix
@@ -81,4 +76,4 @@ These donations are purely for the purpose of showing appreciation for my work a
   - Import Sound Node
   - Sound To Sample Node
   - Removed Instrument Node -> Use "Track Sample" Node
-
+  - Connection to Geometry Nodes via "Geometry Modifier Object" and "Object To Sample"
