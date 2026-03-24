@@ -68,7 +68,7 @@ class ObjectToSampleNode(ObmSampleNode):
                             track = []
                             values = selected_attr.data.values()
 
-                            if selected_attr.data_type == 'FLOAT_VECTOR':
+                            if selected_attr.data_type == 'FLOAT_VECTOR' and 0 <= axis <= 2 :
                                 for val in values:
                                     track.append(val.vector[axis])
                             elif selected_attr.data_type == 'FLOAT':
