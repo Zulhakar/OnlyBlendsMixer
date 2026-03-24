@@ -27,7 +27,7 @@ class ObjectToSampleNode(ObmSampleNode):
         self.inputs.new("NodeSocketIntCnt", "Axis")
         self.outputs.new("NodeSocketSample", "Sample")
         self.inputs[3].input_value = 0
-        self.inputs[1].input_value = 48000
+        self.inputs[2].input_value = 48000
         super().init(context)
 
     def domain_update(self, context):
