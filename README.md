@@ -1,7 +1,7 @@
-# OnlyBlendsMixer
+# OnlyBlendsMixer 0.5.1 Alpha
 "An extension to turn Blender into a Mixer... of Sounds.
 It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
-## Prototype V0.1
+## Prototype V2
 
 <img width="1852" height="1012" alt="overview" src="https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315" />
 
@@ -72,19 +72,13 @@ These donations are purely for the purpose of showing appreciation for my work a
   - [x] Oscillator Nodes and 'Geometry to Sample' Nodes update the Node tree after loading the .blend file.
   - [X] General fix for 'Geometry to Sample' Node
   
-# Current ToDo's and Upcoming Features for 0.2
-
-- [ ] 'Mesh to Sample' Node 
-  - [ ] Reload from .blend doesn't perform a graph update
-- [ ] If 'Speaker pitch' is changed 'Strip length' also changes
-- [ ] If 'Scene FPS' changes 'Strip length' should also change
-- [ ] Join / Merge vector field
-- [ ] Also deletes Mesh if 'Sample To Mesh' Node is deleted
-- [ ] ...
-
-- [ ] 'Note Node'
-  - [ ] Selectable Octave
-  - [ ] Duration as 1/4 , 1/8 etc.
-  - [ ] Input for BPM
-  - [ ] New sockets: 'Note string'
+## 0.5.1
+  - Complete Refactor
+  - The basic Node functions moved to OnlyBlends.Core https://github.com/Zulhakar/OnlyBlendsCore
+  - MIDI Import
+  - MIDI to Track
+  - Track Sample
+  - Import Sound Node
+  - Sound To Sample Node
+  - Removed Instrument Node -> Use "Track Sample" Node
 
