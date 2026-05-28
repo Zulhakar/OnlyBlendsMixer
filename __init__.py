@@ -30,12 +30,12 @@ class SampleMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        node_add_menu.add_node_type(layout, "OscillatorSampleNode")
-        node_add_menu.add_node_type(layout, "EditSampleNode")
-        node_add_menu.add_node_type(layout, "TrackSampleNode")
-        node_add_menu.add_node_type(layout, "ObjectToSampleNode")
-        node_add_menu.add_node_type(layout, "SampleToObjectNode")
-        node_add_menu.add_node_type(layout, "SoundToSampleNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "OscillatorSampleNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "EditSampleNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "TrackSampleNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "ObjectToSampleNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "SampleToObjectNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "SoundToSampleNode")
 
 
 class SoundMenu(bpy.types.Menu):
@@ -44,8 +44,8 @@ class SoundMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        node_add_menu.add_node_type(layout, "SampleToSoundNode")
-        node_add_menu.add_node_type(layout, "ImportSoundNodeObm")
+        node_add_menu.AddNodeMenu.node_operator(layout, "SampleToSoundNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "ImportSoundNodeObm")
 
 
 class ObMixerMenu(bpy.types.Menu):
@@ -66,8 +66,8 @@ class SpeakerMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        node_add_menu.add_node_type(layout, "SpeakerLinkNode")
-        node_add_menu.add_node_type(layout, "SpeakerDataNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "SpeakerLinkNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "SpeakerDataNode")
 
 
 class MidiMenu(bpy.types.Menu):
@@ -76,9 +76,9 @@ class MidiMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        node_add_menu.add_node_type(layout, "NoteNode")
-        node_add_menu.add_node_type(layout, "ImportMidiNode")
-        node_add_menu.add_node_type(layout, "MidiToTrackObjectNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "NoteNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "ImportMidiNode")
+        node_add_menu.AddNodeMenu.node_operator(layout, "MidiToTrackObjectNode")
 
 
 def draw_add_menu(self, context):
@@ -89,7 +89,7 @@ def draw_add_menu(self, context):
     layout.menu(GroupMenu.bl_idname)
     layout.menu(UtilMenu.bl_idname)
     layout.menu(RealtimeMenu.bl_idname)
-    node_add_menu.add_node_type(layout, "ModifierNode")
+    node_add_menu.AddNodeMenu.node_operator(layout, "ModifierNode")
     layout.menu(ObMixerMenu.bl_idname)
 
 
