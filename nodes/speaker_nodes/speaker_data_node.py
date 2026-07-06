@@ -1,6 +1,6 @@
 import bpy
 from ...nodes.mixer_node import ObmSoundNode
-from ...cnt.base.global_data import Data
+from ...obc_custom_nodes.base.global_data import Data
 from ...config import IS_DEBUG
 import uuid
 

@@ -1,5 +1,5 @@
 import bpy
-from ..cnt.sockets.basic_sockets import NodeTreeInterfaceSocketCnt, NodeSocketCnt
+from ..obc_custom_nodes.sockets.basic_sockets import NodeTreeInterfaceSocketCnt, NodeSocketCnt
 from ..config import COLOR_SOUND_SOCKET, COLOR_SOUND_SAMPLE_SOCKET, COLOR_BLACK, COLOR_SPEAKER_SOCKET
 
 

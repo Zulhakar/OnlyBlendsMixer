@@ -4,7 +4,7 @@ from bpy_extras.io_utils import ImportHelper
 import uuid
 from ..mixer_node import ObmSoundNode
 from ...config import IS_DEBUG
-from ...cnt.base.global_data import Data
+from ...obc_custom_nodes.base.global_data import Data
 
 
 class ImportSoundObm(bpy.types.Operator, ImportHelper):

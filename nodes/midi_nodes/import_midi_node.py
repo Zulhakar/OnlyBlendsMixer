@@ -5,7 +5,7 @@ import uuid
 from ..mixer_node import ObmSoundNode
 from ...base.helper import get_node_id_name
 from ...config import IS_DEBUG
-from ...cnt.base.global_data import Data
+from ...obc_custom_nodes.base.global_data import Data
 
 
 class ImportMidiObm(bpy.types.Operator, ImportHelper):

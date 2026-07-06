@@ -32,7 +32,7 @@ NOTE_NAMES_2 = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
 VALID_TREES = [OB_TREE_TYPE, 'OnlyBlendsGamepadNodeTree', 'OnlyBlendsCoreNodeTree']
 ########################################################################################################################
 # don't change this
-from .cnt.base.constants import *
+from .obc_custom_nodes.base.constants import *
 
 CONSTANTS_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Constants'
 INPUT_MENU_IDNAME = f'NODE_MT_{APP_NAME_SHORT}_Input'

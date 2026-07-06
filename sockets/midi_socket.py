@@ -1,6 +1,6 @@
 import bpy
 from ..config import COLOR_MIDI_SOCKET
-from ..cnt.sockets.basic_sockets import NodeSocketCnt, NodeTreeInterfaceSocketCnt
+from ..obc_custom_nodes.sockets.basic_sockets import NodeSocketCnt, NodeTreeInterfaceSocketCnt
 
 
 class NodeSocketMidi(NodeSocketCnt):
