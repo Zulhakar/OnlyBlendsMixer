@@ -1,3 +1,4 @@
+
 # OnlyBlendsMixer 0.5.1 Alpha
 "An extension to turn Blender into a Mixer... of Sounds.
 It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
@@ -22,16 +23,18 @@ It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
 - Sound's can be linked with the 'Speaker Link' Node or you can select it in the already existing Speaker Property Panel
 - The Speaker Link Node adjusts the Strip length based on the sample / sound length
 
-## Geometry Node Link
+## Geometry Node Modifier
 
-- The 'Geometry Modifier Object' Node can manipulate the Input of an Geometry Nodes Modifier
-- You can send Data from Mixer Nodes to Geometry Nodes. As an example: To adjust a waves frequency
-  
-![GeometryModifierObject](https://github.com/user-attachments/assets/830d2b7a-520c-4863-8a00-99bdc1de1272)
+![GeometryNodes](https://github.com/user-attachments/assets/2dfe8d58-f431-4dc3-98ee-f910f2334e93)
+
+- The 'Modifier Control' Node can manipulate the Input of an Geometry Nodes Modifier and has an Object as Output Socket (the Geometry of the Modifier)
+- This means you can send Data from Mixer Nodes to Geometry Nodes
 - The 'Object to Sample' Node gets Data from Geometry / Objects an creates a Sound Sample
-- You could use Blender Objects to play/create sounds
 
-![Object_to_Sample](https://github.com/user-attachments/assets/83ba9d88-8158-4f50-ad3f-58aa7ed1b55b)
+![MixerNodesModifierControl](https://github.com/user-attachments/assets/4b1f78fc-3b44-46f8-9f3d-6bf44c2653e2)
+![Spreadsheet](https://github.com/user-attachments/assets/23cf965e-7bdd-4282-8705-3533839e7309)
+
+
 ## MIDI Import
 
 - New experimental Feature "Import MIDI" Node
@@ -80,3 +83,4 @@ These donations are purely for the purpose of showing appreciation for my work a
   - Connection to Geometry Nodes via "Geometry Modifier Object" and "Object To Sample"
 ## 0.5.2
   - small changes for blender 5.2 and to get listed on the extensions platform again
+  - Connection to Geometry Nodes via "Modifier Control" and "Object To Sample"
