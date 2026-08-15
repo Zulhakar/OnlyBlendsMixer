@@ -1,10 +1,9 @@
 
-# OnlyBlendsMixer 0.5.2
+# OnlyBlendsMixer 0.5.2 LastPrototype
 "An extension to turn Blender into a Mixer... of Sounds.
 It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
-## Prototype V2
 
-![overview](https://github.com/user-attachments/assets/daf4c5b4-f44c-46dd-8a6c-5ac2a4fa0315)
+![PreviewOBM](https://github.com/user-attachments/assets/2dfe8d58-f431-4dc3-98ee-f910f2334e93)
 # Features
 
 - Create samples from an 'Oscillator' node with basic waveforms: Sine, Sawtooth, Square and Triangle
@@ -61,7 +60,7 @@ These donations are purely for the purpose of showing appreciation for my work a
 [![discord_icon_64x64](https://github.com/user-attachments/assets/77cbeca8-e9c1-4b2f-9fff-a3c11b3f8cae)](https://discord.gg/rxut2MfZTM)
 # Upcoming Features
 
-- Support for more Midi Events
+- ALGOWAVE
 
 # Changelog
 ## v0.1.2 Hotfix
