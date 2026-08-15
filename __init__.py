@@ -89,7 +89,7 @@ def draw_add_menu(self, context):
     layout.menu(GroupMenu.bl_idname)
     layout.menu(UtilMenu.bl_idname)
     layout.menu(RealtimeMenu.bl_idname)
-    node_add_menu.AddNodeMenu.node_operator(layout, "ModifierNode")
+    node_add_menu.AddNodeMenu.node_operator(layout, "ModifierControlNode")
     layout.menu(ObMixerMenu.bl_idname)
 
 
