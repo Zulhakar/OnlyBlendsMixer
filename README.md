@@ -78,3 +78,5 @@ These donations are purely for the purpose of showing appreciation for my work a
   - Sound To Sample Node
   - Removed "Instrument Node" -> Use "Track Sample" Node
   - Connection to Geometry Nodes via "Geometry Modifier Object" and "Object To Sample"
+## 0.5.2
+  - small changes for blender 5.2 and to get listed on the extensions platform again
