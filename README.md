@@ -1,5 +1,5 @@
 
-# OnlyBlendsMixer 0.5.1 Alpha
+# OnlyBlendsMixer 0.5.2 Beta
 "An extension to turn Blender into a Mixer... of Sounds.
 It's a new 'Sound Node' Editor to build Synthesizer's and design Audio."
 ## Prototype V2
