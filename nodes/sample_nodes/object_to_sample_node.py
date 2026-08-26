@@ -45,12 +45,15 @@ class ObjectToSampleNode(ObmSampleNode):
             obj_eval = depsgraph.id_eval_get(obj)
             if obj_eval.is_evaluated:
                 geometry = obj_eval.evaluated_geometry()
+                if geometry is None:
+                    return None
                 if self.domain == "POINTCLOUD":
                     domain_data = geometry.pointcloud
                 elif self.domain == "MESH":
                     domain_data = geometry.mesh
                 else:
                     domain_data = None
+                if domain_data is None:
                     return None
                 if attr_name in domain_data.attributes:
                     selected_attr = domain_data.attributes[attr_name]
