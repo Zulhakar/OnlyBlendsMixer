@@ -1,5 +1,4 @@
 import bpy
-
 from ...config import IS_DEBUG
 from ..mixer_node import ObmSoundNode
 from ...base.helper import get_length_and_specs_from_sound
@@ -43,12 +42,8 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.Node):
             if action_name in bpy.data.actions:
                 bpy.data.actions.remove(bpy.data.actions[action_name])
             action = bpy.data.actions.new(action_name)
-
             speaker.animation_data.action = action
             strip_name = f"{speaker.name}_Strip"
-            # if strip_name not in bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips and len(bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips) <= 0:
-            #    strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips.new(strip_name, 0, action)
-            # else:
             strip = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[0]
             try:
                 strip_frame_length = calculation_of_length(sound)
@@ -68,14 +63,16 @@ class SpeakerLinkNode(ObmSoundNode, bpy.types.Node):
                         strip_to_remove = bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips[
                             strip_name]
                         strip_to_remove.frame_end = 0.0
-                        # bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].strips.remove(strip_to_remove)
-                    # for strip in bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"]:
-                    #    if strip_name == strip.name:
-                    #        bpy.data.objects[speaker.name].animation_data.nla_tracks["SoundTrack"].remove(strip)
-                    #        break
             if speaker and speaker.name not in bpy.data.objects:
                 self.inputs[0].input_value = None
 
+    def recompute(self):
+        self.link_sound_and_speaker()
+
     def socket_update(self, socket):
         super().socket_update(socket)
-        self.link_sound_and_speaker()
+        if not socket.is_output:
+            self.link_sound_and_speaker()
+        else:
+            for link in socket.links:
+                link.to_socket.input_value = socket.input_value

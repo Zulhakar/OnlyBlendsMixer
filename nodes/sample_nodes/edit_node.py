@@ -12,7 +12,6 @@ class EditSampleNode(ObmSampleNode):
     operations = [
         ('volume', "Volume", "Changes the volume of a sound."),
         ('pitch', "Pitch", "Changes the pitch of a sound with a specific factor."),
-        # ('RECHANNEL', "Rechannels", "Rechannels the sound."),
         ('threshold', "Threshold",
          "Makes a threshold wave out of an audio wave by setting all samples with a amplitude >= threshold to 1, all <= -threshold to -1 and all between to 0."),
         (None),
@@ -38,17 +37,14 @@ class EditSampleNode(ObmSampleNode):
         (None),
         ('limit', "Limit", "Limits a sample within a specific start and end time."),
         ('loop', "Loop", "Loops a Sample"),
-
         (None),
         ('pingpong', "Pingpong",
          "Plays a sound forward and then backward. This is like joining a sound with its reverse."),
         ('reverse', "Reverse", "Plays a sound reversed"),
         ('sum', "Sum", "Sums the samples of a sound."),
         ('cache', "Cache", "Caches a sound into RAM."),
-
         (None),
         ('resample', "Resample", "Resamples the sound.")
-
     ]
     operation: bpy.props.EnumProperty(  # type: ignore
         name="Operation"
@@ -139,8 +135,6 @@ class EditSampleNode(ObmSampleNode):
         sockets = []
         if self.operation == 'accumulate':
             sockets = [bool_additive_s]
-        #        elif self.operation in ('pingpong', 'reverse', 'sum'):
-        #            sockets = []
         elif self.operation in ('modulate', 'mix', 'join'):
             sockets = [sample2_s]
         elif self.operation == 'envelope' or self.operation == 'ADSR':
@@ -164,8 +158,6 @@ class EditSampleNode(ObmSampleNode):
                 int1_count_s.input_value = 0
             sockets = [int1_count_s]
         elif self.operation in ('highpass', 'lowpass'):
-            # recursion
-            # float2_s.input_value = 0.5
             sockets = [float3_frequency_s, float4_q_s]
         elif self.operation in ('pitch', 'volume', 'threshold', 'delay'):
             sockets = [float13_factor_s]
@@ -189,6 +181,8 @@ class EditSampleNode(ObmSampleNode):
             layout.label(text="Length: " + str(Data.uuid_data_storage[self.node_uuid].length))
         layout.prop(self, "operation", text="")
 
+    def recompute(self):
+        self.operation_update()
 
     def socket_update(self, socket):
         if IS_DEBUG:
@@ -204,7 +198,6 @@ class EditSampleNode(ObmSampleNode):
         if len(self.inputs) > 0:
             if not self.inputs[0].is_linked:
                 self.inputs[0].input_value = ""
-
 
     def copy(self, node):
         self.socket_update_disabled = True

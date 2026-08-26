@@ -79,6 +79,12 @@ class OscillatorSampleNode(ObmSampleNode):
             layout.label(text="Length: " + str(Data.uuid_data_storage[self.node_uuid].length))
         layout.prop(self, "waveform_selection", text="")
 
+    def recompute(self):
+        # Called by the tree evaluator.
+        # Note: waveform_selection_update also propagates to links, which is safe
+        # but redundant during evaluation (the tree evaluator handles propagation).
+        self.waveform_selection_update()
+
     def socket_update(self, socket):
         super().socket_update(socket)
         if not self.socket_update_disabled:

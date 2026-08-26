@@ -2,6 +2,7 @@ import bpy
 from ..config import IS_DEBUG, VERSATILE_SOCKET_SHAPE, SINGLE_VALUES_SOCKET_SHAPE, VALID_TREES
 from ..base.helper import get_node_id_name
 from ..base.global_data import Data
+from ..obc_custom_nodes.base.constants import CntSocketTypes
 import uuid
 
 class ObmSoundNode:
@@ -36,6 +37,11 @@ class ObmSoundNode:
     def poll(cls, ntree):
         return ntree.bl_idname in VALID_TREES
 
+    def recompute(self):
+        """Recompute this node's outputs from its current inputs.
+        Override in subclasses that actually compute something."""
+        pass
+
     def copy(self, node):
         self.log("copy")
         self.sound_data_init()
@@ -53,12 +59,16 @@ class ObmSoundNode:
 
     def insert_link(self, link):
         self.log("insert_link")
-        if link.to_socket.bl_idname != link.from_socket.bl_idname:
+        if link.to_socket.bl_idname == link.from_socket.bl_idname:
+            link.is_valid = True
+        elif link.to_socket.bl_idname == CntSocketTypes.Float and link.from_socket.bl_idname == CntSocketTypes.Integer:
+            link.is_valid = True
+        elif link.to_socket.bl_idname == CntSocketTypes.Integer and link.from_socket.bl_idname == CntSocketTypes.Float:
+            link.is_valid = True
+        else:
             if IS_DEBUG:
                 print("Wrong Socket ", str(link.from_socket.bl_idname))
             link.is_valid = False
-        else:
-            link.is_valid = True
         if link.is_valid and not self.mute:
             for input in self.inputs:
                 if link.to_socket == input:
@@ -67,7 +77,6 @@ class ObmSoundNode:
                     else:
                         if link.to_socket.bl_idname != "FloatVectorFieldSocketType":
                             input.input_value = link.from_socket.input_value
-
         else:
             pass
 
@@ -75,10 +84,9 @@ class ObmSoundNode:
         self.log("update")
 
     def socket_update(self, socket):
+        if getattr(self, 'socket_update_disabled', False):
+            return
         self.log("socket_update")
-        if IS_DEBUG:
-            if self.socket_update_disabled:
-                print("socket_update_disabled")
 
     def socket_value_update(self, context):
         self.log("socket_value_update")

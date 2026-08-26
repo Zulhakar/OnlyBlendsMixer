@@ -6,16 +6,6 @@ from ..mixer_node import ObmSoundNode
 from ...config import IS_DEBUG
 from ...base.global_data import Data
 
-#Todo: remove it to music_util
-# def get_sample_rates():
-#     sample_rates = []
-#     all_members = aud.__dict__
-#     for member in all_members:
-#         if member.startswith("RATE_") and not member.startswith("RATE_INVALID"):
-#             sample_rates.append((member, member.split("_")[1], ""))
-#     return sample_rates
-
-
 def get_container_types():
     container_types = []
     all_members = aud.__dict__
@@ -31,31 +21,16 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.Node):
     bl_label = "Sample To Sound"
     bl_icon = 'FILE_SOUND'
 
-    #remove it to music_util
-    # sample_rate_selection: bpy.props.EnumProperty(  # type: ignore
-    #     name="Sample Rates"
-    #     , items=get_sample_rates()
-    #     , default='RATE_48000'
-    #     , update=lambda self, context: self.sample_rate_update()
-    # )
     container_selection: bpy.props.EnumProperty(  # type: ignore
         name="Container"
         , items=get_container_types()
-        # , default='RATE_48000'
         , update=lambda self, context: self.container_update()
     )
-
-    #remove it
-    #def sample_rate_update(self):
-    #    sample_rate_socket = self.inputs[1]
-    #    sample_rate_socket.input_value = getattr(aud, self.sample_rate_selection)
 
     def container_update(self):
         self.store_data()
 
     def draw_buttons(self, context, layout):
-        #remove it
-        #layout.prop(self, "sample_rate_selection", text="Rate")
         layout.prop(self, "container_selection", text="")
 
     def init(self, context):
@@ -75,8 +50,6 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.Node):
             sample_rate = self.inputs[1].input_value
             tmp_dir = tempfile.gettempdir()
             tmp_path = os.path.join(tmp_dir, f"{self.name}")
-            #remove it
-            #sound_sample.write(tmp_path, rate=getattr(aud, self.sample_rate_selection), container=getattr(aud, self.container_selection))
             sound_sample.write(tmp_path, rate=sample_rate, container=getattr(aud, self.container_selection))
             new_data = bpy.data.sounds.load(tmp_path, check_existing=True)
             self.outputs[0].input_value = new_data
@@ -87,13 +60,15 @@ class SampleToSoundNode(ObmSoundNode, bpy.types.Node):
                 bpy.data.sounds.remove(self.outputs[0].input_value)
             self.outputs[0].input_value = None
 
-
     def free(self):
         super().free()
         sound = self.outputs[0].input_value
         if sound:
             sound.user_clear()
             bpy.data.sounds.remove(sound)
+
+    def recompute(self):
+        self.store_data()
 
     def socket_update(self, socket):
         super().socket_update(socket)

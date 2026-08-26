@@ -8,19 +8,10 @@ def new_object(ob_name, notes):
     pos = list(zip(start_time, duration, note))
     me = bpy.data.meshes.new(ob_name + "Mesh")
     ob = bpy.data.objects.new(ob_name, me)
-    # coords = [[0.0]* 3] * len(notes)
     me.from_pydata(pos, [], [])
-    # ob.show_name = True
     me.update()
-
-    # start_time_attr = me.attributes.new(name="start_time", type="FLOAT", domain="POINT")
-    # start_time_attr.data.foreach_set("value", start_time)
-    # duration_attr = me.attributes.new(name="duration", type="FLOAT", domain="POINT")
-    # duration_attr.data.foreach_set("value", duration)
     volume_attr = me.attributes.new(name="volume", type="FLOAT", domain="POINT")
     volume_attr.data.foreach_set("value", volume)
-    # note_attr = me.attributes.new(name="note", type="FLOAT", domain="POINT")
-    # note_attr.data.foreach_set("value", note)
     return ob, me
 
 
@@ -117,11 +108,13 @@ class MidiToTrackObjectNode(ObmSoundNode, bpy.types.Node):
             self.__del_object_if_exit(name)
             self.__del_object_if_exit(self.last_file_name)
             self.last_file_name = name
-
             if len(notes) > 0:
                 obj, _ = new_object(name, notes)
                 bpy.context.collection.objects.link(obj)
                 self.outputs[0].input_value = obj
+
+    def recompute(self):
+        self.get_track()
 
     def socket_update(self, socket):
         if not socket.is_output:

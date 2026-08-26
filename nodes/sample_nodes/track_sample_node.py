@@ -66,7 +66,6 @@ def mix_overlapping_group(group, parts, sample, sample_rate):
         start_time, duration, frequency, volume = part
         end_time = start_time + duration
         start_time_diff = start_time - start
-        # if start_time_diff > 0:
         start_sample = aud.Sound.silence(sample_rate).limit(0.0, start_time_diff)
 
         middle_sample = pitch_sample_from_frequency(frequency, sample)
@@ -79,14 +78,12 @@ def mix_overlapping_group(group, parts, sample, sample_rate):
         middle_sample = middle_sample.limit(0, duration)
 
         end_time_diff = end - end_time
-        # if end_time_diff > 0:
         end_sample = aud.Sound.silence(sample_rate).limit(0.0, end_time_diff)
         s_m_e_sample = start_sample.join(middle_sample).join(end_sample)
         if final_sample is None:
             final_sample = s_m_e_sample
         else:
             final_sample = final_sample.mix(s_m_e_sample)
-            # middle_sample = start_sample.join()
 
     return final_sample
 
@@ -115,8 +112,6 @@ class TrackSampleNode(ObmSampleNode):
             depsgraph = bpy.context.evaluated_depsgraph_get()
 
             obj_eval = depsgraph.id_eval_get(obj)
-            # self.node_tree.interface.active.hide_in_modifier = True
-            # self.node_tree.interface.active.hide_in_modifier = False
             if obj_eval.is_evaluated:
                 geometry = obj_eval.evaluated_geometry()
                 domain_data = None
@@ -139,7 +134,6 @@ class TrackSampleNode(ObmSampleNode):
                     for attr in attr_list:
                         value = attr_dict[attr][i]
                         if attr == "position":
-                            #start_time , note, volume = value.value
                             pack.extend(tuple(value.vector))
                         else:
                             pack.append(value.value)
@@ -148,8 +142,6 @@ class TrackSampleNode(ObmSampleNode):
                 sequence = sorted(sequence, key=lambda x: x[0])
 
                 d = find_overlaps(sequence)
-                # for item in sequence:
-                #    end_time = item[0] + item[1]
                 final_sample = None
                 for item in d:
                     mixed_sample = mix_overlapping_group(item, sequence, sample, sample_rate)
@@ -166,6 +158,9 @@ class TrackSampleNode(ObmSampleNode):
                 del Data.uuid_data_storage[self.outputs[0].input_value]
                 self.outputs[0].input_value = ""
             return None
+
+    def recompute(self):
+        self.get_attributes("MESH")
 
     def socket_update(self, socket):
         super().socket_update(socket)

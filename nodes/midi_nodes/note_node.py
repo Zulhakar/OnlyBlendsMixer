@@ -1,5 +1,4 @@
 import bpy
-
 from ...base.helper import create_note_dict, create_note_enum_items
 from ..mixer_node import ObmSoundNode
 
@@ -11,7 +10,7 @@ class NoteNode(ObmSoundNode, bpy.types.Node):
 
     notes_dict = create_note_dict()[0]
 
-    note: bpy.props.EnumProperty(  # type: ignore
+    note: bpy.props.EnumProperty(
         name="Note"
         , items=create_note_enum_items(notes_dict)
         , default="A2"
@@ -31,11 +30,16 @@ class NoteNode(ObmSoundNode, bpy.types.Node):
         self.outputs.new("NodeSocketIntCnt", "Midi Note")
         self.outputs.new("NodeSocketStringCnt", "Name #")
         self.outputs.new("NodeSocketStringCnt", "Name b")
-
         self.note_update()
         super().init(context)
 
+    def recompute(self):
+        self.note_update()
+
     def socket_update(self, socket):
         super().socket_update(socket)
-        for link in socket.links:
-            link.to_socket.input_value = socket.input_value
+        if not socket.is_output:
+            self.note_update()
+        else:
+            for link in socket.links:
+                link.to_socket.input_value = socket.input_value

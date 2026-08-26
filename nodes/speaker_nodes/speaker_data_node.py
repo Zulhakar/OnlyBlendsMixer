@@ -4,6 +4,7 @@ from ...obc_custom_nodes.base.global_data import Data
 from ...config import IS_DEBUG
 import uuid
 
+
 def strip_frame_start_end_changed(*args):
     self = args[0]
     strip = args[1]
@@ -11,12 +12,11 @@ def strip_frame_start_end_changed(*args):
         self.outputs[0].input_value = strip.frame_end - strip.frame_start
 
 
-class SpeakerDataNode(ObmSoundNode,  bpy.types.Node):
+class SpeakerDataNode(ObmSoundNode, bpy.types.Node):
     '''Speaker Data Node to get data from Speaker'''
     bl_label = "Speaker Data"
     bl_icon = 'OUTLINER_DATA_SPEAKER'
     uuid_msg_bus: bpy.props.StringProperty()
-
 
     def init(self, context):
         self.inputs.new('NodeSocketSpeaker', "Speaker")
@@ -49,7 +49,6 @@ class SpeakerDataNode(ObmSoundNode,  bpy.types.Node):
             Data.uuid_message_bus[self.uuid_msg_bus] = msg_bus_obj
             bpy.msgbus.subscribe_rna(
                 key=strip.path_resolve("frame_end_ui", False),
-                # key=(bpy.types.NlaStrip, "frame_end_ui"),
                 owner=msg_bus_obj,
                 args=(self, strip,),
                 notify=strip_frame_start_end_changed,
@@ -62,6 +61,9 @@ class SpeakerDataNode(ObmSoundNode,  bpy.types.Node):
                 notify=strip_frame_start_end_changed,
                 options={'PERSISTENT'}
             )
+
+    def recompute(self):
+        self.get_speaker_data()
 
     def socket_update(self, socket):
         if socket == self.inputs[0]:

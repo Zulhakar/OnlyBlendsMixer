@@ -14,13 +14,18 @@ class SoundToSampleNode(ObmSampleNode):
         self.inputs.new("NodeSocketSoundObm", "Sound")
         super().init(context)
 
+    def recompute(self):
+        if self.inputs[0].input_value:
+            Data.uuid_data_storage[self.node_uuid] = aud.Sound.file(self.inputs[0].input_value.filepath)
+            self.outputs[0].input_value = self.node_uuid
+
     def socket_update(self, socket):
         if IS_DEBUG:
             super().log("socket_update")
         if not socket.is_output:
-
-            Data.uuid_data_storage[self.node_uuid] = aud.Sound.file(socket.input_value.filepath)
-            self.outputs[0].input_value = self.node_uuid
+            if self.inputs[0].input_value:
+                Data.uuid_data_storage[self.node_uuid] = aud.Sound.file(self.inputs[0].input_value.filepath)
+                self.outputs[0].input_value = self.node_uuid
         else:
             for link in self.outputs[0].links:
                 link.to_socket.input_value = self.node_uuid
