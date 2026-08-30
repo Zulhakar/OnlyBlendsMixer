@@ -83,3 +83,8 @@ These donations are purely for the purpose of showing appreciation for my work a
 ## 0.5.2
   - small changes for blender 5.2 and to get listed on the extensions platform again
   - Connection to Geometry Nodes via "Modifier Control" and "Object To Sample"
+
+## 0.5.2-1
+  - OnlyBlends.Core Update
+    - The group functionality should now be usable
+    - Modifier Control Node have correct Socket Names and Menu Socket can be changed via OBC String
