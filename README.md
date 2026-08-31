@@ -88,3 +88,7 @@ These donations are purely for the purpose of showing appreciation for my work a
   - OnlyBlends.Core Update
     - The group functionality should now be usable
     - Modifier Control Node have correct Socket Names and Menu Socket can be changed via OBC String
+## 0.5.2-2
+  - fix make_group bugs
+  - Modifier Control support Sound Sockets for Geometry Node Sound Sockets
+  - OBM Sound Socket color equals Blender Sound Socket color
