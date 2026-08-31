@@ -13,7 +13,7 @@ def point_cloud(ob_name, coords):
     me.update()
     return ob, me
 
-
+#TODO: why ObmSampleNode?
 class SampleToObjectNode(ObmSampleNode, bpy.types.Node):
     '''Generate Mesh from Sound Sample'''
     bl_label = "Sample To Object"

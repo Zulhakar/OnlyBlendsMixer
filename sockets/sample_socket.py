@@ -24,6 +24,8 @@ class NodeTreeInterfaceSocketSoundObm(NodeTreeInterfaceSocketCnt):
     bl_socket_idname = 'NodeSocketSoundObm'
     obm_socket_type = bl_socket_idname
 
+    def draw_color(self, context, node):
+        return COLOR_SOUND_SOCKET
 
 class NodeSocketSoundObm(NodeSocketCnt):
     bl_label = "Sound"
@@ -31,8 +33,7 @@ class NodeSocketSoundObm(NodeSocketCnt):
     input_value: bpy.props.PointerProperty(update=lambda self, context: self.update_prop(), name="Sound",
                                            type=bpy.types.Sound)  # poll=poll_domain)
 
-    def draw_color(self, context, node):
-        return COLOR_SOUND_SOCKET
+
 
     def draw(self, context, layout, node, text):
         if self.is_output or self.is_linked:
