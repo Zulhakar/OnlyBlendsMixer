@@ -1,9 +1,11 @@
 import bpy
 import aud
+import uuid
 
 from ..mixer_node import ObmSampleNode
 from ...config import IS_DEBUG
 from ...base.global_data import Data
+import copy
 
 class EditSampleNode(ObmSampleNode):
     '''Different functions to edit Samples. For example to limit the endless sample of an oscillator.'''
@@ -52,6 +54,9 @@ class EditSampleNode(ObmSampleNode):
         , default='limit'
         , update=lambda self, context: self.operation_update())
 
+    node_uuid2: bpy.props.StringProperty()
+    node_uuid3: bpy.props.StringProperty()
+
     def init(self, context):
         self.outputs.new('NodeSocketSample', "Sample")
         self.inputs.new('NodeSocketSample', "Sample")
@@ -76,6 +81,11 @@ class EditSampleNode(ObmSampleNode):
         self.toggle_sockets(self.inputs[1:], True)
         self.toggle_sockets([float1_start_s, float2_end_s], False)
         super().init(context)
+        self.node_uuid2 = str(uuid.uuid4()).replace("-", "")
+        Data.uuid_data_storage[self.node_uuid2] = None
+        self.node_uuid3 = str(uuid.uuid4()).replace("-", "")
+        Data.uuid_data_storage[self.node_uuid3] = None
+
         q.input_value = 0.5
         s_r_s.input_value = 48000
 
@@ -86,10 +96,16 @@ class EditSampleNode(ObmSampleNode):
 
     def execute_sound_functions(self, function_name, sockets):
         self.toggle_sockets(sockets, False)
-        if self.inputs[0].input_value != "":
-            parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        #if self.inputs[0].input_value != "":
+        #    parent_sample = Data.uuid_data_storage[self.inputs[0].input_value]
+        #else:
+        #    parent_sample = None
+
+        if self.node_uuid2 in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid2] is not None:
+            parent_sample = aud.Sound.buffer(Data.uuid_data_storage[self.node_uuid2], 44100)
         else:
             parent_sample = None
+
         if parent_sample:
             values = []
             sample_function = getattr(parent_sample, function_name)
@@ -97,8 +113,9 @@ class EditSampleNode(ObmSampleNode):
                 if socket.bl_idname != "NodeSocketSample":
                     values.append(socket.input_value)
                 else:
-                    if socket.input_value != "" and socket.input_value in Data.uuid_data_storage:
-                        values.append(Data.uuid_data_storage[socket.input_value])
+                    if self.node_uuid3 in Data.uuid_data_storage and Data.uuid_data_storage[
+                        self.node_uuid3] is not None:
+                        values.append(aud.Sound.buffer(Data.uuid_data_storage[self.node_uuid3], 44100))
                     else:
                         return parent_sample
             if function_name in ('modulate', 'mix', 'join'):
@@ -106,8 +123,11 @@ class EditSampleNode(ObmSampleNode):
                     return parent_sample
             return sample_function(*values)
         else:
-            if function_name in ('modulate', 'mix', 'join') and sockets[0].is_linked and sockets[0].input_value in Data.uuid_data_storage:
-                return Data.uuid_data_storage[sockets[0].input_value]
+            if function_name in ('modulate', 'mix', 'join') and sockets[0].is_linked:
+                if self.node_uuid3 in Data.uuid_data_storage and Data.uuid_data_storage[self.node_uuid3] is not None:
+                    return aud.Sound.buffer(Data.uuid_data_storage[self.node_uuid3], 44100)
+                else:
+                    return None
             else:
                 return None
 
@@ -191,6 +211,14 @@ class EditSampleNode(ObmSampleNode):
                 print("socket_update_disabled")
         if not self.socket_update_disabled:
             if socket != self.outputs[0]:
+                #if socket == self.inputs[0]:
+                #    Data.uuid_data_storage[self.node_uuid2] = copy.deepcopy(Data.uuid_data_storage[socket.input_value].data())
+                #elif socket == self.inputs[18]:
+                #    Data.uuid_data_storage[self.node_uuid3] = copy.deepcopy(Data.uuid_data_storage[socket.input_value].data())
+                if socket == self.inputs[0]:
+                    Data.uuid_data_storage[self.node_uuid2] = Data.uuid_data_storage[socket.input_value].data()
+                elif socket == self.inputs[18]:
+                    Data.uuid_data_storage[self.node_uuid3] = Data.uuid_data_storage[socket.input_value].data()
                 self.operation_update()
 
     def update(self):

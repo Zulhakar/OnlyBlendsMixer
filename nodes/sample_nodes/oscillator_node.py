@@ -5,7 +5,7 @@ from ..mixer_node import ObmSampleNode
 from ...config import IS_DEBUG, OB_TREE_TYPE
 from ...base.global_data import Data
 import mathutils
-
+import uuid
 
 class OscillatorSampleNode(ObmSampleNode):
     '''Oscillator to create synthetic sounds. Output is a Sample Socket with infinit duration.'''
@@ -55,7 +55,7 @@ class OscillatorSampleNode(ObmSampleNode):
             new_sample = new_sample.limit(0.0, 0.01)
         else:
             new_sample = new_sample.limit(0.0, self.inputs[2].input_value)
-        Data.uuid_data_storage[self.node_uuid] = new_sample.cache()
+        Data.uuid_data_storage[self.node_uuid] = new_sample
         self.outputs[0].input_value = self.node_uuid
         for link in self.outputs[0].links:
             link.to_socket.input_value = self.outputs[0].input_value
@@ -92,9 +92,13 @@ class OscillatorSampleNode(ObmSampleNode):
                 self.waveform_selection_update()
 
     def copy(self, node):
-        self.socket_update_disabled = True
+        #self.socket_update_disabled = True
         super().copy(node)
-        self.socket_update_disabled = False
+        #self.node_uuid = node.node_uuid
+        self.node_uuid = str(uuid.uuid4()).replace("-", "")
+        Data.uuid_data_storage[self.node_uuid] = None
+
+        #self.socket_update_disabled = False
 
     def refresh(self):
         if IS_DEBUG:

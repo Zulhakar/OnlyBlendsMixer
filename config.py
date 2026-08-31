@@ -1,4 +1,4 @@
-IS_DEBUG = False
+IS_DEBUG = True
 APP_NAME = "OnlyBlends.Mixer"
 APP_NAME_SHORT = "obm"
 OB_TREE_TYPE = 'OnlyBlendsMixerNodeTree'
